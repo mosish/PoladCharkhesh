@@ -1,0 +1,6 @@
+{
+  "name": "PoladCharkhesh Bearings & Sealing Solutions",
+  "description": "Technical bearing catalog, interactive 3D kinematic CAD visualization, and ISO engineering calculation tools by PoladCharkhesh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
