@@ -94,11 +94,11 @@ export const COMPANY_INFO: CompanyContactInfo = {
   streetEn: 'Dardasht Street',
   plate: '۴۳۳',
 
-  // Operational schedule
-  workingHoursFa: 'شنبه تا چهارشنبه: ۸:۳۰ الی ۱۸:۰۰ | پنجشنبه: ۸:۳۰ الی ۱۴:۰۰',
-  workingHoursEn: 'Sat - Wed: 8:30 AM - 6:00 PM | Thu: 8:30 AM - 2:00 PM',
-  workingHoursShortFa: '۸:۳۰ الی ۱۸:۰۰',
-  workingHoursShortEn: '8:30 AM - 6:00 PM',
+  // Operational schedule (Standardized 08:00 - 16:00)
+  workingHoursFa: 'شنبه تا چهارشنبه: ۰۸:۰۰ الی ۱۶:۰۰',
+  workingHoursEn: 'Sat - Wed: 08:00 - 16:00',
+  workingHoursShortFa: '۰۸:۰۰ الی ۱۶:۰۰',
+  workingHoursShortEn: '08:00 - 16:00',
 
   maps: {
     google: 'https://maps.google.com/?q=35.7335,51.5125',

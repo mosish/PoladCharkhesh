@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   RotateCw, 
-  Ruler, 
-  Flame,
-  Gauge,
-  Thermometer,
-  Disc,
-  Layers,
-  ChevronLeft,
+  Layers, 
+  Play, 
+  Pause, 
+  ChevronLeft, 
   ChevronRight,
-  Info,
-  Shield,
-  Zap,
-  CheckCircle2,
-  AlertTriangle
+  Cpu,
+  Compass,
+  Thermometer,
+  Eye,
+  Info
 } from 'lucide-react';
 import { Language } from '../types';
 
@@ -43,6 +40,7 @@ interface PartMeta {
   code: string;
   brand: string;
   standard: string;
+  material: string;
   d: number; // inner bore (mm)
   D: number; // outer dia (mm)
   B: number; // width (mm)
@@ -51,6 +49,8 @@ interface PartMeta {
   elementCount: number;
   contactAngle?: string;
   clearance?: string;
+  cageTypeFa: string;
+  cageTypeEn: string;
   loadTypeFa: string;
   loadTypeEn: string;
   tagFa: string;
@@ -59,15 +59,13 @@ interface PartMeta {
 
 export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ language }) => {
   const [selectedType, setSelectedType] = useState<SelectedBearingType>('deep-groove');
-  const [selectedCategory, setSelectedCategory] = useState<PartCategory>('all');
-  const [viewMode, setViewMode] = useState<'3d' | 'dimensions' | 'thermal'>('3d');
+  // Unified view modes: '3d' for 3D Kinematic Motion, 'engineering-cutaway' for Integrated CAD Cutaway + ISO Dimensions
+  const [viewMode, setViewMode] = useState<'3d' | 'engineering-cutaway'>('3d');
+  const [showThermalOverlay, setShowThermalOverlay] = useState<boolean>(false);
   
-  // Speed & Temperature Controls
-  const [speedLevel, setSpeedLevel] = useState<number>(100); // 100 RPM default
-  const [manualTempC, setManualTempC] = useState<number | null>(null);
-  const [sealType, setSealType] = useState<'open' | '2rs' | '2z'>('open');
-  
-  // Kinematics Angles
+  // Kinematics & Motion state
+  const [speedRpm, setSpeedRpm] = useState<number>(30); // Gentle 30 RPM inspection speed
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [rotationAngle, setRotationAngle] = useState<number>(0);
   const [elementSpinAngle, setElementSpinAngle] = useState<number>(0);
   
@@ -75,16 +73,30 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
   const animFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
 
-  // Comprehensive Parts Registry with 10 Industrial Mechanical Power Transmission Components
+  // Detect user prefers-reduced-motion
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) {
+      setIsPaused(true);
+    }
+    const handler = (e: MediaQueryListEvent) => {
+      if (e.matches) setIsPaused(true);
+    };
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // 10 Industrial Mechanical Power Transmission Components with accurate engineering parameters
   const allParts: PartMeta[] = [
     {
       id: 'deep-groove',
       category: 'radial',
       nameFa: 'بلبرینگ شیار عمیق',
       nameEn: 'Deep Groove Ball Bearing',
-      code: '6208-2RS1/C3',
+      code: '6208-2RS1 / C3',
       brand: 'SKF EXPLORER',
       standard: 'DIN 625 / ISO 15',
+      material: '100Cr6 (AISI 52100)',
       d: 40,
       D: 80,
       B: 18,
@@ -92,8 +104,10 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       rMin: 1.1,
       elementCount: 8,
       clearance: 'C3 (15-33 µm)',
-      loadTypeFa: 'بار شعاعی + محوری دوطرفه',
-      loadTypeEn: 'Radial + Dual Axial',
+      cageTypeFa: 'قفسه برنجی ماشین‌کاری شده',
+      cageTypeEn: 'Machined Brass Cage (CuZn40Pb2)',
+      loadTypeFa: 'بار شعاعی + بار محوری دوطرفه',
+      loadTypeEn: 'Radial + Dual Direction Axial',
       tagFa: 'دور بالا و پرکاربرد',
       tagEn: 'High Speed Standard',
     },
@@ -105,6 +119,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       code: '30208 J2/Q',
       brand: 'TIMKEN USA',
       standard: 'DIN 720 / ISO 355',
+      material: 'Case-Hardened Alloy Steel',
       d: 40,
       D: 80,
       B: 19.75,
@@ -112,20 +127,23 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       rMin: 1.5,
       elementCount: 10,
       contactAngle: '16°',
-      clearance: 'Adjustable Preload',
+      clearance: 'Preload Adjustable',
+      cageTypeFa: 'قفسه فولادی پرسی پنجره‌ای',
+      cageTypeEn: 'Pressed Steel Window Cage',
       loadTypeFa: 'بار سنگین ترکیبی شعاعی/محوری یکطرفه',
       loadTypeEn: 'Heavy Combined Radial/Axial',
       tagFa: 'گیربکس و چرخ خودرو',
-      tagEn: 'Gearbox & Axle',
+      tagEn: 'Gearbox & Axle Drive',
     },
     {
       id: 'spherical',
       category: 'roller',
-      nameFa: 'رولبرینگ بشکه‌ای (کروی)',
+      nameFa: 'رولبرینگ بشکه‌ای (دو ردیفه)',
       nameEn: 'Spherical Roller Bearing',
       code: '22208 E/W33',
       brand: 'FAG GERMANY',
       standard: 'DIN 635-2 / ISO 15',
+      material: '100Cr6 Through-Hardened',
       d: 40,
       D: 80,
       B: 23,
@@ -134,10 +152,12 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       elementCount: 12,
       contactAngle: '10.5°',
       clearance: 'CN Normal (30-45 µm)',
+      cageTypeFa: 'قفسه برنجی دو تکه صلب',
+      cageTypeEn: 'Two-piece Machined Brass',
       loadTypeFa: 'فوق سنگین ضربه‌ای + خودتنظیم',
-      loadTypeEn: 'Extreme Shock + Self-Aligning',
+      loadTypeEn: 'Extreme Dynamic Shock + Self-Aligning',
       tagFa: 'صنایع فولاد و معدن',
-      tagEn: 'Steel & Mining',
+      tagEn: 'Steel & Heavy Mining',
     },
     {
       id: 'cylindrical',
@@ -147,6 +167,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       code: 'NU 208 ECP',
       brand: 'SKF EXPLORER',
       standard: 'DIN 5412-1 / ISO 15',
+      material: '100Cr6 Vacuum-Degassed',
       d: 40,
       D: 80,
       B: 18,
@@ -154,10 +175,12 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       rMin: 1.1,
       elementCount: 12,
       clearance: 'C3 (25-45 µm)',
-      loadTypeFa: 'بار شعاعی بسیار بالا در سرعت زیاد',
-      loadTypeEn: 'High-Speed Pure Radial',
+      cageTypeFa: 'قفسه پلی‌آمید تقویت‌شده با فیبر',
+      cageTypeEn: 'Glass Fiber Reinforced PA66',
+      loadTypeFa: 'بار شعاعی بسیار سنگین در دور بالا',
+      loadTypeEn: 'High-Speed Pure Radial Load',
       tagFa: 'الکتروموتورهای سنگین',
-      tagEn: 'Heavy Motors',
+      tagEn: 'Heavy Industrial Motors',
     },
     {
       id: 'self-aligning',
@@ -167,6 +190,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       code: '1208 EKTN9',
       brand: 'NSK JAPAN',
       standard: 'DIN 630 / ISO 15',
+      material: 'SUJ2 High Carbon Chrome',
       d: 40,
       D: 80,
       B: 18,
@@ -174,9 +198,11 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       rMin: 1.1,
       elementCount: 14,
       clearance: 'CN (13-28 µm)',
+      cageTypeFa: 'قفسه پلیمری مهندسی',
+      cageTypeEn: 'Moulded Polyamide Cage',
       loadTypeFa: 'جبران انحراف زاویه‌ای شفت',
-      loadTypeEn: 'Shaft Angular Deflection',
-      tagFa: 'شفت‌های بلند و منعطف',
+      loadTypeEn: 'Shaft Misalignment Compensation',
+      tagFa: 'شفت‌های بلند و انعطاف‌پذیر',
       tagEn: 'Long Deflecting Shafts',
     },
     {
@@ -187,6 +213,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       code: '7208 BECBP',
       brand: 'SKF GERMANY',
       standard: 'DIN 628-1 / ISO 15',
+      material: '100Cr6 Precision Ground',
       d: 40,
       D: 80,
       B: 18,
@@ -194,11 +221,13 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       rMin: 1.1,
       elementCount: 10,
       contactAngle: '40°',
-      clearance: 'CB Preload Set',
-      loadTypeFa: 'بار محوری دقیق یکطرفه + سرعت بالا',
-      loadTypeEn: 'Precision Axial + High RPM',
+      clearance: 'CB Normal Preload',
+      cageTypeFa: 'قفسه برنجی ماشین‌کاری شده',
+      cageTypeEn: 'Machined Brass Cage',
+      loadTypeFa: 'بار محوری دقیق یکطرفه + سرعت زیاد',
+      loadTypeEn: 'Precision Axial + High Speeds',
       tagFa: 'اسپیندل و پمپ سانتریفیوژ',
-      tagEn: 'Spindle & Pumps',
+      tagEn: 'Spindles & Centrifugal Pumps',
     },
     {
       id: 'needle',
@@ -208,6 +237,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       code: 'HK 4020 / RNA',
       brand: 'INA GERMANY',
       standard: 'DIN 618 / ISO 3245',
+      material: '100Cr6 Hardened Needles',
       d: 40,
       D: 47,
       B: 20,
@@ -215,10 +245,12 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       rMin: 0.8,
       elementCount: 18,
       clearance: 'CN (10-25 µm)',
-      loadTypeFa: 'بار شعاعی فوق‌العاده در فضای باریک',
-      loadTypeEn: 'High Radial / Minimal Radial Space',
+      cageTypeFa: 'قفسه فولادی راهنمای سوزن',
+      cageTypeEn: 'Pressed Sheet Steel Guide',
+      loadTypeFa: 'بار شعاعی فوق‌العاده در فضای کم',
+      loadTypeEn: 'Compact High Radial Capacity',
       tagFa: 'فضای فشرده و گیربکس',
-      tagEn: 'Compact Gearbox',
+      tagEn: 'Compact Space Envelope',
     },
     {
       id: 'thrust',
@@ -228,17 +260,20 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       code: '51208',
       brand: 'FAG GERMANY',
       standard: 'DIN 711 / ISO 104',
+      material: '100Cr6 Lapped Raceways',
       d: 40,
       D: 68,
       B: 19,
       dm: 54,
       rMin: 1.0,
       elementCount: 10,
-      contactAngle: '90° (Axial)',
+      contactAngle: '90° (Pure Thrust)',
+      cageTypeFa: 'قفسه برنجی تراشکاری شده',
+      cageTypeEn: 'Machined Brass Ring',
       loadTypeFa: 'بار خالص محوری تک‌جهته',
-      loadTypeEn: 'Pure Axial Thrust',
+      loadTypeEn: 'Unidirectional Pure Thrust Load',
       tagFa: 'جک هیدرولیک و کلاچ',
-      tagEn: 'Jacks & Clutches',
+      tagEn: 'Hydraulic Jacks & Turnables',
     },
     {
       id: 'housing',
@@ -248,16 +283,19 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       code: 'SNL 508 / UC 208',
       brand: 'SKF SWEDEN',
       standard: 'ISO 113 / DIN 736',
+      material: 'Grey Cast Iron EN-GJL-200',
       d: 40,
       D: 125,
       B: 49.2,
       dm: 78,
       rMin: 2.0,
       elementCount: 8,
+      cageTypeFa: 'بلبرینگ خودتنظیم داخلی',
+      cageTypeEn: 'Internal Spherical Insert',
       loadTypeFa: 'نشیمنگاه بلبرینگ در خطوط انتقال',
       loadTypeEn: 'Heavy Duty Pillow Block Unit',
       tagFa: 'نوار نقاله و فن صنعتی',
-      tagEn: 'Conveyor & Blowers',
+      tagEn: 'Conveyors & Heavy Blowers',
     },
     {
       id: 'seal',
@@ -267,107 +305,38 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
       code: 'TC 40×68×10 FKM',
       brand: 'CORTECO ITALY',
       standard: 'DIN 3760 / ISO 6194',
+      material: 'Fluoroelastomer (FKM/Viton)',
       d: 40,
       D: 68,
       B: 10,
       dm: 54,
       rMin: 0.5,
       elementCount: 1,
+      cageTypeFa: 'فنر فشاری فولاد زنگ‌نزن',
+      cageTypeEn: 'Stainless Steel Garter Spring',
       loadTypeFa: 'آب‌بندی روغن هیدرولیک و گریس',
       loadTypeEn: 'Rotary Fluid & Contaminant Sealing',
       tagFa: 'ضدحرارت تا ۲۰۰ درجه',
-      tagEn: 'High Heat Viton',
+      tagEn: 'High Thermal & Chemical Stability',
     },
   ];
 
-  // Filtered parts based on active level / category
-  const filteredParts = allParts.filter(p => selectedCategory === 'all' || p.category === selectedCategory);
   const currentPart = allParts.find(b => b.id === selectedType) || allParts[0];
 
-  // Dynamic Temperature Calculation based on speed or manual override
-  const autoCalculatedTempC = Math.round(22 + (speedLevel / 6000) * 118);
-  const currentTempC = manualTempC !== null ? manualTempC : autoCalculatedTempC;
-
-  // Physical Thermal Heat-Tint & Blackbody Spectrum Modeling
-  // 20°C-50°C: Steel room temp | 60°C-100°C: Straw Yellow | 110°C-160°C: Bronze/Purple | 170°C-240°C: Blue Temper | 250°C-350°C+: Incandescent Cherry/Fiery Orange
-  const getThermalProfile = (temp: number) => {
-    if (temp <= 45) {
-      return {
-        labelFa: 'دمای ایده‌آل (خنک)',
-        labelEn: 'Optimal Cool Range',
-        statusColor: 'emerald',
-        heatRatio: 0,
-        outerGlow: 'rgba(56, 189, 248, 0)',
-        racewayColor: '#64748b',
-        ballGlow: 'none',
-        thermalGradient: ['#ffffff', '#f1f5f9', '#cbd5e1', '#64748b', '#0f172a']
-      };
-    } else if (temp <= 85) {
-      const r = (temp - 45) / 40;
-      return {
-        labelFa: 'دمای کاری استاندارد',
-        labelEn: 'Nominal Operating Temp',
-        statusColor: 'sky',
-        heatRatio: r * 0.25,
-        outerGlow: `rgba(250, 204, 21, ${r * 0.2})`,
-        racewayColor: '#ca8a04',
-        ballGlow: 'rgba(253, 224, 71, 0.3)',
-        thermalGradient: ['#fef9c3', '#fef08a', '#facc15', '#ca8a04', '#713f12']
-      };
-    } else if (temp <= 140) {
-      const r = (temp - 85) / 55;
-      return {
-        labelFa: 'گرمایش اصطکاکی متوسط (زرد/برنز)',
-        labelEn: 'Moderate Friction Heat (Bronze)',
-        statusColor: 'amber',
-        heatRatio: 0.25 + r * 0.25,
-        outerGlow: `rgba(249, 115, 22, ${0.2 + r * 0.3})`,
-        racewayColor: '#c2410c',
-        ballGlow: 'rgba(251, 146, 60, 0.6)',
-        thermalGradient: ['#ffedd5', '#fed7aa', '#fb923c', '#ea580c', '#7c2d12']
-      };
-    } else if (temp <= 220) {
-      const r = (temp - 140) / 80;
-      return {
-        labelFa: 'تنش حرارتی شدید (اکسیداسیون بنفش/قرمز)',
-        labelEn: 'Severe Thermal Stress (Heat-Tint)',
-        statusColor: 'orange',
-        heatRatio: 0.5 + r * 0.25,
-        outerGlow: `rgba(239, 68, 68, ${0.4 + r * 0.3})`,
-        racewayColor: '#b91c1c',
-        ballGlow: 'rgba(239, 68, 68, 0.8)',
-        thermalGradient: ['#fee2e2', '#fca5a5', '#ef4444', '#b91c1c', '#450a0a']
-      };
-    } else {
-      const r = Math.min(1, (temp - 220) / 180);
-      return {
-        labelFa: 'بحران حرارتی / ریسک گریپاژ بیرینگ!',
-        labelEn: 'Extreme Thermal Runaway / Seizure Risk!',
-        statusColor: 'red',
-        heatRatio: 0.75 + r * 0.25,
-        outerGlow: `rgba(255, 70, 0, ${0.6 + r * 0.35})`,
-        racewayColor: '#ff2200',
-        ballGlow: 'rgba(255, 255, 255, 0.95)',
-        thermalGradient: ['#ffffff', '#fef08a', '#ff6b00', '#dc2626', '#450a0a']
-      };
-    }
-  };
-
-  const thermalProfile = getThermalProfile(currentTempC);
-  const isThermalActive = viewMode === 'thermal' || currentTempC > 70;
-
-  // 60 FPS Kinematics Precision Animation Loop
+  // Precision 60 FPS Kinematics Animation Loop (Planetary Motion)
   useEffect(() => {
+    if (isPaused) return;
+
     const animate = (time: number) => {
-      const delta = (time - lastTimeRef.current) / 1000;
+      const delta = Math.min((time - lastTimeRef.current) / 1000, 0.1);
       lastTimeRef.current = time;
 
-      // Kinematic Planetary Motion:
-      // Inner ring rotates at speedLevel
-      // Cage orbits at orbital speed approx (0.40 * speed)
-      // Rolling elements spin around own axis approx (2.45 * speed)
-      const orbitalSpeedDeg = (speedLevel * 360 / 60) * 0.40;
-      const elementSpinSpeedDeg = (speedLevel * 360 / 60) * 2.45;
+      // Realistic Planetary Kinematic Ratios:
+      // Inner ring rotates at speedRpm
+      // Cage orbits at ~0.40 * speed
+      // Rolling elements spin on their own axes at ~2.45 * speed
+      const orbitalSpeedDeg = (speedRpm * 360 / 60) * 0.40;
+      const elementSpinSpeedDeg = (speedRpm * 360 / 60) * 2.45;
 
       setRotationAngle((prev) => (prev + orbitalSpeedDeg * delta) % 360);
       setElementSpinAngle((prev) => (prev + elementSpinSpeedDeg * delta) % 360);
@@ -382,9 +351,9 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
         cancelAnimationFrame(animFrameRef.current);
       }
     };
-  }, [speedLevel]);
+  }, [speedRpm, isPaused]);
 
-  // Horizontal Scroll navigation helpers
+  // Horizontal Scroll helpers for Part Selector
   const handleScrollLeft = () => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({ left: -160, behavior: 'smooth' });
@@ -397,230 +366,157 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
     }
   };
 
-  // Speed Presets
   const speedPresets = [
-    { label: '50', val: 50, descFa: 'بسیار آهسته', descEn: 'Ultra Low' },
-    { label: '100', val: 100, descFa: 'آهسته (دقیق)', descEn: 'Inspection' },
-    { label: '1500', val: 1500, descFa: 'استاندارد', descEn: 'Standard' },
-    { label: '3000', val: 3000, descFa: 'دور بالا', descEn: 'High Speed' },
-    { label: '6000', val: 6000, descFa: 'تنش حرارتی', descEn: 'Thermal Max' },
+    { label: '15', val: 15, descFa: 'بسیار آهسته (بررسی دقیق)', descEn: 'Slow Inspection' },
+    { label: '30', val: 30, descFa: 'استاندارد بازبینی', descEn: 'Nominal Inspection' },
+    { label: '60', val: 60, descFa: 'چرخش پیوسته', descEn: 'Continuous Motion' },
   ];
 
   return (
     <div 
       className="relative w-full max-w-sm sm:max-w-md glass-panel rounded-3xl p-4 sm:p-5 flex flex-col justify-between overflow-hidden select-none transition-all shadow-[0_20px_50px_-10px_rgba(35,44,134,0.14),inset_0_1px_1px_rgba(255,255,255,1)] border border-white/80"
     >
-      {/* Background Precision Engineering Coordinates */}
-      <div className="absolute inset-0 engineering-grid-light opacity-35 pointer-events-none" />
-      <div className="absolute -top-10 -right-10 w-44 h-44 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Background Precision Engineering CAD Grid */}
+      <div className="absolute inset-0 engineering-grid-light opacity-30 pointer-events-none" />
+      <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-600/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-slate-600/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Top Header: Part Code, ISO Standard, Brand & Live Real-Time Telemetry */}
-      <div className="relative z-10 flex items-center justify-between pb-2.5 border-b border-white/60">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-              currentTempC > 180 ? 'bg-red-500' : currentTempC > 90 ? 'bg-amber-400' : 'bg-emerald-400'
-            }`} />
-            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-              currentTempC > 180 ? 'bg-red-600' : currentTempC > 90 ? 'bg-amber-500' : 'bg-emerald-500'
-            }`} />
-          </span>
+      {/* Top Header: Part Code, ISO Standard, Brand & Engineering Badges */}
+      <div className="relative z-10 flex items-center justify-between pb-3 border-b border-white/60">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#232c86]">
+            <Cpu className="w-4 h-4" />
+          </div>
           <div className="flex flex-col text-start">
             <div className="flex items-center gap-1.5">
-              <span className="text-[12.5px] font-black font-mono-spec text-slate-900 tracking-wider">
+              <span className="text-[13px] font-black font-mono-spec text-slate-900 tracking-wider">
                 {currentPart.code}
               </span>
-              <span className="px-1.5 py-0.2 rounded text-[8.5px] font-mono-spec font-bold bg-blue-50 text-[#232c86] border border-blue-200">
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono-spec font-bold bg-blue-50 text-[#232c86] border border-blue-200">
                 {currentPart.brand}
               </span>
             </div>
-            <span className="text-[9.5px] font-mono-spec text-slate-500 font-semibold">
-              {currentPart.standard}
+            <span className="text-[10px] font-mono-spec text-slate-500 font-semibold">
+              {currentPart.standard} • {currentPart.material}
             </span>
           </div>
         </div>
 
-        {/* Real Heat & Speed Telemetry Badges */}
+        {/* Play/Pause Motion & Thermal Overlay Control */}
         <div className="flex items-center gap-1.5">
-          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono-spec font-bold transition-all border ${
-            currentTempC > 200
-              ? 'bg-red-500/15 text-red-700 border-red-300 animate-pulse backdrop-blur-md' 
-              : currentTempC > 90
-              ? 'bg-amber-500/15 text-amber-800 border-amber-300 backdrop-blur-md' 
-              : 'glass-pill text-slate-700'
-          }`}>
-            <Thermometer className={`w-3 h-3 ${currentTempC > 90 ? 'text-red-500' : 'text-slate-500'}`} />
-            <span>{currentTempC}°C</span>
-            {currentTempC > 90 && <Flame className="w-2.5 h-2.5 text-amber-500 ml-0.5 animate-bounce" />}
-          </div>
-
-          <div className="flex items-center gap-1 px-2 py-1 rounded-full glass-pill text-[10px] font-mono-spec font-bold text-[#232c86]">
-            <span>{speedLevel} RPM</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Part Category Level Selector */}
-      <div className="relative z-10 my-2 space-y-1.5">
-        {/* Category Pills */}
-        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5 w-full">
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all flex-shrink-0 cursor-pointer ${
-              selectedCategory === 'all'
-                ? 'glass-pill-active text-[#232c86] font-extrabold shadow-sm'
-                : 'glass-pill text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {language === 'fa' ? 'همه قطعات' : 'All Parts'} ({allParts.length})
-          </button>
-          <button
-            onClick={() => setSelectedCategory('radial')}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all flex-shrink-0 cursor-pointer ${
-              selectedCategory === 'radial'
-                ? 'glass-pill-active text-[#232c86] font-extrabold shadow-sm'
-                : 'glass-pill text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {language === 'fa' ? 'بلبرینگ‌ها' : 'Ball Bearings'}
-          </button>
-          <button
-            onClick={() => setSelectedCategory('roller')}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all flex-shrink-0 cursor-pointer ${
-              selectedCategory === 'roller'
-                ? 'glass-pill-active text-[#232c86] font-extrabold shadow-sm'
-                : 'glass-pill text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {language === 'fa' ? 'رولبرینگ‌ها' : 'Roller Bearings'}
-          </button>
-          <button
-            onClick={() => setSelectedCategory('thrust-housing')}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all flex-shrink-0 cursor-pointer ${
-              selectedCategory === 'thrust-housing'
-                ? 'glass-pill-active text-[#232c86] font-extrabold shadow-sm'
-                : 'glass-pill text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {language === 'fa' ? 'یاتاقان و آب‌بند' : 'Housings & Seals'}
-          </button>
-        </div>
-
-        {/* Dedicated Horizontal Scrollbar Container */}
-        <div className="relative group">
           <button
             type="button"
-            onClick={handleScrollLeft}
-            aria-label="Scroll left"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-white/95 shadow-md border border-slate-200 text-slate-700 hover:text-[#232c86] hover:bg-white flex items-center justify-center transition-all cursor-pointer opacity-80 hover:opacity-100 active:scale-95"
+            onClick={() => setShowThermalOverlay(prev => !prev)}
+            aria-label={showThermalOverlay ? 'Hide thermal gradient' : 'Show thermal gradient'}
+            className={`p-2 rounded-xl border shadow-sm transition-all active:scale-95 cursor-pointer flex items-center gap-1 text-[10px] font-bold ${
+              showThermalOverlay 
+                ? 'bg-amber-500 text-white border-amber-600 ring-2 ring-amber-300'
+                : 'bg-white/80 hover:bg-white text-slate-700 border-slate-200'
+            }`}
+            title={language === 'fa' ? 'نمایش گرادیان دمایی فرضی' : 'Toggle Indicative Thermal Gradient'}
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <Thermometer className="w-3.5 h-3.5" />
           </button>
 
           <button
             type="button"
-            onClick={handleScrollRight}
-            aria-label="Scroll right"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-white/95 shadow-md border border-slate-200 text-slate-700 hover:text-[#232c86] hover:bg-white flex items-center justify-center transition-all cursor-pointer opacity-80 hover:opacity-100 active:scale-95"
+            onClick={() => setIsPaused(prev => !prev)}
+            aria-label={isPaused ? 'Play animation' : 'Pause animation'}
+            className="p-2 rounded-xl bg-white/80 hover:bg-white text-slate-700 border border-slate-200 shadow-sm transition-all active:scale-95 cursor-pointer"
+            title={isPaused ? (language === 'fa' ? 'شروع چرخش' : 'Play') : (language === 'fa' ? 'توقف چرخش' : 'Pause')}
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            {isPaused ? <Play className="w-3.5 h-3.5 fill-slate-700" /> : <Pause className="w-3.5 h-3.5" />}
           </button>
-
-          <div 
-            ref={scrollContainerRef}
-            className="flex items-center gap-1.5 overflow-x-auto px-7 py-1 pb-2 scroll-smooth custom-horizontal-scrollbar"
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#232c86 #e2e8f0',
-            }}
-          >
-            {filteredParts.map((part) => {
-              const isActive = selectedType === part.id;
-              return (
-                <button
-                  key={part.id}
-                  onClick={() => setSelectedType(part.id)}
-                  className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-[10px] transition-all flex items-center gap-1.5 flex-shrink-0 border cursor-pointer ${
-                    isActive
-                      ? 'bg-[#232c86] text-white border-[#232c86] shadow-sm font-bold scale-[1.02]'
-                      : 'bg-white/75 backdrop-blur-md text-slate-700 hover:bg-white/95 hover:text-slate-900 border-white/90 font-medium'
-                  }`}
-                  title={`${part.code} - ${language === 'fa' ? part.nameFa : part.nameEn}`}
-                >
-                  <Disc className={`w-3.5 h-3.5 ${isActive ? 'text-amber-300 animate-spin' : 'text-slate-400'}`} style={{ animationDuration: '6s' }} />
-                  <div className="flex flex-col text-start">
-                    <span className="leading-none">{language === 'fa' ? part.nameFa : part.nameEn}</span>
-                    <span className={`text-[8.5px] font-mono-spec mt-0.5 leading-none ${isActive ? 'text-blue-200' : 'text-slate-400'}`}>
-                      {part.code}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
 
-      {/* Main Interactive CAD & Mechanical 3D Canvas */}
-      <div className="relative z-10 my-auto flex items-center justify-center h-52 sm:h-60 overflow-visible">
-        
-        {/* Dynamic Incandescent Blackbody Radiant Heat Glow at Higher Temperatures */}
-        {currentTempC > 60 && viewMode !== 'dimensions' && (
-          <div 
-            className="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300"
-            style={{ opacity: Math.min(1, (currentTempC - 50) / 200) }}
-          >
-            <div 
-              className={`w-48 h-48 rounded-full filter blur-2xl transition-all ${
-                currentTempC > 220 ? 'animate-pulse' : ''
-              }`}
-              style={{
-                backgroundColor: thermalProfile.outerGlow,
-                boxShadow: `0 0 60px 20px ${thermalProfile.outerGlow}`
-              }}
-            />
+      {/* Interactive Horizontal Part Selector Bar */}
+      <div className="relative z-10 my-2">
+        <div className="flex items-center justify-between mb-1.5 px-0.5">
+          <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+            <Compass className="w-3.5 h-3.5 text-[#232c86]" />
+            {language === 'fa' ? 'انتخاب تیپ بیرینگ صنعتی:' : 'Select Industrial Component:'}
+          </span>
+          
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleScrollLeft}
+              className="p-1 rounded-lg hover:bg-white/80 text-slate-500 hover:text-slate-900 transition-colors"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={handleScrollRight}
+              className="p-1 rounded-lg hover:bg-white/80 text-slate-500 hover:text-slate-900 transition-colors"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-        )}
+        </div>
 
-        {/* High-Fidelity Ultra-Realistic SVG CAD Model */}
+        <div
+          ref={scrollContainerRef}
+          className="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar scroll-smooth"
+        >
+          {allParts.map((part) => {
+            const isSelected = selectedType === part.id;
+            return (
+              <button
+                key={part.id}
+                onClick={() => setSelectedType(part.id)}
+                className={`flex-shrink-0 px-2.5 py-1 rounded-xl text-[10.5px] font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                  isSelected
+                    ? 'bg-[#232c86] text-white border-[#232c86] shadow-sm'
+                    : 'bg-white/60 text-slate-700 hover:bg-white/90 border-slate-200/60'
+                }`}
+              >
+                <span>{language === 'fa' ? part.nameFa : part.nameEn}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main CAD Interactive Canvas Area */}
+      <div className="relative z-10 w-full aspect-square max-h-[300px] sm:max-h-[320px] flex items-center justify-center my-1">
         <svg
-          viewBox="0 0 460 400"
-          className="w-full h-full max-h-[230px] sm:max-h-[265px] drop-shadow-2xl overflow-visible"
+          viewBox="0 0 400 400"
+          className="w-full h-full drop-shadow-[0_12px_28px_rgba(35,44,134,0.12)] overflow-visible"
         >
           <defs>
-            {/* 1. Superfinished Polished Chrome Steel Outer Ring (100Cr6 Anisotropic Radial Reflection) */}
-            <radialGradient id="outerRingSteel" cx="35%" cy="30%" r="75%">
+            {/* 1. Realistic Polished High-Carbon Chrome Steel 100Cr6 Radial Shading */}
+            <radialGradient id="cadOuterRingSteel" cx="35%" cy="30%" r="72%">
               <stop offset="0%" stopColor="#ffffff" />
               <stop offset="12%" stopColor="#f1f5f9" />
-              <stop offset="30%" stopColor="#cbd5e1" />
-              <stop offset="55%" stopColor="#94a3b8" />
-              <stop offset="78%" stopColor="#475569" />
+              <stop offset="35%" stopColor="#cbd5e1" />
+              <stop offset="65%" stopColor="#64748b" />
+              <stop offset="88%" stopColor="#334155" />
+              <stop offset="100%" stopColor="#0f172a" />
+            </radialGradient>
+
+            {/* 2. Inner Ring Precision Ground Finish */}
+            <radialGradient id="cadInnerRingSteel" cx="38%" cy="32%" r="70%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="15%" stopColor="#e2e8f0" />
+              <stop offset="42%" stopColor="#94a3b8" />
+              <stop offset="72%" stopColor="#475569" />
               <stop offset="92%" stopColor="#1e293b" />
               <stop offset="100%" stopColor="#0f172a" />
             </radialGradient>
 
-            {/* 2. Superfinished Polished Inner Ring */}
-            <radialGradient id="innerRingSteel" cx="38%" cy="32%" r="70%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="15%" stopColor="#e2e8f0" />
-              <stop offset="40%" stopColor="#94a3b8" />
-              <stop offset="70%" stopColor="#475569" />
-              <stop offset="90%" stopColor="#1e293b" />
-              <stop offset="100%" stopColor="#0a0f1d" />
-            </radialGradient>
-
-            {/* 3. Precision CNC Raceway Chamfer Highlight */}
-            <linearGradient id="chamferShine" x1="0%" y1="0%" x2="100%" y2="100%">
+            {/* 3. High Precision Specular Chamfer Highlight */}
+            <linearGradient id="cadChamferShine" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-              <stop offset="25%" stopColor="#94a3b8" stopOpacity="0.3" />
+              <stop offset="25%" stopColor="#94a3b8" stopOpacity="0.35" />
               <stop offset="50%" stopColor="#ffffff" stopOpacity="0.85" />
               <stop offset="75%" stopColor="#334155" stopOpacity="0.4" />
               <stop offset="100%" stopColor="#0f172a" stopOpacity="0.95" />
             </linearGradient>
 
-            {/* 4. Solid Machined Brass Retainer Cage (DIN EN 12164) */}
-            <linearGradient id="brassCageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            {/* 4. Solid Machined Brass Retainer Cage (DIN EN 12164 CuZn40Pb2) */}
+            <linearGradient id="cadBrassCageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#fef08a" />
               <stop offset="20%" stopColor="#facc15" />
               <stop offset="50%" stopColor="#eab308" />
@@ -629,46 +525,28 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
               <stop offset="100%" stopColor="#713f12" />
             </linearGradient>
 
-            {/* 5. Chrome Mirror Ball Specular Highlight (Standard Cool Steel) */}
-            <radialGradient id="chromeBallSteel" cx="28%" cy="22%" r="72%">
+            {/* 5. Chrome Mirror Ball Specular Highlight */}
+            <radialGradient id="cadChromeBall" cx="28%" cy="22%" r="72%">
               <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="15%" stopColor="#f8fafc" />
-              <stop offset="35%" stopColor="#cbd5e1" />
-              <stop offset="60%" stopColor="#64748b" />
+              <stop offset="16%" stopColor="#f8fafc" />
+              <stop offset="38%" stopColor="#cbd5e1" />
+              <stop offset="62%" stopColor="#64748b" />
               <stop offset="85%" stopColor="#334155" />
               <stop offset="100%" stopColor="#0f172a" />
             </radialGradient>
 
-            {/* 6. Physical Thermal Heat Blackbody Ball Shading at Any Temperature */}
-            <radialGradient id="dynamicThermalBall" cx="30%" cy="25%" r="75%">
-              <stop offset="0%" stopColor={thermalProfile.thermalGradient[0]} />
-              <stop offset="20%" stopColor={thermalProfile.thermalGradient[1]} />
-              <stop offset="45%" stopColor={thermalProfile.thermalGradient[2]} />
-              <stop offset="75%" stopColor={thermalProfile.thermalGradient[3]} />
-              <stop offset="100%" stopColor={thermalProfile.thermalGradient[4]} />
-            </radialGradient>
-
-            {/* 7. Cylindrical Roller Specular Linear Shading */}
-            <linearGradient id="cylindricalRollerSteel" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#64748b" />
+            {/* 6. Cylindrical Roller Specular Linear Shading */}
+            <linearGradient id="cadCylindricalRoller" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#475569" />
               <stop offset="20%" stopColor="#cbd5e1" />
-              <stop offset="40%" stopColor="#ffffff" />
+              <stop offset="45%" stopColor="#ffffff" />
               <stop offset="70%" stopColor="#94a3b8" />
-              <stop offset="90%" stopColor="#475569" />
-              <stop offset="100%" stopColor="#1e293b" />
+              <stop offset="90%" stopColor="#334155" />
+              <stop offset="100%" stopColor="#0f172a" />
             </linearGradient>
 
-            {/* 8. Tapered Roller Conical Shading */}
-            <linearGradient id="taperRollerSteel" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="25%" stopColor="#e2e8f0" />
-              <stop offset="55%" stopColor="#94a3b8" />
-              <stop offset="80%" stopColor="#475569" />
-              <stop offset="100%" stopColor="#1e293b" />
-            </linearGradient>
-
-            {/* 9. Heavy Cast Iron Housing Body Texture */}
-            <radialGradient id="castIronHousingGrad" cx="30%" cy="25%" r="75%">
+            {/* 7. Cast Iron Housing Shading */}
+            <radialGradient id="cadCastIronGrad" cx="30%" cy="25%" r="75%">
               <stop offset="0%" stopColor="#94a3b8" />
               <stop offset="35%" stopColor="#64748b" />
               <stop offset="70%" stopColor="#334155" />
@@ -676,8 +554,8 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
               <stop offset="100%" stopColor="#0f172a" />
             </radialGradient>
 
-            {/* 10. Viton / FKM Fluorocarbon Elastomer Seal Gradient */}
-            <radialGradient id="vitonElastomerGrad" cx="35%" cy="30%" r="70%">
+            {/* 8. Viton / FKM Fluorocarbon Elastomer Seal Gradient */}
+            <radialGradient id="cadVitonSealGrad" cx="35%" cy="30%" r="70%">
               <stop offset="0%" stopColor="#991b1b" />
               <stop offset="35%" stopColor="#7f1d1d" />
               <stop offset="70%" stopColor="#450a0a" />
@@ -685,26 +563,30 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
               <stop offset="100%" stopColor="#09090b" />
             </radialGradient>
 
-            {/* 11. Synthetic Grease Lubrication Film Sheen */}
-            <linearGradient id="greaseFilmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#fef08a" stopOpacity="0.4" />
-              <stop offset="50%" stopColor="#ca8a04" stopOpacity="0.15" />
-              <stop offset="100%" stopColor="#713f12" stopOpacity="0.3" />
+            {/* 9. Synthetic Grease Lubrication Film Sheen */}
+            <linearGradient id="cadGreaseFilm" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#fef08a" stopOpacity="0.3" />
+              <stop offset="50%" stopColor="#ca8a04" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#713f12" stopOpacity="0.2" />
             </linearGradient>
 
-            {/* 12. FLIR Thermal Infrared Multi-Spectral Isotherm Map */}
-            <radialGradient id="flirThermalMap" cx="45%" cy="45%" r="55%">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity={currentTempC > 200 ? 0.9 : 0.4} />
-              <stop offset="25%" stopColor="#facc15" stopOpacity="0.75" />
-              <stop offset="55%" stopColor="#ea580c" stopOpacity="0.8" />
-              <stop offset="75%" stopColor="#dc2626" stopOpacity="0.85" />
-              <stop offset="90%" stopColor="#7c3aed" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#1e1b4b" stopOpacity="0.2" />
+            {/* 10. Indicative Thermal Gradient Overlay */}
+            <radialGradient id="cadThermalGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#dc2626" stopOpacity="0.75" />
+              <stop offset="35%" stopColor="#ea580c" stopOpacity="0.6" />
+              <stop offset="60%" stopColor="#eab308" stopOpacity="0.45" />
+              <stop offset="85%" stopColor="#06b6d4" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2" />
             </radialGradient>
+
+            {/* 11. 45-degree ISO Section Cross-Hatch Pattern for Cutaway */}
+            <pattern id="isoSectionHatch" width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="0" y2="10" stroke="#0284c7" strokeWidth="1.2" opacity="0.65" />
+            </pattern>
 
             {/* Laser Marking Text Arc Path on Outer Ring */}
             <path
-              id="outerRingLaserTextPath"
+              id="cadLaserTextPath"
               d="M 52,200 A 148,148 0 1,1 348,200"
               fill="none"
             />
@@ -715,7 +597,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
             <g>
               <path
                 d="M 20,345 L 380,345 L 370,305 L 30,305 Z"
-                fill="url(#castIronHousingGrad)"
+                fill="url(#cadCastIronGrad)"
                 stroke="#0f172a"
                 strokeWidth="2.5"
               />
@@ -727,7 +609,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
 
               <path
                 d="M 45,305 C 45,140 95,45 200,45 C 305,45 355,140 355,305 Z"
-                fill="url(#castIronHousingGrad)"
+                fill="url(#cadCastIronGrad)"
                 stroke="#0f172a"
                 strokeWidth="3"
               />
@@ -750,15 +632,15 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
           {selectedType !== 'seal' ? (
             <g>
               {/* Outer Chamfer Edge */}
-              <circle cx="200" cy="200" r="186" fill="url(#outerRingSteel)" stroke="#0f172a" strokeWidth="3" />
-              <circle cx="200" cy="200" r="183" fill="none" stroke="url(#chamferShine)" strokeWidth="2.5" opacity="0.9" />
+              <circle cx="200" cy="200" r="186" fill="url(#cadOuterRingSteel)" stroke="#0f172a" strokeWidth="3" />
+              <circle cx="200" cy="200" r="183" fill="none" stroke="url(#cadChamferShine)" strokeWidth="2.5" opacity="0.9" />
               
               {/* Laser Engraved Manufacturer & Standard Ring Markings */}
               <circle cx="200" cy="200" r="172" fill="none" stroke="#475569" strokeWidth="1.2" strokeDasharray="6 4" opacity="0.6" />
               
-              {/* Crisp Laser Marking Text along Outer Ring */}
-              <text fontSize="7.5" fontFamily="SF Mono, JetBrains Mono, monospace" fontWeight="bold" fill="#334155" opacity="0.85" letterSpacing="2">
-                <textPath href="#outerRingLaserTextPath" startOffset="10%">
+              {/* Laser Marking Text along Outer Ring */}
+              <text fontSize="7.5" fontFamily="JetBrains Mono, SF Mono, monospace" fontWeight="bold" fill="#334155" opacity="0.85" letterSpacing="2">
+                <textPath href="#cadLaserTextPath" startOffset="10%">
                   {currentPart.brand} • {currentPart.code} • {currentPart.standard} • 100Cr6
                 </textPath>
               </text>
@@ -768,25 +650,15 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
               <circle cx="200" cy="200" r="148" fill="none" stroke="#cbd5e1" strokeWidth="1" opacity="0.8" />
               
               {/* Synthetic Grease Film Coating in Raceway */}
-              <circle cx="200" cy="200" r="136" fill="none" stroke="url(#greaseFilmGrad)" strokeWidth="18" opacity="0.85" />
+              <circle cx="200" cy="200" r="136" fill="none" stroke="url(#cadGreaseFilm)" strokeWidth="18" opacity="0.8" />
             </g>
           ) : (
             /* Rotary Oil Seal Elastomeric Outer Body */
             <g>
-              <circle cx="200" cy="200" r="185" fill="url(#vitonElastomerGrad)" stroke="#09090b" strokeWidth="3.5" />
+              <circle cx="200" cy="200" r="185" fill="url(#cadVitonSealGrad)" stroke="#09090b" strokeWidth="3.5" />
               <circle cx="200" cy="200" r="178" fill="none" stroke="#ef4444" strokeWidth="1.5" opacity="0.6" />
               <circle cx="200" cy="200" r="145" fill="#18181b" stroke="#7f1d1d" strokeWidth="2.5" />
               <circle cx="200" cy="200" r="168" fill="none" stroke="#94a3b8" strokeWidth="4" strokeDasharray="14 6" opacity="0.75" />
-            </g>
-          )}
-
-          {/* Spherical W33 Lubrication Oil Holes & Groove */}
-          {selectedType === 'spherical' && (
-            <g>
-              <circle cx="200" cy="200" r="184" fill="none" stroke="#38bdf8" strokeWidth="2" strokeDasharray="12 12" />
-              <circle cx="200" cy="26" r="4.5" fill="#38bdf8" stroke="#0369a1" strokeWidth="1.2" />
-              <circle cx="26" cy="200" r="4.5" fill="#38bdf8" stroke="#0369a1" strokeWidth="1.2" />
-              <circle cx="374" cy="200" r="4.5" fill="#38bdf8" stroke="#0369a1" strokeWidth="1.2" />
             </g>
           )}
 
@@ -801,7 +673,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                 cy="200"
                 r="118"
                 fill="none"
-                stroke="url(#brassCageGrad)"
+                stroke="url(#cadBrassCageGrad)"
                 strokeWidth="22"
                 strokeDasharray="28 18"
                 opacity="0.95"
@@ -816,26 +688,16 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
 
                 return (
                   <g key={index} transform={`rotate(${elementSpinAngle}, ${cx}, ${cy})`}>
-                    {/* Ball Sphere with Dynamic Thermal or Steel Shading */}
                     <circle
                       cx={cx}
                       cy={cy}
                       r="23"
-                      fill={currentTempC > 60 ? "url(#dynamicThermalBall)" : "url(#chromeBallSteel)"}
+                      fill="url(#cadChromeBall)"
                       stroke="#0f172a"
                       strokeWidth="1.5"
                     />
-                    {/* Specular Highlight Arc */}
                     <circle cx={cx - 7} cy={cy - 7} r="6" fill="#ffffff" opacity="0.95" />
-                    <ellipse 
-                      cx={cx + 6} 
-                      cy={cy + 6} 
-                      rx="4" 
-                      ry="2.5" 
-                      fill={currentTempC > 100 ? "#fef08a" : "#38bdf8"} 
-                      opacity={currentTempC > 100 ? 0.8 : 0.45} 
-                    />
-                    {/* Brass Retainer Rivet Fastener Detail */}
+                    <ellipse cx={cx + 6} cy={cy + 6} rx="4" ry="2.5" fill="#38bdf8" opacity="0.4" />
                     <circle cx={cx} cy={cy} r="3" fill="#ca8a04" stroke="#713f12" strokeWidth="0.8" opacity="0.75" />
                   </g>
                 );
@@ -849,29 +711,28 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
               <circle
                 cx="200"
                 cy="200"
-                r="120"
+                r="118"
                 fill="none"
-                stroke="#64748b"
-                strokeWidth="18"
-                strokeDasharray="20 14"
+                stroke="url(#cadBrassCageGrad)"
+                strokeWidth="26"
+                strokeDasharray="26 14"
                 opacity="0.9"
               />
               {Array.from({ length: 10 }).map((_, index) => {
                 const angle = (index * 360) / 10;
                 const rad = (angle * Math.PI) / 180;
-                const radius = 118;
-                const cx = 200 + radius * Math.cos(rad);
-                const cy = 200 + radius * Math.sin(rad);
+                const cx = 200 + 118 * Math.cos(rad);
+                const cy = 200 + 118 * Math.sin(rad);
 
                 return (
                   <g key={index} transform={`rotate(${angle + 90}, ${cx}, ${cy})`}>
                     <polygon
-                      points={`${cx - 10},${cy - 20} ${cx + 10},${cy - 20} ${cx + 13},${cy + 20} ${cx - 13},${cy + 20}`}
-                      fill={currentTempC > 60 ? "url(#dynamicThermalBall)" : "url(#taperRollerSteel)"}
+                      points={`${cx - 10},${cy - 16} ${cx + 10},${cy - 16} ${cx + 14},${cy + 16} ${cx - 14},${cy + 16}`}
+                      fill="url(#cadCylindricalRoller)"
                       stroke="#0f172a"
                       strokeWidth="1.5"
                     />
-                    <line x1={cx - 5} y1={cy - 18} x2={cx - 7} y2={cy + 18} stroke="#ffffff" strokeWidth="2" opacity="0.8" />
+                    <line x1={cx - 5} y1={cy - 14} x2={cx - 8} y2={cy + 14} stroke="#ffffff" strokeWidth="2.5" opacity="0.85" />
                   </g>
                 );
               })}
@@ -884,40 +745,38 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
               <circle
                 cx="200"
                 cy="200"
-                r="120"
+                r="118"
                 fill="none"
-                stroke="url(#brassCageGrad)"
-                strokeWidth="24"
-                strokeDasharray="18 12"
-                opacity="0.9"
+                stroke="url(#cadBrassCageGrad)"
+                strokeWidth="28"
+                strokeDasharray="22 10"
+                opacity="0.95"
               />
-              <circle cx="200" cy="200" r="120" fill="none" stroke="#1e293b" strokeWidth="3" />
               {Array.from({ length: 12 }).map((_, index) => {
                 const angle = (index * 360) / 12;
                 const rad = (angle * Math.PI) / 180;
-                const radius = 119;
-                const cx = 200 + radius * Math.cos(rad);
-                const cy = 200 + radius * Math.sin(rad);
+                const cx = 200 + 118 * Math.cos(rad);
+                const cy = 200 + 118 * Math.sin(rad);
 
                 return (
                   <g key={index} transform={`rotate(${angle + 90}, ${cx}, ${cy})`}>
                     <ellipse
                       cx={cx}
                       cy={cy}
-                      rx="12"
+                      rx="14"
                       ry="18"
-                      fill={currentTempC > 60 ? "url(#dynamicThermalBall)" : "url(#taperRollerSteel)"}
+                      fill="url(#cadChromeBall)"
                       stroke="#0f172a"
                       strokeWidth="1.5"
                     />
-                    <ellipse cx={cx - 3} cy={cy} rx="4" ry="12" fill="#ffffff" opacity="0.75" />
+                    <ellipse cx={cx - 4} cy={cy - 4} rx="5" ry="7" fill="#ffffff" opacity="0.8" />
                   </g>
                 );
               })}
             </g>
           )}
 
-          {/* TYPE D: CYLINDRICAL ROLLER BEARING */}
+          {/* TYPE D: CYLINDRICAL ROLLER BEARING (NU / NJ Series) */}
           {selectedType === 'cylindrical' && (
             <g transform={`rotate(${rotationAngle}, 200, 200)`}>
               <circle
@@ -925,17 +784,16 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                 cy="200"
                 r="118"
                 fill="none"
-                stroke="url(#brassCageGrad)"
-                strokeWidth="18"
+                stroke="url(#cadBrassCageGrad)"
+                strokeWidth="24"
                 strokeDasharray="20 12"
                 opacity="0.9"
               />
               {Array.from({ length: 12 }).map((_, index) => {
                 const angle = (index * 360) / 12;
                 const rad = (angle * Math.PI) / 180;
-                const radius = 118;
-                const cx = 200 + radius * Math.cos(rad);
-                const cy = 200 + radius * Math.sin(rad);
+                const cx = 200 + 118 * Math.cos(rad);
+                const cy = 200 + 118 * Math.sin(rad);
 
                 return (
                   <g key={index} transform={`rotate(${angle + 90}, ${cx}, ${cy})`}>
@@ -945,18 +803,18 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                       width="20"
                       height="32"
                       rx="3"
-                      fill={currentTempC > 60 ? "url(#dynamicThermalBall)" : "url(#cylindricalRollerSteel)"}
+                      fill="url(#cadCylindricalRoller)"
                       stroke="#0f172a"
                       strokeWidth="1.5"
                     />
-                    <line x1={cx - 4} y1={cy - 14} x2={cx - 4} y2={cy + 14} stroke="#ffffff" strokeWidth="2" opacity="0.8" />
+                    <line x1={cx - 4} y1={cy - 14} x2={cx - 4} y2={cy + 14} stroke="#ffffff" strokeWidth="2.5" opacity="0.85" />
                   </g>
                 );
               })}
             </g>
           )}
 
-          {/* TYPE E: SELF-ALIGNING BALL BEARING (Dual Staggered Ball Rows) */}
+          {/* TYPE E: SELF-ALIGNING BALL BEARING (Double Row Balls) */}
           {selectedType === 'self-aligning' && (
             <g transform={`rotate(${rotationAngle}, 200, 200)`}>
               <circle
@@ -964,36 +822,32 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                 cy="200"
                 r="118"
                 fill="none"
-                stroke="url(#brassCageGrad)"
-                strokeWidth="20"
-                strokeDasharray="14 10"
+                stroke="url(#cadBrassCageGrad)"
+                strokeWidth="22"
+                strokeDasharray="18 10"
                 opacity="0.9"
               />
               {Array.from({ length: 14 }).map((_, index) => {
                 const angle = (index * 360) / 14;
                 const rad = (angle * Math.PI) / 180;
-                const radius = index % 2 === 0 ? 112 : 124;
-                const cx = 200 + radius * Math.cos(rad);
-                const cy = 200 + radius * Math.sin(rad);
+                const cx1 = 200 + 108 * Math.cos(rad);
+                const cy1 = 200 + 108 * Math.sin(rad);
+                const cx2 = 200 + 128 * Math.cos(rad);
+                const cy2 = 200 + 128 * Math.sin(rad);
 
                 return (
                   <g key={index}>
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r="14"
-                      fill={currentTempC > 60 ? "url(#dynamicThermalBall)" : "url(#chromeBallSteel)"}
-                      stroke="#0f172a"
-                      strokeWidth="1.2"
-                    />
-                    <circle cx={cx - 4} cy={cy - 4} r="3.5" fill="#ffffff" opacity="0.9" />
+                    <circle cx={cx1} cy={cy1} r="9" fill="url(#cadChromeBall)" stroke="#0f172a" strokeWidth="1.2" />
+                    <circle cx={cx2} cy={cy2} r="9" fill="url(#cadChromeBall)" stroke="#0f172a" strokeWidth="1.2" />
+                    <circle cx={cx1 - 2.5} cy={cy1 - 2.5} r="2.5" fill="#ffffff" opacity="0.9" />
+                    <circle cx={cx2 - 2.5} cy={cy2 - 2.5} r="2.5" fill="#ffffff" opacity="0.9" />
                   </g>
                 );
               })}
             </g>
           )}
 
-          {/* TYPE F: ANGULAR CONTACT BALL BEARING (40° Contact Vector Marker) */}
+          {/* TYPE F: ANGULAR CONTACT BALL BEARING (40° Contact Angle Profile) */}
           {selectedType === 'angular-contact' && (
             <g transform={`rotate(${rotationAngle}, 200, 200)`}>
               <circle
@@ -1001,30 +855,22 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                 cy="200"
                 r="118"
                 fill="none"
-                stroke="url(#brassCageGrad)"
-                strokeWidth="22"
-                strokeDasharray="22 14"
+                stroke="url(#cadBrassCageGrad)"
+                strokeWidth="24"
+                strokeDasharray="28 14"
                 opacity="0.95"
               />
               {Array.from({ length: 10 }).map((_, index) => {
                 const angle = (index * 360) / 10;
                 const rad = (angle * Math.PI) / 180;
-                const radius = 118;
-                const cx = 200 + radius * Math.cos(rad);
-                const cy = 200 + radius * Math.sin(rad);
+                const cx = 200 + 118 * Math.cos(rad);
+                const cy = 200 + 118 * Math.sin(rad);
 
                 return (
                   <g key={index}>
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r="20"
-                      fill={currentTempC > 60 ? "url(#dynamicThermalBall)" : "url(#chromeBallSteel)"}
-                      stroke="#0f172a"
-                      strokeWidth="1.5"
-                    />
-                    <circle cx={cx - 6} cy={cy - 6} r="5" fill="#ffffff" opacity="0.9" />
-                    <line x1={cx - 10} y1={cy + 10} x2={cx + 10} y2={cy - 10} stroke="#f59e0b" strokeWidth="1.2" opacity="0.6" />
+                    <circle cx={cx} cy={cy} r="21" fill="url(#cadChromeBall)" stroke="#0f172a" strokeWidth="1.5" />
+                    <circle cx={cx - 6} cy={cy - 6} r="5" fill="#ffffff" opacity="0.95" />
+                    <line x1={cx - 16} y1={cy + 16} x2={cx + 16} y2={cy - 16} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.85" />
                   </g>
                 );
               })}
@@ -1034,36 +880,24 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
           {/* TYPE G: NEEDLE ROLLER BEARING */}
           {selectedType === 'needle' && (
             <g transform={`rotate(${rotationAngle}, 200, 200)`}>
-              <circle
-                cx="200"
-                cy="200"
-                r="118"
-                fill="none"
-                stroke="#64748b"
-                strokeWidth="14"
-                strokeDasharray="12 8"
-                opacity="0.85"
-              />
               {Array.from({ length: 18 }).map((_, index) => {
                 const angle = (index * 360) / 18;
                 const rad = (angle * Math.PI) / 180;
-                const radius = 118;
-                const cx = 200 + radius * Math.cos(rad);
-                const cy = 200 + radius * Math.sin(rad);
+                const cx = 200 + 118 * Math.cos(rad);
+                const cy = 200 + 118 * Math.sin(rad);
 
                 return (
                   <g key={index} transform={`rotate(${angle + 90}, ${cx}, ${cy})`}>
                     <rect
                       x={cx - 4}
-                      y={cy - 16}
+                      y={cy - 18}
                       width="8"
-                      height="32"
-                      rx="2"
-                      fill={currentTempC > 60 ? "url(#dynamicThermalBall)" : "url(#cylindricalRollerSteel)"}
+                      height="36"
+                      rx="3"
+                      fill="url(#cadCylindricalRoller)"
                       stroke="#0f172a"
-                      strokeWidth="1"
+                      strokeWidth="1.2"
                     />
-                    <line x1={cx - 1.5} y1={cy - 14} x2={cx - 1.5} y2={cy + 14} stroke="#ffffff" strokeWidth="1" opacity="0.9" />
                   </g>
                 );
               })}
@@ -1078,28 +912,19 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                 cy="200"
                 r="118"
                 fill="none"
-                stroke="url(#brassCageGrad)"
-                strokeWidth="26"
-                strokeDasharray="24 16"
-                opacity="0.95"
+                stroke="url(#cadBrassCageGrad)"
+                strokeWidth="24"
+                opacity="0.9"
               />
               {Array.from({ length: 10 }).map((_, index) => {
                 const angle = (index * 360) / 10;
                 const rad = (angle * Math.PI) / 180;
-                const radius = 118;
-                const cx = 200 + radius * Math.cos(rad);
-                const cy = 200 + radius * Math.sin(rad);
+                const cx = 200 + 118 * Math.cos(rad);
+                const cy = 200 + 118 * Math.sin(rad);
 
                 return (
                   <g key={index}>
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r="19"
-                      fill={currentTempC > 60 ? "url(#dynamicThermalBall)" : "url(#chromeBallSteel)"}
-                      stroke="#0f172a"
-                      strokeWidth="1.5"
-                    />
+                    <circle cx={cx} cy={cy} r="18" fill="url(#cadChromeBall)" stroke="#0f172a" strokeWidth="1.5" />
                     <circle cx={cx - 5} cy={cy - 5} r="4.5" fill="#ffffff" opacity="0.95" />
                   </g>
                 );
@@ -1107,7 +932,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
             </g>
           )}
 
-          {/* TYPE I: ROTARY SHAFT OIL SEAL (Garter Spring & Elastomer Lips) */}
+          {/* TYPE I: ROTARY SHAFT OIL SEAL */}
           {selectedType === 'seal' && (
             <g>
               <circle
@@ -1132,25 +957,66 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
             </g>
           )}
 
-          {/* 3. INNER RING & SHAFT BORE ASSEMBLY (Ground Steel Finish, Chamfers & Keyway) */}
+          {/* 3. INNER RING & SHAFT BORE ASSEMBLY (Ground Steel Finish & Chamfers) */}
           <g transform={`rotate(${rotationAngle * 2.5}, 200, 200)`}>
-            <circle cx="200" cy="200" r="86" fill="url(#innerRingSteel)" stroke="#0f172a" strokeWidth="2.5" />
-            <circle cx="200" cy="200" r="83" fill="none" stroke="url(#chamferShine)" strokeWidth="2" opacity="0.9" />
+            <circle cx="200" cy="200" r="86" fill="url(#cadInnerRingSteel)" stroke="#0f172a" strokeWidth="2.5" />
+            <circle cx="200" cy="200" r="83" fill="none" stroke="url(#cadChamferShine)" strokeWidth="2" opacity="0.9" />
             <circle cx="200" cy="200" r="68" fill="none" stroke="#475569" strokeWidth="1.2" strokeDasharray="5 3" opacity="0.6" />
             
             {/* Shaft Bore Center Hole (d = 40 mm) */}
             <circle cx="200" cy="200" r="48" fill="#020617" stroke="#1e293b" strokeWidth="3" />
             <circle cx="200" cy="200" r="46" fill="none" stroke="#334155" strokeWidth="1" strokeDasharray="6 3" />
 
-            {/* Shaft Keyway Notch & Machined Core */}
+            {/* Shaft Center Keyway Notch */}
             <rect x="194" y="146" width="12" height="12" rx="2" fill="#334155" />
             <circle cx="200" cy="200" r="16" fill="#1e293b" stroke="#f59e0b" strokeWidth="1.5" />
             <circle cx="200" cy="200" r="6" fill="#38bdf8" />
           </g>
 
-          {/* 4. HIGH-CONTRAST USABLE GEOMETRIC DIMENSIONS WITH RIGHT-SIDE LEADER LINES & BIGGER FONTS */}
-          {viewMode === 'dimensions' && (
+          {/* 4. OPTIONAL INDICATIVE THERMAL OVERLAY GRADIENT */}
+          {showThermalOverlay && (
+            <g className="animate-in fade-in duration-300 pointer-events-none">
+              <circle cx="200" cy="200" r="186" fill="url(#cadThermalGrad)" style={{ mixBlendMode: 'multiply' }} />
+            </g>
+          )}
+
+          {/* 5. INTEGRATED CAD HALF-SECTION CUTAWAY + DIRECT FEATURE ISO DIMENSIONS */}
+          {viewMode === 'engineering-cutaway' && (
             <g className="animate-in fade-in duration-200">
+              {/* Semi-transparent Half-Plane Mask & Section Background (Top-Right Quarter Section) */}
+              <path
+                d="M 200,200 L 386,200 A 186,186 0 0,0 200,14 Z"
+                fill="#ffffff"
+                fillOpacity="0.88"
+                stroke="#0284c7"
+                strokeWidth="2"
+              />
+              
+              {/* Outer Ring Cut Face with 45° ISO Section Hatch */}
+              <path
+                d="M 200,14 A 186,186 0 0,1 386,200 L 350,200 A 150,150 0 0,0 200,50 Z"
+                fill="url(#isoSectionHatch)"
+                stroke="#0369a1"
+                strokeWidth="2"
+              />
+              
+              {/* Inner Ring Cut Face with 45° ISO Section Hatch */}
+              <path
+                d="M 200,114 A 86,86 0 0,1 286,200 L 248,200 A 48,48 0 0,0 200,152 Z"
+                fill="url(#isoSectionHatch)"
+                stroke="#0369a1"
+                strokeWidth="2"
+              />
+              
+              {/* Quarter Ball Cut Profile in Raceway */}
+              <circle cx="283" cy="117" r="23" fill="#ffffff" stroke="#0284c7" strokeWidth="2.5" />
+              <line x1="267" y1="133" x2="299" y2="101" stroke="#0284c7" strokeWidth="1.5" strokeDasharray="3 2" />
+              <line x1="283" y1="94" x2="283" y2="140" stroke="#0284c7" strokeWidth="1" strokeDasharray="4 2" />
+
+              {/* Contact Angle Vector Line */}
+              <line x1="248" y1="152" x2="318" y2="82" stroke="#ea580c" strokeWidth="2" strokeDasharray="4 2" />
+              <circle cx="318" cy="82" r="3" fill="#ea580c" />
+
               {/* Pitch Circle Diameter (PCD dm) Dot-Dash Centerline */}
               <circle
                 cx="200"
@@ -1158,234 +1024,190 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                 r="118"
                 fill="none"
                 stroke="#0284c7"
-                strokeWidth="1.8"
+                strokeWidth="1.6"
                 strokeDasharray="8 4 2 4"
-                opacity="0.9"
+                opacity="0.85"
               />
               
-              {/* Precision Center Crosshairs */}
-              <line x1="200" y1="8" x2="200" y2="392" stroke="#0284c7" strokeWidth="1.2" strokeDasharray="10 5" opacity="0.7" />
-              <line x1="8" y1="200" x2="392" y2="200" stroke="#0284c7" strokeWidth="1.2" strokeDasharray="10 5" opacity="0.7" />
+              {/* Center Crosshairs */}
+              <line x1="200" y1="8" x2="200" y2="392" stroke="#0284c7" strokeWidth="1" strokeDasharray="10 5" opacity="0.5" />
+              <line x1="8" y1="200" x2="392" y2="200" stroke="#0284c7" strokeWidth="1" strokeDasharray="10 5" opacity="0.5" />
 
-              {/* ------------------------------------------------------------- */}
-              {/* RIGHT SIDE CALLOUT 1: OUTER DIAMETER (Ø D) */}
-              {/* Pointing directly to the outer surface with leader extending to the right */}
-              {/* ------------------------------------------------------------- */}
+              {/* DIRECT FEATURE DIMENSION 1: OUTER DIAMETER (Ø D = 80mm) pointing to Outer Rim */}
               <g>
-                {/* Pointer Arrow touching outer ring surface at (386, 200) */}
-                <line x1="386" y1="200" x2="435" y2="200" stroke="#1d4ed8" strokeWidth="2.5" />
-                <line x1="435" y1="200" x2="435" y2="95" stroke="#1d4ed8" strokeWidth="2" strokeDasharray="4 2" />
-                <line x1="435" y1="95" x2="340" y2="95" stroke="#1d4ed8" strokeWidth="2" />
-                <circle cx="386" cy="200" r="3.5" fill="#1d4ed8" />
-                <polygon points="386,200 376,195 376,205" fill="#1d4ed8" />
+                <line x1="386" y1="200" x2="430" y2="200" stroke="#1d4ed8" strokeWidth="2" />
+                <line x1="430" y1="200" x2="430" y2="90" stroke="#1d4ed8" strokeWidth="1.5" strokeDasharray="3 2" />
+                <line x1="430" y1="90" x2="350" y2="90" stroke="#1d4ed8" strokeWidth="1.5" />
+                <polygon points="386,200 376,196 376,204" fill="#1d4ed8" />
 
-                {/* Big High-Contrast Badge for Ø D */}
                 <rect 
-                  x="285" 
-                  y="66" 
-                  width="165" 
-                  height="34" 
-                  rx="10" 
+                  x="290" 
+                  y="62" 
+                  width="160" 
+                  height="30" 
+                  rx="8" 
                   fill="#ffffff" 
                   stroke="#1d4ed8" 
-                  strokeWidth="2.2" 
-                  filter="drop-shadow(0 4px 10px rgba(29,78,216,0.22))" 
+                  strokeWidth="2" 
+                  filter="drop-shadow(0 3px 8px rgba(29,78,216,0.18))" 
                 />
-                <text x="367" y="88" fill="#1e3a8a" fontSize="14.5" fontWeight="900" fontFamily="SF Mono, JetBrains Mono, monospace" textAnchor="middle" letterSpacing="0.8">
+                <text x="370" y="82" fill="#1e3a8a" fontSize="13.5" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   Ø D = {currentPart.D} mm
                 </text>
               </g>
 
-              {/* ------------------------------------------------------------- */}
-              {/* RIGHT SIDE CALLOUT 2: PITCH CIRCLE DIAMETER (P.C.D dm) */}
-              {/* Pointing directly to the ball center PCD line at (318, 200) */}
-              {/* ------------------------------------------------------------- */}
+              {/* DIRECT FEATURE DIMENSION 2: PITCH CIRCLE DIAMETER (P.C.D dm) */}
               <g>
-                <circle cx="318" cy="200" r="3.5" fill="#0284c7" />
-                <line x1="318" y1="200" x2="425" y2="200" stroke="#0284c7" strokeWidth="2" />
-                <line x1="425" y1="200" x2="425" y2="155" stroke="#0284c7" strokeWidth="2" strokeDasharray="3 2" />
-                <line x1="425" y1="155" x2="320" y2="155" stroke="#0284c7" strokeWidth="2" />
+                <circle cx="318" cy="200" r="3" fill="#0284c7" />
+                <line x1="318" y1="200" x2="420" y2="200" stroke="#0284c7" strokeWidth="1.8" />
+                <line x1="420" y1="200" x2="420" y2="145" stroke="#0284c7" strokeWidth="1.5" strokeDasharray="3 2" />
+                <line x1="420" y1="145" x2="330" y2="145" stroke="#0284c7" strokeWidth="1.5" />
 
-                {/* Big Badge for P.C.D */}
                 <rect 
-                  x="270" 
-                  y="126" 
-                  width="180" 
-                  height="34" 
-                  rx="10" 
+                  x="280" 
+                  y="120" 
+                  width="170" 
+                  height="28" 
+                  rx="8" 
                   fill="#ffffff" 
                   stroke="#0284c7" 
-                  strokeWidth="2.2" 
-                  filter="drop-shadow(0 4px 10px rgba(2,132,199,0.22))" 
+                  strokeWidth="1.8" 
+                  filter="drop-shadow(0 3px 6px rgba(2,132,199,0.18))" 
                 />
-                <text x="360" y="148" fill="#0369a1" fontSize="14" fontWeight="900" fontFamily="SF Mono, JetBrains Mono, monospace" textAnchor="middle" letterSpacing="0.6">
+                <text x="365" y="139" fill="#0369a1" fontSize="13" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   P.C.D dm = {currentPart.dm} mm
                 </text>
               </g>
 
-              {/* ------------------------------------------------------------- */}
-              {/* RIGHT SIDE CALLOUT 3: INNER BORE DIAMETER (Ø d) */}
-              {/* Pointing directly to the inner bore hole surface at (248, 200) */}
-              {/* ------------------------------------------------------------- */}
+              {/* DIRECT FEATURE DIMENSION 3: INNER BORE DIAMETER (Ø d = 40mm) pointing to Bore Rim */}
               <g>
-                <circle cx="248" cy="200" r="3.5" fill="#059669" />
-                <line x1="248" y1="200" x2="415" y2="200" stroke="#059669" strokeWidth="2" />
-                <line x1="415" y1="200" x2="415" y2="265" stroke="#059669" strokeWidth="2" strokeDasharray="4 2" />
-                <line x1="415" y1="265" x2="310" y2="265" stroke="#059669" strokeWidth="2" />
-                <polygon points="248,200 238,196 238,204" fill="#059669" />
+                <circle cx="248" cy="200" r="3" fill="#059669" />
+                <line x1="248" y1="200" x2="410" y2="200" stroke="#059669" strokeWidth="1.8" />
+                <line x1="410" y1="200" x2="410" y2="255" stroke="#059669" strokeWidth="1.5" strokeDasharray="3 2" />
+                <line x1="410" y1="255" x2="320" y2="255" stroke="#059669" strokeWidth="1.5" />
+                <polygon points="248,200 238,197 238,203" fill="#059669" />
 
-                {/* Big Badge for Ø d */}
                 <rect 
-                  x="285" 
-                  y="236" 
-                  width="165" 
-                  height="34" 
-                  rx="10" 
+                  x="290" 
+                  y="235" 
+                  width="160" 
+                  height="30" 
+                  rx="8" 
                   fill="#ffffff" 
                   stroke="#059669" 
-                  strokeWidth="2.2" 
-                  filter="drop-shadow(0 4px 10px rgba(5,150,105,0.22))" 
+                  strokeWidth="2" 
+                  filter="drop-shadow(0 3px 8px rgba(5,150,105,0.18))" 
                 />
-                <text x="367" y="258" fill="#065f46" fontSize="14.5" fontWeight="900" fontFamily="SF Mono, JetBrains Mono, monospace" textAnchor="middle" letterSpacing="0.8">
+                <text x="370" y="255" fill="#065f46" fontSize="13.5" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   Ø d = {currentPart.d} mm
                 </text>
               </g>
 
-              {/* ------------------------------------------------------------- */}
-              {/* RIGHT SIDE CALLOUT 4: WIDTH / THICKNESS (Width B) */}
-              {/* ------------------------------------------------------------- */}
+              {/* DIRECT FEATURE DIMENSION 4: BOUNDARY WIDTH (Width B) */}
               <g>
                 <rect 
-                  x="285" 
-                  y="296" 
-                  width="165" 
-                  height="34" 
-                  rx="10" 
+                  x="290" 
+                  y="290" 
+                  width="160" 
+                  height="30" 
+                  rx="8" 
                   fill="#ffffff" 
                   stroke="#d97706" 
-                  strokeWidth="2.2" 
-                  filter="drop-shadow(0 4px 10px rgba(217,119,6,0.22))" 
+                  strokeWidth="2" 
+                  filter="drop-shadow(0 3px 8px rgba(217,119,6,0.18))" 
                 />
-                <text x="367" y="318" fill="#92400e" fontSize="14" fontWeight="900" fontFamily="SF Mono, JetBrains Mono, monospace" textAnchor="middle" letterSpacing="0.6">
+                <text x="370" y="310" fill="#92400e" fontSize="13.5" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   Width B = {currentPart.B} mm
                 </text>
               </g>
 
-              {/* Top Left Badge: Chamfer & Clearance */}
+              {/* Top Left Badge: ISO 15 Standard & Chamfer Dimension */}
               <g>
                 <rect 
-                  x="12" 
+                  x="14" 
                   y="16" 
-                  width="165" 
-                  height="32" 
-                  rx="9" 
+                  width="168" 
+                  height="30" 
+                  rx="8" 
                   fill="#ffffff" 
                   stroke="#7c3aed" 
                   strokeWidth="1.8" 
-                  filter="drop-shadow(0 3px 6px rgba(124,58,237,0.15))" 
+                  filter="drop-shadow(0 2px 6px rgba(124,58,237,0.15))" 
                 />
-                <text x="94" y="36" fill="#5b21b6" fontSize="12" fontWeight="900" fontFamily="SF Mono, JetBrains Mono, monospace" textAnchor="middle" letterSpacing="0.4">
+                <text x="98" y="35" fill="#5b21b6" fontSize="11" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   r min = {currentPart.rMin} mm {currentPart.contactAngle ? `| α=${currentPart.contactAngle}` : ''}
                 </text>
               </g>
-
             </g>
           )}
-
-          {/* 5. THERMAL STRESS ANALYSIS ISOTHERM MAP WITH REAL HEAT COLOR SPECTRUM */}
-          {viewMode === 'thermal' && (
-            <g className="animate-in fade-in duration-200">
-              {/* Full Multi-Spectral Heat Distribution Isotherm */}
-              <circle
-                cx="200"
-                cy="200"
-                r="158"
-                fill="url(#flirThermalMap)"
-                className={currentTempC > 180 ? 'animate-pulse' : ''}
-              />
-              
-              {/* Hertzian Contact Pressure Heat Rings */}
-              <circle cx="200" cy="200" r="148" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="6 4" opacity="0.9" />
-              <circle cx="200" cy="200" r="118" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5 3" opacity="0.9" />
-              <circle cx="200" cy="200" r="86" fill="none" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4 4" opacity="0.8" />
-
-              {/* Point Contact High-Stress Thermal Spots */}
-              {Array.from({ length: 8 }).map((_, index) => {
-                const angle = (index * 360) / 8;
-                const rad = (angle * Math.PI) / 180;
-                const cx = 200 + 118 * Math.cos(rad);
-                const cy = 200 + 118 * Math.sin(rad);
-
-                return (
-                  <g key={index}>
-                    <circle cx={cx} cy={cy} r="18" fill="none" stroke="#dc2626" strokeWidth="1.5" strokeDasharray="3 2" />
-                    <circle cx={cx} cy={cy} r="6" fill="#ffffff" opacity={currentTempC > 150 ? 0.9 : 0.4} />
-                  </g>
-                );
-              })}
-            </g>
-          )}
-
         </svg>
-
       </div>
 
-      {/* Dynamic Thermal Health Status Banner when in Thermal mode or High temp */}
-      {isThermalActive && (
-        <div className={`relative z-10 my-1.5 p-2 rounded-xl border flex items-center justify-between text-[11px] transition-all backdrop-blur-md ${
-          currentTempC > 220 
-            ? 'bg-red-500/15 border-red-300 text-red-950 shadow-sm' 
-            : currentTempC > 140
-            ? 'bg-orange-500/15 border-orange-300 text-orange-950 shadow-sm'
-            : currentTempC > 85
-            ? 'bg-amber-500/15 border-amber-300 text-amber-950 shadow-sm'
-            : 'bg-emerald-500/15 border-emerald-300 text-emerald-950 shadow-sm'
-        }`}>
+      {/* Indicative Thermal Color Scale Bar (Shown when Thermal Overlay is Active) */}
+      {showThermalOverlay && (
+        <div className="relative z-10 my-1 p-2 rounded-xl bg-slate-900/90 text-white text-[10px] flex items-center justify-between shadow-sm border border-slate-700 animate-in fade-in">
           <div className="flex items-center gap-1.5 font-bold">
-            {currentTempC > 180 ? (
-              <AlertTriangle className="w-3.5 h-3.5 text-red-600 flex-shrink-0 animate-bounce" />
-            ) : (
-              <Flame className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-            )}
-            <span>{language === 'fa' ? thermalProfile.labelFa : thermalProfile.labelEn}</span>
+            <Thermometer className="w-3.5 h-3.5 text-amber-400" />
+            <span>{language === 'fa' ? 'طیف دمایی فرضی:' : 'Indicative Thermal Scale:'}</span>
           </div>
-          <span className="font-mono-spec font-black text-xs">
-            {currentTempC}°C
-          </span>
+          <div className="flex items-center gap-1">
+            <span className="px-1.5 py-0.5 rounded bg-blue-600 text-[9px] font-mono">20°C</span>
+            <span>→</span>
+            <span className="px-1.5 py-0.5 rounded bg-amber-500 text-[9px] font-mono">65°C</span>
+            <span>→</span>
+            <span className="px-1.5 py-0.5 rounded bg-red-600 text-[9px] font-mono">105°C</span>
+          </div>
         </div>
       )}
 
-      {/* Bottom Controls: Speed Presets & Meaningful View Modes */}
+      {/* Engineering Meta Parameters Footer Card */}
+      <div className="relative z-10 my-2 p-2.5 rounded-2xl bg-white/75 border border-white/90 shadow-sm flex items-center justify-between text-[11px] text-slate-700">
+        <div className="flex flex-col text-start">
+          <span className="text-[10px] text-slate-400 font-bold">
+            {language === 'fa' ? 'جنس قفسه نگهدارنده:' : 'Cage Retainer:'}
+          </span>
+          <span className="font-bold text-slate-800">
+            {language === 'fa' ? currentPart.cageTypeFa : currentPart.cageTypeEn}
+          </span>
+        </div>
+        
+        <div className="flex flex-col text-end">
+          <span className="text-[10px] text-slate-400 font-bold">
+            {language === 'fa' ? 'کاربری و رفتار بارگذاری:' : 'Load Envelope:'}
+          </span>
+          <span className="font-bold text-[#232c86]">
+            {language === 'fa' ? currentPart.loadTypeFa : currentPart.loadTypeEn}
+          </span>
+        </div>
+      </div>
+
+      {/* Bottom Controls: Speed Inspection & 2 Unified Technical View Modes */}
       <div className="relative z-10 pt-2 border-t border-white/60 flex flex-col gap-2">
         
         {/* Speed Adjustment Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
-            <Gauge className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{language === 'fa' ? 'دور چرخش (RPM):' : 'Rotational Speed (RPM):'}</span>
+            <RotateCw className="w-3.5 h-3.5 text-[#232c86]" />
+            <span>{language === 'fa' ? 'سرعت بازبینی (RPM):' : 'Inspection Speed (RPM):'}</span>
           </div>
 
           <div className="flex items-center gap-1 p-0.5 glass-pill rounded-full">
             {speedPresets.map((p) => {
-              const isSelected = speedLevel === p.val;
-              const isHigh = p.val >= 3000;
+              const isSelected = speedRpm === p.val && !isPaused;
               return (
                 <button
                   key={p.val}
                   onClick={() => {
-                    setSpeedLevel(p.val);
-                    setManualTempC(null); // Return to synchronized speed-temp physics
+                    setSpeedRpm(p.val);
+                    setIsPaused(false);
                   }}
                   className={`px-2.5 py-1 rounded-full text-[10px] font-mono-spec font-bold transition-all flex items-center gap-0.5 cursor-pointer ${
                     isSelected
-                      ? isHigh 
-                        ? 'bg-amber-500 text-white shadow-sm ring-1 ring-amber-400' 
-                        : 'bg-[#232c86] text-white shadow-sm ring-1 ring-blue-800'
+                      ? 'bg-[#232c86] text-white shadow-sm ring-1 ring-blue-800'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                   }`}
                   title={`${p.label} RPM - ${language === 'fa' ? p.descFa : p.descEn}`}
                 >
-                  {isHigh && isSelected && <Flame className="w-2.5 h-2.5 text-amber-200" />}
                   <span>{p.label}</span>
                 </button>
               );
@@ -1393,42 +1215,30 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
           </div>
         </div>
 
-        {/* 3 Distinct Engineering View Modes (Apple Glass Segmented Switch) */}
-        <div className="grid grid-cols-3 gap-1 p-1 bg-slate-200/50 backdrop-blur-md rounded-2xl border border-white/80 shadow-[inset_0_1px_1px_rgba(0,0,0,0.05)]">
+        {/* 2 Unified Engineering View Modes: Kinematic 3D vs Integrated CAD Cutaway & ISO Dimensions */}
+        <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-200/50 backdrop-blur-md rounded-2xl border border-white/80 shadow-[inset_0_1px_1px_rgba(0,0,0,0.05)]">
           <button
             onClick={() => setViewMode('3d')}
-            className={`py-1.5 px-2 rounded-xl text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            className={`py-2 px-3 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
               viewMode === '3d'
                 ? 'bg-white text-[#232c86] shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)]'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <RotateCw className="w-3.5 h-3.5" />
-            <span>{language === 'fa' ? 'مدل سه‌بعدی واقعی' : 'Realistic 3D'}</span>
+            <span>{language === 'fa' ? 'چرخش سه‌بعدی مکانیکی' : 'Kinematic 3D Assembly'}</span>
           </button>
 
           <button
-            onClick={() => setViewMode('dimensions')}
-            className={`py-1.5 px-2 rounded-xl text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              viewMode === 'dimensions'
+            onClick={() => setViewMode('engineering-cutaway')}
+            className={`py-2 px-3 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              viewMode === 'engineering-cutaway'
                 ? 'bg-white text-[#232c86] shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)]'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Ruler className="w-3.5 h-3.5" />
-            <span>{language === 'fa' ? 'ابعاد هندسی (ISO)' : 'Geometric Dims'}</span>
-          </button>
-
-          <button
-            onClick={() => setViewMode('thermal')}
-            className={`py-1.5 px-2 rounded-xl text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              viewMode === 'thermal'
-                ? 'bg-white text-red-600 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)]'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Flame className="w-3.5 h-3.5" />
-            <span>{language === 'fa' ? 'طیف تنش حرارتی' : 'Thermal Stress'}</span>
+            <Layers className="w-3.5 h-3.5" />
+            <span>{language === 'fa' ? 'مقطع فنی و ابعاد هندسی (ISO)' : 'Integrated CAD & ISO Dims'}</span>
           </button>
         </div>
 

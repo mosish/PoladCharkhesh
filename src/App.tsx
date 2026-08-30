@@ -6,6 +6,7 @@ import { Hero } from './components/Hero';
 import { AboutUs } from './components/AboutUs';
 import { ProductCatalog } from './components/ProductCatalog';
 import { BearingCalculator } from './components/BearingCalculator';
+import { BearingThermalEstimator } from './components/BearingThermalEstimator';
 import { WhyChooseUs } from './components/WhyChooseUs';
 import { Industries } from './components/Industries';
 import { TeamMembers } from './components/TeamMembers';
@@ -89,6 +90,8 @@ export default function App() {
         />
 
         <BearingCalculator language={language} />
+
+        <BearingThermalEstimator language={language} />
 
         <WhyChooseUs language={language} />
 

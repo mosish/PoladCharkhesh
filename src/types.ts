@@ -1,6 +1,14 @@
 export type Language = 'fa' | 'en';
 export type Theme = 'light' | 'dark';
 
+export interface TechnicalSource {
+  manufacturer: string;
+  sourceType: 'official_catalog' | 'official_product_table' | 'engineering_manual' | 'industry_standard';
+  catalogCode?: string;
+  reference: string;
+  verifiedAt: string;
+}
+
 export interface BearingProduct {
   id: string;
   code: string;
@@ -17,6 +25,8 @@ export interface BearingProduct {
   corKn: number; // Static load rating
   speedGreaseRpm: number;
   speedOilRpm: number;
+  thermalSpeedRatingRpm?: number;
+  speedReferenceType?: 'limiting' | 'thermal' | 'both';
   cageMaterialFa: string;
   cageMaterialEn: string;
   sealingFa: string;
@@ -29,6 +39,7 @@ export interface BearingProduct {
   featured?: boolean;
   imageUrl?: string;
   schematicType: 'deep-groove' | 'tapered' | 'spherical' | 'cylindrical' | 'thrust' | 'pillow-block' | 'oil-seal';
+  technicalSources?: TechnicalSource[];
 }
 
 export interface TeamMember {

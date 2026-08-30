@@ -234,6 +234,30 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
             </div>
           </div>
 
+          {/* Technical Manufacturer Source Verification Badge */}
+          {product.technicalSources && product.technicalSources.length > 0 && (
+            <div className="p-3.5 bg-blue-50/60 rounded-2xl border border-blue-200/80 text-xs space-y-1.5 shadow-xs">
+              <div className="flex items-center gap-1.5 font-bold text-[#232c86]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                <span>
+                  {language === 'fa' ? 'منبع و مستندات فنی اعتبارسنجی‌شده:' : 'Verified Manufacturer & Standard Documentation:'}
+                </span>
+              </div>
+              <div className="text-slate-600 font-mono-spec text-[11px] leading-relaxed">
+                {product.technicalSources.map((s, idx) => (
+                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-t border-blue-100/80 pt-1 first:border-0 first:pt-0">
+                    <span>
+                      <strong className="text-slate-800">{s.manufacturer}:</strong> {s.reference}
+                    </span>
+                    <span className="text-[10px] text-blue-700 font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-100/70 w-fit">
+                      {s.sourceType.replace('_', ' ')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Applications list */}
           <div>
             <h5 className="text-sm font-bold text-slate-900 mb-2">

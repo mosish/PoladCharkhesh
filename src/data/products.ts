@@ -171,6 +171,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 18500,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-6308-2z',
@@ -199,6 +209,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 10500,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-6005-open',
@@ -227,6 +247,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 21000,
+    technicalSources: [
+        {
+            manufacturer: "NSK Ltd. Japan",
+            sourceType: "official_catalog",
+            reference: "NSK Rolling Bearings Global Master Catalog CAT. No. E1102 / Precision Bearings CAT. No. E1228",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-6206-c3',
@@ -255,6 +285,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 14500,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-6310-2z',
@@ -283,6 +323,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 8500,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 2. Tapered Roller Bearings
@@ -313,6 +363,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'tapered',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 7000,
+    technicalSources: [
+        {
+            manufacturer: "The Timken Company USA",
+            sourceType: "engineering_manual",
+            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-32210',
@@ -341,6 +401,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'tapered',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 6300,
+    technicalSources: [
+        {
+            manufacturer: "The Timken Company USA",
+            sourceType: "engineering_manual",
+            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-32014-x',
@@ -369,6 +439,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'tapered',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 5300,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 3. Spherical Roller Bearings
@@ -399,6 +479,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-22316-cc-w33',
@@ -427,6 +516,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-22220-ek',
@@ -455,6 +553,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 4. Cylindrical Roller Bearings
@@ -485,6 +592,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-nj-212-ecp',
@@ -513,6 +629,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-nup-310-ecp',
@@ -541,6 +666,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 5. Thrust Bearings
@@ -571,6 +705,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'thrust',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-51210',
@@ -599,6 +742,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'thrust',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 6. Mounted Pillow Block Units
@@ -629,6 +781,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'pillow-block',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "FYH / NTN Bearing Corporation",
+            sourceType: "official_catalog",
+            reference: "FYH Mounted Ball Bearing Units Master Catalog / JIS B 1559",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-ucf-208',
@@ -657,6 +818,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'pillow-block',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "FYH / NTN Bearing Corporation",
+            sourceType: "official_catalog",
+            reference: "FYH Mounted Ball Bearing Units Master Catalog / JIS B 1559",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-snl-511-609',
@@ -685,6 +855,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'pillow-block',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Split Plummer Block Housings SNL 500 and 600 Series / ISO 113",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 7. Rotary Oil Seals & Hydraulic Seals
@@ -715,6 +894,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-tc-50-72-8-viton',
@@ -743,6 +931,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-tc-75-100-12',
@@ -771,6 +968,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 8. Industrial Greases & Specialized Lubricants
@@ -801,6 +1007,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'deep-groove',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Maintenance and Lubrication Products Catalog (LGMT 2) / DIN 51825-K2K-30",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-22324-ccja-w33va405',
@@ -829,6 +1044,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-32218-j2-q',
@@ -857,6 +1081,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'tapered',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 3400,
+    technicalSources: [
+        {
+            manufacturer: "The Timken Company USA",
+            sourceType: "engineering_manual",
+            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-29420-e',
@@ -885,6 +1119,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'thrust',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-nu-2224-ecp',
@@ -913,6 +1156,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-6210-2z-va208',
@@ -941,6 +1193,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-fkm-tc-80-100-12',
@@ -969,6 +1230,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-snl-518-615',
@@ -997,6 +1267,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'pillow-block',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Split Plummer Block Housings SNL 500 and 600 Series / ISO 113",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-mobilith-shc-220',
@@ -1025,6 +1304,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'spherical',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "ExxonMobil Industrial Lubricants",
+            sourceType: "official_catalog",
+            reference: "Mobilith SHC™ 220 Synthetic Grease Technical Data Sheet / DIN 51825",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 9. Angular Contact Ball Bearings
@@ -1055,6 +1343,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 9000,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-7210-becbp',
@@ -1083,6 +1381,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 12000,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-3308-a-2z',
@@ -1111,6 +1419,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 9500,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 10. Self-Aligning Ball Bearings & Needle Roller Bearings
@@ -1141,6 +1459,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 10500,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-na-4910',
@@ -1169,6 +1497,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 8400,
+    technicalSources: [
+        {
+            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
+            sourceType: "official_catalog",
+            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 11. Heavy Industrial Spherical & Tapered Additions
@@ -1199,6 +1537,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-32314-j2-q',
@@ -1227,6 +1574,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'tapered',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 3800,
+    technicalSources: [
+        {
+            manufacturer: "The Timken Company USA",
+            sourceType: "engineering_manual",
+            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // 12. Additional Housings & Heavy Seals
@@ -1257,6 +1614,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'pillow-block',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "FYH / NTN Bearing Corporation",
+            sourceType: "official_catalog",
+            reference: "FYH Mounted Ball Bearing Units Master Catalog / JIS B 1559",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-tc-100-125-13-viton',
@@ -1285,6 +1651,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-tc-60-85-10',
@@ -1313,6 +1688,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // ==========================================
@@ -1345,6 +1729,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 8500,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-skf-c-2215-k',
@@ -1373,6 +1767,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 5300,
+    technicalSources: [
+        {
+            manufacturer: "SKF Group",
+            sourceType: "official_catalog",
+            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-skf-sy-50-tf',
@@ -1401,6 +1805,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'pillow-block',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "FYH / NTN Bearing Corporation",
+            sourceType: "official_catalog",
+            reference: "FYH Mounted Ball Bearing Units Master Catalog / JIS B 1559",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // ==========================================
@@ -1433,6 +1846,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 12000,
+    technicalSources: [
+        {
+            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
+            sourceType: "official_catalog",
+            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-fag-22216-e1-xl-k',
@@ -1461,6 +1884,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
+            sourceType: "official_catalog",
+            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-fag-nj-2312-e-m1a',
@@ -1489,6 +1921,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
+            sourceType: "official_catalog",
+            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-ina-nk-25-20',
@@ -1517,6 +1958,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 18900,
+    technicalSources: [
+        {
+            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
+            sourceType: "official_catalog",
+            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-ina-kr-35-pp',
@@ -1545,6 +1996,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
+            sourceType: "official_catalog",
+            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // ==========================================
@@ -1577,6 +2037,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'tapered',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 13700,
+    technicalSources: [
+        {
+            manufacturer: "The Timken Company USA",
+            sourceType: "engineering_manual",
+            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-timken-lm67048-10',
@@ -1605,6 +2075,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'tapered',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 10000,
+    technicalSources: [
+        {
+            manufacturer: "The Timken Company USA",
+            sourceType: "engineering_manual",
+            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-timken-22220-emw33c3',
@@ -1633,6 +2113,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "The Timken Company USA",
+            sourceType: "engineering_manual",
+            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // ==========================================
@@ -1665,6 +2154,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "NSK Ltd. Japan",
+            sourceType: "official_catalog",
+            reference: "NSK Rolling Bearings Global Master Catalog CAT. No. E1102 / Precision Bearings CAT. No. E1228",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-nsk-7010-ctyndblp4',
@@ -1693,6 +2191,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 35000,
+    technicalSources: [
+        {
+            manufacturer: "NSK Ltd. Japan",
+            sourceType: "official_catalog",
+            reference: "NSK Rolling Bearings Global Master Catalog CAT. No. E1102 / Precision Bearings CAT. No. E1228",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-nsk-nu-2214-et',
@@ -1721,6 +2229,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "NSK Ltd. Japan",
+            sourceType: "official_catalog",
+            reference: "NSK Rolling Bearings Global Master Catalog CAT. No. E1102 / Precision Bearings CAT. No. E1228",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // ==========================================
@@ -1753,6 +2270,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "NTN Corporation Japan",
+            sourceType: "official_catalog",
+            reference: "NTN Ball and Roller Bearings Main Catalog CAT. No. 2203 / ULTAGE® High-Capacity Series",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-ntn-22214-eakd1',
@@ -1781,6 +2307,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "NTN Corporation Japan",
+            sourceType: "official_catalog",
+            reference: "NTN Ball and Roller Bearings Main Catalog CAT. No. 2203 / ULTAGE® High-Capacity Series",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-ntn-5206-s',
@@ -1809,6 +2344,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'deep-groove',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 13000,
+    technicalSources: [
+        {
+            manufacturer: "NTN Corporation Japan",
+            sourceType: "official_catalog",
+            reference: "NTN Ball and Roller Bearings Main Catalog CAT. No. 2203 / ULTAGE® High-Capacity Series",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // ==========================================
@@ -1841,6 +2386,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "JTEKT Corporation (Koyo Bearings)",
+            sourceType: "official_catalog",
+            reference: "JTEKT / Koyo Ball and Roller Bearings Main Catalog CAT. No. B2001E / ISO 15 Standards",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-koyo-30212-jr',
@@ -1869,6 +2423,16 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'tapered',
+    speedReferenceType: 'both',
+    thermalSpeedRatingRpm: 5600,
+    technicalSources: [
+        {
+            manufacturer: "JTEKT Corporation (Koyo Bearings)",
+            sourceType: "official_catalog",
+            reference: "JTEKT / Koyo Ball and Roller Bearings Main Catalog CAT. No. B2001E / ISO 15 Standards",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-koyo-22218-rhr',
@@ -1897,6 +2461,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "JTEKT Corporation (Koyo Bearings)",
+            sourceType: "official_catalog",
+            reference: "JTEKT / Koyo Ball and Roller Bearings Main Catalog CAT. No. B2001E / ISO 15 Standards",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // ==========================================
@@ -1929,6 +2502,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'deep-groove',
+    speedReferenceType: 'limiting',
+    technicalSources: [
+        {
+            manufacturer: "NACHI-FUJIKOSHI Corp. Japan",
+            sourceType: "official_catalog",
+            reference: "NACHI Bearings Quest® Series Master Catalog CAT. No. 2200-8",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-nachi-22222-ex',
@@ -1957,6 +2539,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'spherical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "NACHI-FUJIKOSHI Corp. Japan",
+            sourceType: "official_catalog",
+            reference: "NACHI Bearings Quest® Series Master Catalog CAT. No. 2200-8",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-nachi-nup-310-eg',
@@ -1985,6 +2576,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'cylindrical',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "NACHI-FUJIKOSHI Corp. Japan",
+            sourceType: "official_catalog",
+            reference: "NACHI Bearings Quest® Series Master Catalog CAT. No. 2200-8",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 
   // ==========================================
@@ -2017,6 +2617,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-corteco-12012014b',
@@ -2045,6 +2654,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-corteco-12019688b-cassette',
@@ -2073,6 +2691,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: true,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
   {
     id: 'pc-corteco-babsl-45-65-8',
@@ -2101,6 +2728,15 @@ const rawBearingProducts: BearingProduct[] = [
     inStock: true,
     featured: false,
     schematicType: 'oil-seal',
+    speedReferenceType: 'both',
+    technicalSources: [
+        {
+            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
+            sourceType: "official_catalog",
+            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
+            verifiedAt: "2026-08"
+        }
+    ],
   },
 ];
 
