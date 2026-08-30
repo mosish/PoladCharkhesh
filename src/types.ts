@@ -66,9 +66,3 @@ export interface IndustryApplication {
   recommendedBearings: string[];
   icon: string;
 }
-
-export interface RfqItem {
-  product: BearingProduct;
-  quantity: number;
-  notes?: string;
-}

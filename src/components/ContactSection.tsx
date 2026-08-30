@@ -104,7 +104,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <div>
                     <span className="text-xs text-slate-500 block font-medium">{t.contact.info.phoneLabel}</span>
                     <a
-                      href="tel:02177209117"
+                      href={COMPANY_INFO.landlinePhoneTel}
                       className="text-base sm:text-lg font-black font-mono-spec text-slate-900 hover:text-[#232c86] transition-colors"
                     >
                       {t.contact.info.phoneDisplay}
@@ -120,7 +120,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <div>
                     <span className="text-xs text-slate-500 block font-medium">{t.contact.info.mobileLabel}</span>
                     <a
-                      href="https://wa.me/989127195313"
+                      href={COMPANY_INFO.whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base sm:text-lg font-black font-mono-spec text-emerald-700 hover:underline"
