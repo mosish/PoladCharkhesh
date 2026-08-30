@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { BearingProduct, Language } from '../types';
 import { translations } from '../data/translations';
+import { searchAndRankProducts } from '../utils/search';
+import { getProductSlug } from '../utils/productSlug';
 import { PartMediaSlider } from './PartMediaSlider';
 import { ProductCardSkeleton, ProductTableSkeleton } from './Skeletons';
 import { 
@@ -26,7 +28,9 @@ interface ProductCatalogProps {
   products: BearingProduct[];
   language: Language;
   onSelectProduct: (product: BearingProduct) => void;
+  onNavigateProduct?: (slug: string) => void;
   selectedBearingCode?: string;
+  initialCategory?: string;
 }
 
 const INITIAL_VISIBLE_COUNT = 6;
@@ -37,9 +41,11 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   products,
   language,
   onSelectProduct,
+  onNavigateProduct,
   selectedBearingCode,
+  initialCategory = 'all',
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedSeries, setSelectedSeries] = useState<string>('all');
   const [searchScope, setSearchScope] = useState<SearchScope>('all');
@@ -139,84 +145,40 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   ];
 
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      // Category filter
-      if (selectedCategory !== 'all' && p.category !== selectedCategory) {
-        return false;
-      }
+    // 1. First run multi-attribute search and ranking
+    let list = searchAndRankProducts(products, searchQuery, {
+      category: selectedCategory,
+      brand: selectedBrand,
+      scope: searchScope,
+      minD: minD ? Number(minD) : undefined,
+      maxD: maxD ? Number(maxD) : undefined,
+      minOuterD: minOuterD ? Number(minOuterD) : undefined,
+      maxOuterD: maxOuterD ? Number(maxOuterD) : undefined,
+    });
 
-      // Brand filter
-      if (selectedBrand !== 'all') {
-        const brandMatch = p.brands.some((b) => {
-          if (selectedBrand === 'FAG') {
-            return b.toLowerCase().includes('fag') || b.toLowerCase().includes('ina') || b.toLowerCase().includes('schaeffler');
-          }
-          if (selectedBrand === 'Corteco') {
-            return b.toLowerCase().includes('corteco') || b.toLowerCase().includes('freudenberg');
-          }
-          if (selectedBrand === 'KOYO') {
-            return b.toLowerCase().includes('koyo') || b.toLowerCase().includes('jtekt');
-          }
-          return b.toLowerCase().includes(selectedBrand.toLowerCase());
-        });
-        if (!brandMatch) return false;
-      }
-
-      // Series filter
-      if (selectedSeries !== 'all') {
-        const seriesItem = seriesList.find((s) => s.id === selectedSeries);
-        if (seriesItem && seriesItem.prefixes.length > 0) {
+    // 2. Series filter
+    if (selectedSeries !== 'all') {
+      const seriesItem = seriesList.find((s) => s.id === selectedSeries);
+      if (seriesItem && seriesItem.prefixes.length > 0) {
+        list = list.filter((p) => {
           const upperCode = p.code.toUpperCase();
-          const seriesMatch = seriesItem.prefixes.some((prefix) => 
+          return seriesItem.prefixes.some((prefix) =>
             upperCode.startsWith(prefix) || upperCode.includes(prefix)
           );
-          if (!seriesMatch) return false;
-        }
+        });
       }
+    }
 
-      // Search query filter with Search Scope
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-
-        if (searchScope === 'code') {
-          if (!p.code.toLowerCase().includes(q)) return false;
-        } else if (searchScope === 'brand') {
-          if (!p.brands.some((b) => b.toLowerCase().includes(q))) return false;
-        } else if (searchScope === 'type') {
-          const nameFaMatch = p.nameFa.toLowerCase().includes(q);
-          const nameEnMatch = p.nameEn.toLowerCase().includes(q);
-          const catMatch = p.category.toLowerCase().includes(q);
-          if (!nameFaMatch && !nameEnMatch && !catMatch) return false;
-        } else if (searchScope === 'app') {
-          const appFaMatch = p.applicationsFa.some((a) => a.toLowerCase().includes(q));
-          const appEnMatch = p.applicationsEn.some((a) => a.toLowerCase().includes(q));
-          if (!appFaMatch && !appEnMatch) return false;
-        } else {
-          // All Technical Fields
-          const codeMatch = p.code.toLowerCase().includes(q);
-          const nameFaMatch = p.nameFa.toLowerCase().includes(q);
-          const nameEnMatch = p.nameEn.toLowerCase().includes(q);
-          const brandMatch = p.brands.some((b) => b.toLowerCase().includes(q));
-          const appFaMatch = p.applicationsFa.some((a) => a.toLowerCase().includes(q));
-          const appEnMatch = p.applicationsEn.some((a) => a.toLowerCase().includes(q));
-
-          if (!codeMatch && !nameFaMatch && !nameEnMatch && !brandMatch && !appFaMatch && !appEnMatch) {
-            return false;
-          }
-        }
-      }
-
-      // Dimensional filter (Inner diameter d)
-      if (minD && p.d > 0 && p.d < Number(minD)) return false;
-      if (maxD && p.d > 0 && p.d > Number(maxD)) return false;
-
-      // Dimensional filter (Outer diameter D)
-      if (minOuterD && p.D > 0 && p.D < Number(minOuterD)) return false;
-      if (maxOuterD && p.D > 0 && p.D > Number(maxOuterD)) return false;
-
-      return true;
-    });
+    return list;
   }, [products, selectedCategory, selectedBrand, selectedSeries, searchScope, searchQuery, minD, maxD, minOuterD, maxOuterD, seriesList]);
+
+  const handleProductClick = (product: BearingProduct) => {
+    if (onNavigateProduct) {
+      onNavigateProduct(getProductSlug(product));
+    } else {
+      onSelectProduct(product);
+    }
+  };
 
   const displayedProducts = useMemo(() => {
     return filteredProducts.slice(0, visibleCount);
@@ -641,10 +603,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
               <div
                 key={product.id}
                 id={`bearing-card-${product.id}`}
-                onClick={() => onSelectProduct(product)}
+                onClick={() => handleProductClick(product)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && onSelectProduct(product)}
+                onKeyDown={(e) => e.key === 'Enter' && handleProductClick(product)}
                 className="glass-card rounded-3xl flex flex-col justify-between overflow-hidden group p-5 sm:p-6 cursor-pointer hover:border-blue-500/40 hover:shadow-xl hover:bg-white/95 transition-all duration-200 active:scale-[0.99]"
               >
                 {/* Card Top: Code, Brand Badges & Schematic */}
@@ -740,7 +702,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 {displayedProducts.map((p) => (
                   <tr 
                     key={p.id} 
-                    onClick={() => onSelectProduct(p)} 
+                    onClick={() => handleProductClick(p)} 
                     className="hover:bg-blue-50/70 cursor-pointer transition-colors group"
                   >
                     <td className="py-3 px-4 font-mono-spec font-bold text-[#232c86] group-hover:underline">

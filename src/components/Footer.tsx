@@ -14,13 +14,27 @@ import {
 interface FooterProps {
   language: Language;
   onSelectBearingCode: (code: string) => void;
+  onNavigateSection?: (sectionId: string) => void;
+  onNavigateProduct?: (slug: string) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ language, onSelectBearingCode }) => {
+export const Footer: React.FC<FooterProps> = ({ 
+  language, 
+  onSelectBearingCode,
+  onNavigateSection,
+  onNavigateProduct,
+}) => {
   const t = translations[language];
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLinkClick = (e: React.MouseEvent, sectionId: string) => {
+    if (onNavigateSection) {
+      e.preventDefault();
+      onNavigateSection(sectionId);
+    }
   };
 
   const popularCodes = [
@@ -118,13 +132,13 @@ export const Footer: React.FC<FooterProps> = ({ language, onSelectBearingCode })
               {t.footer.quickLinks}
             </h4>
             <ul className="space-y-2 text-slate-400">
-              <li><a href="#about" className="hover:text-blue-400 transition-colors">{t.nav.about}</a></li>
-              <li><a href="#catalog" className="hover:text-blue-400 transition-colors">{t.nav.products}</a></li>
-              <li><a href="#tools" className="hover:text-blue-400 transition-colors">{t.nav.tools}</a></li>
-              <li><a href="#why-us" className="hover:text-blue-400 transition-colors">{t.nav.whyUs}</a></li>
-              <li><a href="#industries" className="hover:text-blue-400 transition-colors">{t.nav.industries}</a></li>
-              <li><a href="#team" className="hover:text-blue-400 transition-colors">{t.nav.team}</a></li>
-              <li><a href="#contact" className="hover:text-blue-400 transition-colors">{t.nav.contact}</a></li>
+              <li><a href="#about" onClick={(e) => handleLinkClick(e, 'about')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.about}</a></li>
+              <li><a href="#catalog" onClick={(e) => handleLinkClick(e, 'catalog')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.products}</a></li>
+              <li><a href="#tools" onClick={(e) => handleLinkClick(e, 'tools')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.tools}</a></li>
+              <li><a href="#why-us" onClick={(e) => handleLinkClick(e, 'why-us')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.whyUs}</a></li>
+              <li><a href="#industries" onClick={(e) => handleLinkClick(e, 'industries')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.industries}</a></li>
+              <li><a href="#team" onClick={(e) => handleLinkClick(e, 'team')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.team}</a></li>
+              <li><a href="#contact" onClick={(e) => handleLinkClick(e, 'contact')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.contact}</a></li>
             </ul>
           </div>
 

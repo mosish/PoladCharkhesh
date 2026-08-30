@@ -11,6 +11,7 @@ export interface TechnicalSource {
 
 export interface BearingProduct {
   id: string;
+  slug?: string;
   code: string;
   category: 'ball' | 'roller' | 'spherical' | 'cylindrical' | 'thrust' | 'housing' | 'seal' | 'lubricant';
   nameFa: string;

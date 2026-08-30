@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /product/
+Allow: /assets/
+
+Sitemap: https://poladcharkhesh.ir/sitemap.xml

@@ -19,16 +19,27 @@ interface NavbarProps {
   language: Language;
   onLanguageToggle: () => void;
   onContactClick: () => void;
+  onNavigateSection?: (sectionId: string) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   language,
   onLanguageToggle,
   onContactClick,
+  onNavigateSection,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = translations[language];
+
+  const handleNavLinkClick = (e: React.MouseEvent, href: string) => {
+    if (onNavigateSection) {
+      e.preventDefault();
+      const sectionId = href.replace(/^#/, '');
+      onNavigateSection(sectionId);
+      setMobileMenuOpen(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,7 +117,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Brand Logo with Official PooladCharkhesh Emblem */}
             <a 
               href="#home" 
-              className="flex items-center group focus:outline-none flex-shrink-0 transition-transform duration-200 active:scale-95"
+              onClick={(e) => handleNavLinkClick(e, '#home')}
+              className="flex items-center group focus:outline-none flex-shrink-0 transition-transform duration-200 active:scale-95 cursor-pointer"
               title="پولاد چرخِش"
             >
               <Logo 
@@ -124,7 +136,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <a
                   key={link.href}
                   href={link.href}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 hover:text-[#232c86] hover:bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] transition-all whitespace-nowrap flex-shrink-0"
+                  onClick={(e) => handleNavLinkClick(e, link.href)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 hover:text-[#232c86] hover:bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] transition-all whitespace-nowrap flex-shrink-0 cursor-pointer"
                 >
                   {link.label}
                 </a>
@@ -189,8 +202,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <a
                   key={link.href}
                   href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold text-slate-800 bg-white/60 hover:bg-white/90 hover:text-[#232c86] transition-colors whitespace-nowrap truncate border border-white/60 shadow-sm"
+                  onClick={(e) => handleNavLinkClick(e, link.href)}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold text-slate-800 bg-white/60 hover:bg-white/90 hover:text-[#232c86] transition-colors whitespace-nowrap truncate border border-white/60 shadow-sm cursor-pointer"
                 >
                   <span className="truncate">{link.label}</span>
                   {language === 'fa' ? <ChevronLeft className="w-3.5 h-3.5 opacity-50 flex-shrink-0" /> : <ChevronRight className="w-3.5 h-3.5 opacity-50 flex-shrink-0" />}
