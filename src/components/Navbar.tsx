@@ -4,14 +4,15 @@ import {
   Menu, 
   X, 
   Globe, 
-  MessageCircle,
-  Clock,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight
+  MessageCircle, 
+  Clock, 
+  Sparkles, 
+  ChevronLeft, 
+  ChevronRight 
 } from 'lucide-react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
+import { COMPANY_INFO } from '../data/company';
 import { Logo } from './Logo';
 
 interface NavbarProps {
@@ -64,28 +65,27 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-4 text-slate-200 text-[11px] font-mono-spec flex-shrink-0 whitespace-nowrap">
             <span className="hidden md:flex items-center gap-1 text-blue-100 whitespace-nowrap">
               <Clock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-              <span className="whitespace-nowrap">{t.topBar.hours}</span>
+              <span className="whitespace-nowrap">{language === 'fa' ? COMPANY_INFO.workingHoursFa.split('|')[0] : COMPANY_INFO.workingHoursShortEn}</span>
             </span>
             <div className="flex items-center gap-2 sm:gap-3 whitespace-nowrap">
               <a 
-                href="tel:02177209117" 
+                href={COMPANY_INFO.primaryPhoneTel} 
                 className="flex items-center gap-1 text-white hover:text-amber-300 font-bold transition-colors whitespace-nowrap"
-                title="تماس تلفنی"
+                title={language === 'fa' ? 'تماس مستقیم با مدیریت فروش' : 'Direct Sales Call'}
               >
                 <Phone className="w-3 h-3 text-amber-400 flex-shrink-0" />
-                <span className="hidden xs:inline whitespace-nowrap">021-77209117</span>
-                <span className="xs:hidden font-bold whitespace-nowrap">02177209117</span>
+                <span className="whitespace-nowrap">{language === 'fa' ? COMPANY_INFO.primaryPhoneDisplayFa : COMPANY_INFO.primaryPhoneDisplayEn}</span>
               </a>
               <span className="text-blue-400/70">|</span>
               <a 
-                href="https://wa.me/989127195313" 
+                href={COMPANY_INFO.whatsappUrl} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="flex items-center gap-1 text-emerald-300 hover:text-emerald-200 font-semibold whitespace-nowrap"
-                title="واتس‌اپ"
+                title="واتس‌اپ پولاد چرخِش"
               >
                 <MessageCircle className="w-3 h-3 flex-shrink-0" />
-                <span className="hidden sm:inline whitespace-nowrap">09127195313</span>
+                <span className="hidden sm:inline whitespace-nowrap">{COMPANY_INFO.primaryPhone}</span>
                 <span className="sm:hidden whitespace-nowrap">WhatsApp</span>
               </a>
             </div>
@@ -138,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="language-switcher-btn"
                 onClick={onLanguageToggle}
-                className="glass-btn-secondary flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 whitespace-nowrap"
+                className="glass-btn-secondary flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 whitespace-nowrap cursor-pointer"
                 title={language === 'fa' ? 'Switch to English' : 'تغییر زبان به فارسی'}
               >
                 <Globe className="w-3.5 h-3.5 text-[#232c86] flex-shrink-0" />
@@ -148,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Direct Call & Inquiry CTA Button */}
               <a
                 id="navbar-call-inquiry-btn"
-                href="tel:02177209117"
+                href={COMPANY_INFO.primaryPhoneTel}
                 className="glass-btn-primary flex items-center gap-2 px-4 py-1.5 rounded-full text-white text-xs font-semibold active:scale-95 transition-all whitespace-nowrap"
               >
                 <Phone className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
@@ -162,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="mobile-lang-btn"
                 onClick={onLanguageToggle}
-                className="p-2 rounded-full text-slate-700 glass-btn-secondary active:scale-95 transition-transform"
+                className="p-2 rounded-full text-slate-700 glass-btn-secondary active:scale-95 transition-transform cursor-pointer"
                 title="Language"
               >
                 <Globe className="w-4 h-4 text-[#232c86]" />
@@ -171,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="mobile-menu-toggle-btn"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-full text-slate-800 glass-btn-secondary active:scale-95 transition-all"
+                className="p-2 rounded-full text-slate-800 glass-btn-secondary active:scale-95 transition-all cursor-pointer"
                 aria-label="Toggle navigation menu"
               >
                 {mobileMenuOpen ? <X className="w-4 h-4 text-[#232c86]" /> : <Menu className="w-4 h-4 text-[#232c86]" />}
@@ -200,22 +200,22 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="pt-3 border-t border-slate-200/60 flex flex-col gap-2">
               <a
-                href="tel:02177209117"
+                href={COMPANY_INFO.primaryPhoneTel}
                 onClick={() => setMobileMenuOpen(false)}
                 className="glass-btn-primary flex items-center justify-center gap-2 py-3 rounded-2xl text-white font-bold text-sm shadow-md active:scale-98 transition-all whitespace-nowrap"
               >
                 <Phone className="w-4 h-4 text-amber-300" />
-                <span className="whitespace-nowrap">{t.nav.directCall}</span>
+                <span className="whitespace-nowrap">{language === 'fa' ? `تماس مستقیم: ${COMPANY_INFO.primaryPhoneDisplayFa}` : `Call: ${COMPANY_INFO.primaryPhoneDisplayEn}`}</span>
               </a>
 
               <a
-                href="https://wa.me/989127195313"
+                href={COMPANY_INFO.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-emerald-600/90 backdrop-blur-md text-white font-bold text-sm shadow-sm active:scale-98 transition-all whitespace-nowrap border border-white/20"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span className="whitespace-nowrap">{language === 'fa' ? 'استعلام واتس‌اپ: ۰۹۱۲۷۱۹۵۳۱۳' : 'WhatsApp: +989127195313'}</span>
+                <span className="whitespace-nowrap">{language === 'fa' ? `استعلام واتس‌اپ: ${COMPANY_INFO.primaryPhone}` : `WhatsApp: ${COMPANY_INFO.primaryPhone}`}</span>
               </a>
             </div>
           </div>

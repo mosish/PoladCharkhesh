@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
+import { COMPANY_INFO } from '../data/company';
 import { RealisticBearingViewer } from './RealisticBearingViewer';
 import { 
   Search, 
@@ -105,7 +106,7 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
 
               <a
                 id="hero-contact-quick-btn"
-                href="tel:02177209117"
+                href={COMPANY_INFO.primaryPhoneTel}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl glass-btn-secondary text-slate-800 font-bold text-xs sm:text-sm active:scale-95"
               >
                 <PhoneCall className="w-4 h-4 text-[#232c86]" />

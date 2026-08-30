@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
+import { COMPANY_INFO } from '../data/company';
 import { 
   Phone, 
   MessageCircle, 
@@ -61,7 +62,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         `⚡ Urgency: ${formData.urgency}\n` +
         `⚙️ Inquired Parts/Details:\n${formData.partList || 'General Inquiry'}`;
     
-    return `https://wa.me/989127195313?text=${encodeURIComponent(text)}`;
+    return `${COMPANY_INFO.whatsappUrl}?text=${encodeURIComponent(text)}`;
   };
 
   return (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BearingProduct, Language } from '../types';
 import { translations } from '../data/translations';
+import { COMPANY_INFO, createWhatsAppInquiryUrl } from '../data/company';
 import { PartMediaSlider } from './PartMediaSlider';
 import { exportProductSpecPdf } from '../utils/pdfExport';
 import { BearingSpecModalSkeleton } from './Skeletons';
@@ -65,25 +66,13 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
     }
   };
 
-  const whatsappMessage = language === 'fa' 
-    ? encodeURIComponent(
-        `سلام وقت بخیر، استعلام موجودی و مشخصات فنی قطعه زیر را از بازرگانی پولاد چرخِش دارم:\n` +
-        `کد کالا: ${product.code}\n` +
-        `نام: ${product.nameFa}\n` +
-        `ابعاد: d=${product.d}mm , D=${product.D}mm , B=${product.B}mm\n` +
-        `برندهای مدنظر: ${product.brands.join(' / ')}\n` +
-        `لطفاً راهنمایی فرمایید.`
-      )
-    : encodeURIComponent(
-        `Hello, I would like to inquire about specifications and stock availability for:\n` +
-        `Part Number: ${product.code}\n` +
-        `Name: ${product.nameEn}\n` +
-        `Dimensions: d=${product.d}mm, D=${product.D}mm, B=${product.B}mm\n` +
-        `Preferred Brands: ${product.brands.join(' / ')}\n` +
-        `Thank you.`
-      );
-
-  const whatsappUrl = `https://wa.me/989127195313?text=${whatsappMessage}`;
+  const whatsappUrl = createWhatsAppInquiryUrl({
+    productCode: product.code,
+    productName: language === 'fa' ? product.nameFa : product.nameEn,
+    dimensions: `d=${product.d}mm, D=${product.D}mm, B=${product.B}mm`,
+    brands: product.brands,
+    language: language === 'fa' ? 'fa' : 'en',
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
@@ -298,12 +287,12 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
 
             <a
               id="spec-modal-phone-link"
-              href="tel:02177209117"
+              href={COMPANY_INFO.primaryPhoneTel}
               className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-slate-200/90 hover:bg-slate-300 text-slate-800 font-bold text-xs sm:text-sm transition-all"
               title={t.specModal.directPhone}
             >
               <PhoneCall className="w-4 h-4 text-[#232c86]" />
-              <span className="hidden md:inline font-mono-spec">021-77209117</span>
+              <span className="hidden md:inline font-mono-spec">{language === 'fa' ? COMPANY_INFO.primaryPhoneDisplayFa : COMPANY_INFO.primaryPhoneDisplayEn}</span>
             </a>
           </div>
         </div>

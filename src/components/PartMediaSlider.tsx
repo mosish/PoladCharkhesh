@@ -67,6 +67,10 @@ export const PartMediaSlider: React.FC<PartMediaSliderProps> = ({
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
               loading="lazy"
+              onError={(e) => {
+                // Fallback to high quality industrial stock if remote URL fails
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80';
+              }}
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-slate-400 p-4 text-center">
