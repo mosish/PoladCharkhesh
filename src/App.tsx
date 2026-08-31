@@ -1,6 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Language, BearingProduct } from './types';
-import { bearingProducts } from './data/products';
+import { bearingProducts as canonicalProducts } from './data/products';
+import { dataService } from './services/dataService';
+import { authService } from './services/authService';
+import { AdminTab, AdminLayout } from './components/admin/AdminLayout';
+import { AdminLogin } from './components/admin/AdminLogin';
+import { AdminOverview } from './components/admin/AdminOverview';
+import { AdminProducts } from './components/admin/AdminProducts';
+import { AdminMedia } from './components/admin/AdminMedia';
+import { AdminCompany } from './components/admin/AdminCompany';
+import { AdminContact } from './components/admin/AdminContact';
+import { AdminContent } from './components/admin/AdminContent';
+import { AdminSeo } from './components/admin/AdminSeo';
+import { AdminSystem } from './components/admin/AdminSystem';
+import { ProductFormModal } from './components/admin/ProductFormModal';
+
 import { findProductBySlug, getProductSlug } from './utils/productSlug';
 import { updateDocumentSeo } from './utils/seo';
 
@@ -22,25 +36,33 @@ import { FloatingActions } from './components/FloatingActions';
 type RouteState =
   | { type: 'home'; section?: string }
   | { type: 'catalog'; category?: string; search?: string }
-  | { type: 'product'; slug: string };
+  | { type: 'product'; slug: string }
+  | { type: 'admin'; tab?: AdminTab };
 
 function parseCurrentRoute(): RouteState {
   const path = window.location.pathname;
   const hash = window.location.hash;
 
-  // 1. Direct path: /product/:slug
+  // 1. Admin route: /admin or #/admin or #admin
+  if (path.startsWith('/admin') || hash.startsWith('#/admin') || hash.startsWith('#admin')) {
+    const tabMatch = hash.match(/#\/?admin\/([a-z0-9_-]+)/i);
+    const tab = (tabMatch ? tabMatch[1] : 'overview') as AdminTab;
+    return { type: 'admin', tab: tab || 'overview' };
+  }
+
+  // 2. Direct path: /product/:slug
   const productPathMatch = path.match(/^\/product\/([^/]+)/i);
   if (productPathMatch) {
     return { type: 'product', slug: decodeURIComponent(productPathMatch[1]) };
   }
 
-  // 2. Hash-based product route: #/product/:slug or #product/:slug
+  // 3. Hash-based product route: #/product/:slug or #product/:slug
   const hashProductMatch = hash.match(/^#\/?product\/([^/]+)/i);
   if (hashProductMatch) {
     return { type: 'product', slug: decodeURIComponent(hashProductMatch[1]) };
   }
 
-  // 3. Section hash: #catalog, #about, #contact, etc.
+  // 4. Section hash: #catalog, #about, #contact, etc.
   if (hash.startsWith('#')) {
     const section = hash.replace(/^#\/?/, '');
     if (section === 'catalog') {
@@ -55,11 +77,19 @@ function parseCurrentRoute(): RouteState {
 }
 
 export default function App() {
-  // Default language is Persian ('fa'), site is exclusively light theme
+  // Default language is Persian ('fa')
   const [language, setLanguage] = useState<Language>('fa');
   
   // Routing state
   const [route, setRoute] = useState<RouteState>(parseCurrentRoute);
+
+  // Live products dataset subscribed from central dataService
+  const [allProducts, setAllProducts] = useState<BearingProduct[]>(dataService.getActiveProducts());
+
+  // Admin state
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(authService.isAuthenticated());
+  const [adminTab, setAdminTab] = useState<AdminTab>('overview');
+  const [adminAddModalOpen, setAdminAddModalOpen] = useState<boolean>(false);
 
   // Quick Spec Modal (if triggered in quick view mode)
   const [selectedProduct, setSelectedProduct] = useState<BearingProduct | null>(null);
@@ -68,10 +98,29 @@ export default function App() {
   const [catalogSearch, setCatalogSearch] = useState<string>('');
   const [catalogCategory, setCatalogCategory] = useState<string>('all');
 
+  // Subscribe to live products from dataService
+  useEffect(() => {
+    const unsubProducts = dataService.subscribeToProducts((updated) => {
+      setAllProducts(updated.filter((p) => !p.isArchived));
+    });
+    const unsubAuth = authService.subscribe((session) => {
+      setIsAuthenticated(!!session && Date.now() < session.expiresAt);
+    });
+
+    return () => {
+      unsubProducts();
+      unsubAuth();
+    };
+  }, []);
+
   // Handle URL change events (browser Back / Forward buttons & Hash changes)
   useEffect(() => {
     const handleLocationChange = () => {
-      setRoute(parseCurrentRoute());
+      const parsed = parseCurrentRoute();
+      setRoute(parsed);
+      if (parsed.type === 'admin' && parsed.tab) {
+        setAdminTab(parsed.tab);
+      }
     };
 
     window.addEventListener('popstate', handleLocationChange);
@@ -87,22 +136,28 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === 'fa' ? 'rtl' : 'ltr';
-    document.documentElement.classList.remove('dark');
 
-    if (route.type === 'product') {
-      const product = findProductBySlug(route.slug, bearingProducts);
-      updateDocumentSeo({
-        product,
-        language,
-        path: `/product/${route.slug}`,
-      });
+    if (route.type === 'admin') {
+      document.documentElement.classList.add('dark');
+      document.title = language === 'fa' ? 'پنل مدیریت | بازرگانی پولاد چرخِش' : 'Admin Portal | Polad Charkhesh';
     } else {
-      updateDocumentSeo({
-        language,
-        path: window.location.pathname,
-      });
+      document.documentElement.classList.remove('dark');
+
+      if (route.type === 'product') {
+        const product = findProductBySlug(route.slug, allProducts);
+        updateDocumentSeo({
+          product,
+          language,
+          path: `/product/${route.slug}`,
+        });
+      } else {
+        updateDocumentSeo({
+          language,
+          path: window.location.pathname,
+        });
+      }
     }
-  }, [language, route]);
+  }, [language, route, allProducts]);
 
   const toggleLanguage = () => {
     setLanguage((prev) => (prev === 'fa' ? 'en' : 'fa'));
@@ -134,6 +189,14 @@ export default function App() {
     }
   }, []);
 
+  const navigateToAdmin = useCallback((tab: AdminTab = 'overview') => {
+    const targetPath = `/#admin/${tab}`;
+    window.history.pushState(null, '', targetPath);
+    setRoute({ type: 'admin', tab });
+    setAdminTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const navigateToCatalog = useCallback((category: string = 'all', search: string = '') => {
     setCatalogCategory(category);
     if (search) setCatalogSearch(search);
@@ -141,8 +204,7 @@ export default function App() {
   }, [navigateToHome]);
 
   const handleSelectBearingCode = (code: string) => {
-    // Check if code corresponds to a known product
-    const matched = findProductBySlug(code, bearingProducts);
+    const matched = findProductBySlug(code, allProducts);
     if (matched) {
       navigateToProduct(getProductSlug(matched));
     } else {
@@ -156,11 +218,95 @@ export default function App() {
   };
 
   const handleSectionNavigate = (sectionId: string) => {
-    navigateToHome(sectionId);
+    if (sectionId === 'admin') {
+      navigateToAdmin('overview');
+    } else {
+      navigateToHome(sectionId);
+    }
   };
 
-  // Resolved product for product page view
-  const currentProduct = route.type === 'product' ? findProductBySlug(route.slug, bearingProducts) : undefined;
+  // --- ADMIN VIEW RENDERING ---
+  if (route.type === 'admin') {
+    if (!isAuthenticated) {
+      return (
+        <AdminLogin
+          language={language}
+          onSuccess={() => {
+            setIsAuthenticated(true);
+            navigateToAdmin('overview');
+          }}
+          onExitToPublicSite={() => navigateToHome()}
+        />
+      );
+    }
+
+    return (
+      <AdminLayout
+        language={language}
+        activeTab={adminTab}
+        onSelectTab={(tab) => {
+          setAdminTab(tab);
+          window.history.replaceState(null, '', `/#admin/${tab}`);
+        }}
+        onToggleLanguage={toggleLanguage}
+        onExitToPublicSite={() => navigateToHome()}
+      >
+        {adminTab === 'overview' && (
+          <AdminOverview
+            language={language}
+            onNavigateTab={(tab) => {
+              setAdminTab(tab);
+              window.history.replaceState(null, '', `/#admin/${tab}`);
+            }}
+            onOpenAddProductModal={() => setAdminAddModalOpen(true)}
+          />
+        )}
+
+        {adminTab === 'products' && (
+          <AdminProducts
+            language={language}
+            onOpenProductPage={navigateToProduct}
+          />
+        )}
+
+        {adminTab === 'media' && (
+          <AdminMedia language={language} />
+        )}
+
+        {adminTab === 'company' && (
+          <AdminCompany language={language} />
+        )}
+
+        {adminTab === 'contact' && (
+          <AdminContact language={language} />
+        )}
+
+        {adminTab === 'content' && (
+          <AdminContent language={language} />
+        )}
+
+        {adminTab === 'seo' && (
+          <AdminSeo language={language} />
+        )}
+
+        {adminTab === 'system' && (
+          <AdminSystem language={language} />
+        )}
+
+        {/* Global Add Product Modal for quick shortcut */}
+        <ProductFormModal
+          language={language}
+          product={null}
+          isOpen={adminAddModalOpen}
+          onClose={() => setAdminAddModalOpen(false)}
+          onSave={(data) => dataService.addProduct(data, 'admin')}
+        />
+      </AdminLayout>
+    );
+  }
+
+  // --- PUBLIC SITE VIEW RENDERING ---
+  const currentProduct = route.type === 'product' ? findProductBySlug(route.slug, allProducts) : undefined;
 
   return (
     <div className="min-h-screen flex flex-col liquid-mesh-bg text-slate-900 relative overflow-x-clip">
@@ -184,7 +330,7 @@ export default function App() {
           currentProduct ? (
             <ProductPage
               product={currentProduct}
-              allProducts={bearingProducts}
+              allProducts={allProducts}
               language={language}
               onNavigateHome={() => navigateToHome()}
               onNavigateCatalog={(cat) => navigateToCatalog(cat || 'all')}
@@ -215,7 +361,7 @@ export default function App() {
             <AboutUs language={language} />
 
             <ProductCatalog
-              products={bearingProducts}
+              products={allProducts}
               language={language}
               selectedBearingCode={catalogSearch}
               initialCategory={catalogCategory}
@@ -239,7 +385,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer */}
+      {/* Footer with discrete Admin portal access */}
       <Footer
         language={language}
         onSelectBearingCode={handleSelectBearingCode}

@@ -17,6 +17,7 @@ export interface DynamicLoadFactors {
   P: number; // Dynamic equivalent load (kN)
   P0: number; // Static equivalent load (kN)
   isProductSpecific: boolean;
+  isSafetyLocked?: boolean;
   isWarning: boolean;
   warningFa: string;
   warningEn: string;
@@ -24,6 +25,7 @@ export interface DynamicLoadFactors {
   calculationNoteEn: string;
   sourceLabelFa: string;
   sourceLabelEn: string;
+  sourceType?: 'catalog_verified' | 'custom_manual' | 'iso_standard';
 }
 
 export interface BearingLifeInput {
@@ -169,6 +171,9 @@ export function calculateEquivalentLoads(
   let calculationNoteEn = '';
   let sourceLabelFa = 'محاسبه استاندارد ISO 281:2007';
   let sourceLabelEn = 'ISO 281:2007 Standard Calculation';
+  let sourceType: 'catalog_verified' | 'custom_manual' | 'iso_standard' = bearing ? 'catalog_verified' : 'custom_manual';
+
+  const isCatalogItem = bearing !== undefined && bearing !== null;
 
   if (category === 'ball') {
     // 1. DEEP GROOVE BALL BEARINGS (ISO 281:2007 Table 1 & ISO 76 Table 1)
@@ -180,8 +185,11 @@ export function calculateEquivalentLoads(
       eFactor = 0.19;
       calculationNoteFa = 'بار شعاعی خالص (Fa = 0): بار دینامیکی معادل P = Fr (ضریب X=1, Y=0).';
       calculationNoteEn = 'Pure radial load (Fa = 0): Equivalent dynamic load P = Fr (X=1, Y=0).';
+      sourceLabelFa = isCatalogItem ? 'استاندارد ISO 281 (کاتالوگ رسمی سازنده)' : 'محاسبه استاندارد ISO 281:2007 (ورودی دستی)';
+      sourceLabelEn = isCatalogItem ? 'ISO 281 Standard (Official Catalog Item)' : 'ISO 281:2007 Standard (Manual Input)';
     } else {
-      const faCorRatio = Fa / Cor;
+      const f0Factor = bearing?.calculationFactorF0 ?? 1.0;
+      const faCorRatio = (bearing?.calculationFactorF0 ? (f0Factor * Fa) / Cor : Fa / Cor);
       const { e, Y: interpolatedY } = interpolateBallFactors(faCorRatio);
       eFactor = e;
 
@@ -197,29 +205,67 @@ export function calculateEquivalentLoads(
         calculationNoteFa = `نسبت بار محوری به شعاعی (${faFrRatio.toFixed(3)}) > حد e (${eFactor.toFixed(3)}): بر اساس جدول ۱ استاندارد ISO 281 مقدار P = 0.56·Fr + ${Y.toFixed(2)}·Fa می‌باشد.`;
         calculationNoteEn = `Axial-to-radial ratio (${faFrRatio.toFixed(3)}) > limit e (${eFactor.toFixed(3)}): In accordance with ISO 281 Table 1, P = 0.56·Fr + ${Y.toFixed(2)}·Fa.`;
       }
+      if (isCatalogItem && bearing?.calculationFactorF0) {
+        isProductSpecific = true;
+        sourceLabelFa = `استاندارد ISO 281:2007 با ضریب اختصاصی f₀=${bearing.calculationFactorF0}`;
+        sourceLabelEn = `ISO 281:2007 Standard with Verified Factor f₀=${bearing.calculationFactorF0}`;
+      } else {
+        sourceLabelFa = isCatalogItem ? 'استاندارد ISO 281:2007 (Table 1 Deep Groove Ball)' : 'محاسبه استاندارد ISO 281:2007 (ورودی دستی)';
+        sourceLabelEn = isCatalogItem ? 'ISO 281:2007 Standard (Table 1 Deep Groove Ball)' : 'ISO 281:2007 Standard (Manual Input)';
+      }
     }
   } else if (category === 'roller') {
     // 2. TAPERED ROLLER BEARINGS (Single Row — ISO 281:2007 Table 4, ISO 355 & Manufacturer Catalogs)
-    // Pull product-specific factors if available; otherwise use custom/standard factors with clear notice.
-    const productE = bearing?.calculationFactorE ?? customFactors?.e;
-    const productY = bearing?.calculationFactorY ?? customFactors?.Y;
-    const productY0 = bearing?.calculationFactorY0 ?? customFactors?.Y0;
+    // SAFETY LOCK ENFORCEMENT:
+    // If catalog bearing is selected, DO NOT estimate or invent coefficients.
+    if (isCatalogItem) {
+      if (bearing.calculationFactorE === undefined || bearing.calculationFactorY === undefined) {
+        return {
+          X: 0,
+          Y: 0,
+          X0: 0,
+          Y0: 0,
+          e: 0,
+          P: 0,
+          P0: 0,
+          isProductSpecific: false,
+          isSafetyLocked: true,
+          isWarning: true,
+          warningFa: 'ضرایب معتبر سازنده برای این بیرینگ در دسترس نیست.',
+          warningEn: 'Verified manufacturer coefficient unavailable for this bearing.',
+          calculationNoteFa: 'ضرایب معتبر سازنده برای این بیرینگ در دسترس نیست.',
+          calculationNoteEn: 'Verified manufacturer coefficient unavailable for this bearing.',
+          sourceLabelFa: 'قفل ایمنی محاسبات: عدم وجود ضرایب معتبر سازنده',
+          sourceLabelEn: 'Calculator Safety Lock: Verified Manufacturer Coefficient Unavailable',
+          sourceType: 'catalog_verified',
+        };
+      }
 
-    if (productE !== undefined && productY !== undefined) {
-      eFactor = productE;
-      Y = productY;
-      Y0 = productY0 ?? 0.90;
+      eFactor = bearing.calculationFactorE;
+      Y = bearing.calculationFactorY;
+      Y0 = bearing.calculationFactorY0 ?? 0.90;
       isProductSpecific = true;
-      sourceLabelFa = 'ضرایب کاتالوگ رسمی سازنده (Product-Specific Data)';
-      sourceLabelEn = 'Manufacturer Specific Catalog Factors';
+      sourceLabelFa = 'ضرایب تأییدشده کاتالوگ رسمی سازنده (Verified Manufacturer Data)';
+      sourceLabelEn = 'Verified Manufacturer Catalog Factors';
+      sourceType = 'catalog_verified';
     } else {
-      // Default standard metric series (ISO 355 series 302/303 indicative average)
-      eFactor = 0.37;
-      Y = 1.60;
-      Y0 = 0.90;
+      // Manual / Custom mode
+      if (customFactors?.e !== undefined && customFactors?.Y !== undefined) {
+        eFactor = customFactors.e;
+        Y = customFactors.Y;
+        Y0 = customFactors.Y0 ?? 0.90;
+        sourceLabelFa = 'ضرایب ورودی دستی کاربر (Manual / Custom User Parameters)';
+        sourceLabelEn = 'Manual / Custom User Parameters';
+      } else {
+        // Generic ISO 355 baseline ONLY for explicitly labeled manual/custom mode
+        eFactor = 0.37;
+        Y = 1.60;
+        Y0 = 0.90;
+        sourceLabelFa = 'برآورد عمومی ورودی دستی (Manual Input Generic — ISO 355)';
+        sourceLabelEn = 'Manual Input Generic Baseline (ISO 355)';
+      }
       isProductSpecific = false;
-      sourceLabelFa = 'برآورد مقدماتی ضرایب مخروطی (ISO 355 Generic)';
-      sourceLabelEn = 'ISO 355 Generic Preliminary Estimate';
+      sourceType = 'custom_manual';
     }
 
     X0 = 0.5;
@@ -232,25 +278,50 @@ export function calculateEquivalentLoads(
       calculationNoteEn = `Single-row tapered roller: Fa/Fr (${faFrRatio.toFixed(3)}) ≤ e (${eFactor.toFixed(2)}) ⇐ P = Fr. Note: For paired bearings, internal induced thrust (0.5·Fr/Y) must be resolved.`;
     } else {
       X = 0.4;
-      // Keep product-specific Y
       calculationNoteFa = `رولبرینگ مخروطی یک‌ردیفه: Fa/Fr (${faFrRatio.toFixed(3)}) > e (${eFactor.toFixed(2)}) ⇐ بر اساس ISO 281 جدول ۴ مقدار P = 0.4·Fr + ${Y.toFixed(2)}·Fa می‌باشد.`;
       calculationNoteEn = `Single-row tapered roller: Fa/Fr (${faFrRatio.toFixed(3)}) > e (${eFactor.toFixed(2)}) ⇐ per ISO 281 Table 4, P = 0.4·Fr + ${Y.toFixed(2)}·Fa.`;
     }
   } else if (category === 'spherical') {
     // 3. SPHERICAL ROLLER BEARINGS (Double Row — ISO 281:2007 Table 5 & Manufacturer Data)
-    const productE = bearing?.calculationFactorE ?? customFactors?.e;
-    const productY1 = bearing?.calculationFactorY1 ?? customFactors?.Y1;
-    const productY2 = bearing?.calculationFactorY2 ?? customFactors?.Y2;
-    const productY0 = bearing?.calculationFactorY0 ?? customFactors?.Y0;
+    // SAFETY LOCK ENFORCEMENT:
+    // If catalog bearing is selected, require verified manufacturer e, Y1, Y2
+    if (isCatalogItem) {
+      if (
+        bearing.calculationFactorE === undefined ||
+        bearing.calculationFactorY1 === undefined ||
+        bearing.calculationFactorY2 === undefined
+      ) {
+        return {
+          X: 0,
+          Y: 0,
+          X0: 0,
+          Y0: 0,
+          e: 0,
+          P: 0,
+          P0: 0,
+          isProductSpecific: false,
+          isSafetyLocked: true,
+          isWarning: true,
+          warningFa: 'ضرایب معتبر سازنده برای این بیرینگ در دسترس نیست.',
+          warningEn: 'Verified manufacturer coefficient unavailable for this bearing.',
+          calculationNoteFa: 'ضرایب معتبر سازنده برای این بیرینگ در دسترس نیست.',
+          calculationNoteEn: 'Verified manufacturer coefficient unavailable for this bearing.',
+          sourceLabelFa: 'قفل ایمنی محاسبات: عدم وجود ضرایب معتبر سازنده',
+          sourceLabelEn: 'Calculator Safety Lock: Verified Manufacturer Coefficient Unavailable',
+          sourceType: 'catalog_verified',
+        };
+      }
 
-    if (productE !== undefined && productY1 !== undefined && productY2 !== undefined) {
-      eFactor = productE;
+      eFactor = bearing.calculationFactorE;
+      const productY1 = bearing.calculationFactorY1;
+      const productY2 = bearing.calculationFactorY2;
       X0 = 1.0;
-      Y0 = productY0 ?? productY1;
+      Y0 = bearing.calculationFactorY0 ?? productY1;
       isProductSpecific = true;
-      sourceLabelFa = 'ضرایب کاتالوگ رسمی سازنده (Product-Specific Data)';
-      sourceLabelEn = 'Manufacturer Specific Catalog Factors';
-      
+      sourceLabelFa = 'ضرایب تأییدشده کاتالوگ رسمی سازنده (Verified Manufacturer Data)';
+      sourceLabelEn = 'Verified Manufacturer Catalog Factors';
+      sourceType = 'catalog_verified';
+
       const faFrRatio = Fr > 0 ? Fa / Fr : 99999;
       if (faFrRatio <= eFactor) {
         X = 1.0;
@@ -264,28 +335,57 @@ export function calculateEquivalentLoads(
         calculationNoteEn = `Double row spherical roller: Fa/Fr (${faFrRatio.toFixed(3)}) > e (${eFactor.toFixed(2)}) ⇐ P = 0.67·Fr + ${Y.toFixed(2)}·Fa (ISO 281 Table 5).`;
       }
     } else {
-      // Fallback series 222 standard baseline
-      eFactor = 0.24;
-      const Y1 = 2.8;
-      const Y2 = 4.2;
-      X0 = 1.0;
-      Y0 = 2.8;
-      isProductSpecific = false;
-      sourceLabelFa = 'برآورد استاندارد سری 222 (ISO 281 Table 5)';
-      sourceLabelEn = 'Standard Series 222 Estimate (ISO 281 Table 5)';
+      // Manual / Custom mode
+      if (
+        customFactors?.e !== undefined &&
+        customFactors?.Y1 !== undefined &&
+        customFactors?.Y2 !== undefined
+      ) {
+        eFactor = customFactors.e;
+        const customY1 = customFactors.Y1;
+        const customY2 = customFactors.Y2;
+        X0 = 1.0;
+        Y0 = customFactors.Y0 ?? customY1;
+        sourceLabelFa = 'ضرایب ورودی دستی کاربر (Manual / Custom User Parameters)';
+        sourceLabelEn = 'Manual / Custom User Parameters';
 
-      const faFrRatio = Fr > 0 ? Fa / Fr : 99999;
-      if (faFrRatio <= eFactor) {
-        X = 1.0;
-        Y = Y1;
-        calculationNoteFa = `رولبرینگ بشکه‌ای با بار محوری سبک: P = Fr + 2.8·Fa (چون Fa/Fr ≤ ${eFactor}).`;
-        calculationNoteEn = `Double row spherical roller with light thrust: P = Fr + 2.8·Fa (Fa/Fr ≤ ${eFactor}).`;
+        const faFrRatio = Fr > 0 ? Fa / Fr : 99999;
+        if (faFrRatio <= eFactor) {
+          X = 1.0;
+          Y = customY1;
+          calculationNoteFa = `رولبرینگ بشکه‌ای دو ردیفه: Fa/Fr (${faFrRatio.toFixed(3)}) ≤ e (${eFactor.toFixed(2)}) ⇐ P = Fr + ${Y.toFixed(2)}·Fa (جدول ۵ استاندارد ISO 281).`;
+          calculationNoteEn = `Double row spherical roller: Fa/Fr (${faFrRatio.toFixed(3)}) ≤ e (${eFactor.toFixed(2)}) ⇐ P = Fr + ${Y.toFixed(2)}·Fa (ISO 281 Table 5).`;
+        } else {
+          X = 0.67;
+          Y = customY2;
+          calculationNoteFa = `رولبرینگ بشکه‌ای دو ردیفه: Fa/Fr (${faFrRatio.toFixed(3)}) > e (${eFactor.toFixed(2)}) ⇐ P = 0.67·Fr + ${Y.toFixed(2)}·Fa (جدول ۵ استاندارد ISO 281).`;
+          calculationNoteEn = `Double row spherical roller: Fa/Fr (${faFrRatio.toFixed(3)}) > e (${eFactor.toFixed(2)}) ⇐ P = 0.67·Fr + ${Y.toFixed(2)}·Fa (ISO 281 Table 5).`;
+        }
       } else {
-        X = 0.67;
-        Y = Y2;
-        calculationNoteFa = `رولبرینگ بشکه‌ای با بار محوری سنگین: P = 0.67·Fr + 4.2·Fa (چون Fa/Fr > ${eFactor}).`;
-        calculationNoteEn = `Double row spherical roller with heavy thrust: P = 0.67·Fr + 4.2·Fa (Fa/Fr > ${eFactor}).`;
+        // Generic series 222 baseline ONLY for explicitly labeled manual/custom mode
+        eFactor = 0.24;
+        const genericY1 = 2.8;
+        const genericY2 = 4.2;
+        X0 = 1.0;
+        Y0 = 2.8;
+        sourceLabelFa = 'برآورد عمومی ورودی دستی (Manual Input Generic — Series 222 ISO 281 Table 5)';
+        sourceLabelEn = 'Manual Input Generic Baseline (Series 222 ISO 281 Table 5)';
+
+        const faFrRatio = Fr > 0 ? Fa / Fr : 99999;
+        if (faFrRatio <= eFactor) {
+          X = 1.0;
+          Y = genericY1;
+          calculationNoteFa = `رولبرینگ بشکه‌ای با بار محوری سبک: P = Fr + 2.8·Fa (چون Fa/Fr ≤ ${eFactor}).`;
+          calculationNoteEn = `Double row spherical roller with light thrust: P = Fr + 2.8·Fa (Fa/Fr ≤ ${eFactor}).`;
+        } else {
+          X = 0.67;
+          Y = genericY2;
+          calculationNoteFa = `رولبرینگ بشکه‌ای با بار محوری سنگین: P = 0.67·Fr + 4.2·Fa (چون Fa/Fr > ${eFactor}).`;
+          calculationNoteEn = `Double row spherical roller with heavy thrust: P = 0.67·Fr + 4.2·Fa (Fa/Fr > ${eFactor}).`;
+        }
       }
+      isProductSpecific = false;
+      sourceType = 'custom_manual';
     }
   } else if (category === 'cylindrical') {
     // 4. CYLINDRICAL ROLLER BEARINGS (Non-locating NU, N — ISO 281:2007 Table 2 & ISO 76 Table 2)
@@ -294,6 +394,8 @@ export function calculateEquivalentLoads(
     X0 = 1.0;
     Y0 = 0.0;
     eFactor = 0.0;
+    sourceLabelFa = isCatalogItem ? 'استاندارد ISO 281:2007 (جدول ۲ رولبرینگ استوانه‌ای کاتالوگ)' : 'استاندارد ISO 281:2007 (ورودی دستی رولبرینگ استوانه‌ای)';
+    sourceLabelEn = isCatalogItem ? 'ISO 281:2007 Standard (Table 2 Catalog Cylindrical)' : 'ISO 281:2007 Standard (Manual Input Cylindrical)';
 
     if (Fa > 0.001) {
       isWarning = true;
@@ -312,6 +414,8 @@ export function calculateEquivalentLoads(
     X0 = 0.0;
     Y0 = 1.0;
     eFactor = 0.0;
+    sourceLabelFa = isCatalogItem ? 'استاندارد ISO 281:2007 (جدول ۶ بلبرینگ کف‌گرد کاتالوگ)' : 'استاندارد ISO 281:2007 (ورودی دستی بلبرینگ کف‌گرد)';
+    sourceLabelEn = isCatalogItem ? 'ISO 281:2007 Standard (Table 6 Catalog Thrust Ball)' : 'ISO 281:2007 Standard (Manual Input Thrust Ball)';
 
     if (Fr > 0.001) {
       isWarning = true;
@@ -364,6 +468,7 @@ export function calculateEquivalentLoads(
     P: Math.round(P * 1000) / 1000,
     P0: Math.round(P0 * 1000) / 1000,
     isProductSpecific,
+    isSafetyLocked: false,
     isWarning,
     warningFa,
     warningEn,
@@ -371,6 +476,7 @@ export function calculateEquivalentLoads(
     calculationNoteEn,
     sourceLabelFa,
     sourceLabelEn,
+    sourceType,
   };
 }
 
@@ -404,6 +510,28 @@ export function calculateBearingLife(input: BearingLifeInput): BearingLifeOutput
 
   const loadFactors = calculateEquivalentLoads(category, Cor, Fr, Fa, bearing, customFactors);
   const a1Factor = getReliabilityFactorA1(reliabilityLevel);
+
+  // SAFETY LOCK CHECK: If catalog product lacks verified coefficients, stop calculation cleanly.
+  if (loadFactors.isSafetyLocked) {
+    return {
+      loadFactors,
+      pExponent,
+      loadRatio: 0,
+      L10RevolutionsMillions: 0,
+      L10Hours: 0,
+      reliabilityLevel,
+      a1Factor,
+      LnaRevolutionsMillions: 0,
+      LnaHours: 0,
+      s0: 0,
+      pMinKn: 0,
+      isUnderloaded: false,
+      isOverloaded: false,
+      isValid: false,
+      errorMessageFa: 'ضرایب معتبر سازنده برای این بیرینگ در دسترس نیست.',
+      errorMessageEn: 'Verified manufacturer coefficient unavailable for this bearing.',
+    };
+  }
 
   // Edge cases: No load or zero Cr
   if (Fr <= 0 && Fa <= 0) {

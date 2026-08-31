@@ -70,6 +70,7 @@ export interface ProductTechnicalSpecs {
   calculationFactorY1?: number; // Thrust factor Y1 when Fa/Fr <= e (spherical roller)
   calculationFactorY2?: number; // Thrust factor Y2 when Fa/Fr > e (spherical roller)
   calculationFactorX?: number; // Radial factor X
+  calculationFactorF0?: number; // Calculation factor f0 for ball bearings
 }
 
 // 3. Media Sub-Contract

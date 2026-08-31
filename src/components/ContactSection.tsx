@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
 import { COMPANY_INFO } from '../data/company';
+import { dataService } from '../services/dataService';
 import { 
   Phone, 
   MessageCircle, 
@@ -44,6 +45,16 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
       return;
     }
     setFormError('');
+    
+    // Record in central data service for Admin view
+    dataService.recordInquiry({
+      fullName: `${formData.name} (${formData.company || 'شخصی'})`,
+      phone: formData.phone,
+      message: `[فوریت: ${formData.urgency}] ${formData.partList}`,
+      company: formData.company,
+      email: formData.email,
+    });
+
     setSubmitted(true);
   };
 

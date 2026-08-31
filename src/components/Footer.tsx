@@ -181,7 +181,17 @@ export const Footer: React.FC<FooterProps> = ({
       <div className="border-t border-slate-900 py-6 bg-slate-950 text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-start">
           <p>{t.footer.allRights}</p>
-          <p className="font-mono-spec text-[11px]">{t.footer.designedFor}</p>
+          <div className="flex items-center gap-4">
+            <p className="font-mono-spec text-[11px]">{t.footer.designedFor}</p>
+            <a
+              href="#admin"
+              onClick={(e) => handleLinkClick(e, 'admin')}
+              className="text-slate-600 hover:text-slate-400 text-[10px] font-mono transition-colors"
+              title={language === 'fa' ? 'ورود مدیران' : 'Staff Portal'}
+            >
+              [Admin]
+            </a>
+          </div>
         </div>
       </div>
     </footer>

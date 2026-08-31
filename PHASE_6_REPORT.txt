@@ -1,0 +1,103 @@
+================================================================================
+POLAD CHARKHESH - PHASE 6 TECHNICAL REPORT
+Secure Admin Portal & Centralized Engineering Data Management Architecture
+Version: 2.0.0 (Production Release)
+Date: August 31, 2026
+System: Polad Charkhesh Industrial Bearing Platform
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+Phase 6 decouples all technical bearing catalog datasets (68 standard items),
+company identities, contact channels, CMS content, and SEO metadata from static
+React code. All entities are now governed by a centralized, reactive Data
+Service (dataService) backed by cryptographic security, ISO 281 engineering
+validation rules, an immutable audit trail, and an administrative control panel.
+
+2. ACCESS & CREDENTIALS
+--------------------------------------------------------------------------------
+- Direct Portal URL: /admin or /#admin (supports both path and hash routing)
+- Discrete Public Access: "[Admin]" link in the bottom-right footer area
+- Default Development / Demo Credentials:
+    * Username: admin
+    * Password: admin123
+    (Password can be updated immediately with PBKDF2 hashing in the System tab)
+
+3. CORE ARCHITECTURAL PILLARS
+--------------------------------------------------------------------------------
+A. Cryptographic Authentication & Security
+   - PBKDF2-HMAC-SHA256 Password Hashing: 100,000 iterations + 16-byte random salt.
+   - HMAC-SHA256 Session Signing: Tamper-proof session tokens with TTL expiration.
+   - Brute-Force Rate Limiting: 5 consecutive failed attempts trigger temporary lockout.
+   - Environment Isolation: Standardized .env.example with no hardcoded credentials.
+
+B. ISO 281 Engineering Safety Lock
+   - Strict sanity validation prevents data corruption in L10 life calculators:
+     * Outside Diameter (D) > Bore Diameter (d) > 0
+     * Width/Thickness (B) > 0
+     * Dynamic Load (Cr) > 0 and Static Load (C0r) > 0
+     * Category-specific calculation factors (e, Y, Y0, Y1, Y2, f0)
+     * Valid speed ratings (RPM grease/oil) and positive chamfer dimensions (rMin).
+
+C. Reactive Single Source of Truth (dataService)
+   - Real-time Observer/Subscription model.
+   - Live synchronization across public storefront, search index, and admin UI.
+   - Zero page reload required upon editing or archiving products.
+
+4. ADMINISTRATIVE MODULES
+--------------------------------------------------------------------------------
+- Overview & System Metrics (/admin/overview):
+  Live inventory counters, active vs. archived breakdown, brand distributions,
+  ISO calculation factor coverage, and automated dataset integrity validation.
+
+- Product Catalog Manager (/admin/products):
+  Searchable data table with category and status filters. 6-tab modal editor for:
+  1. Identity & Naming (Bilingual Fa/En, featured, in-stock flags)
+  2. Dimensions & Loads (d, D, B, Cr, C0r, speed limits, cage, seals)
+  3. Calculation Factors (ISO 281 factors e, Y, Y0, Y1, Y2, f0 & 3D CAD models)
+  4. Media & Datasheets (Image URLs, PDF downloads)
+  5. Brands & Applications (SKF, FAG, TIMKEN chips, industry tags)
+  6. Technical Sources & SEO (Catalog citations, table refs, verification date)
+
+- Media & Schematic Gallery (/admin/media):
+  Asset manager for product photos, cross-section diagrams, and schematics.
+
+- Company Profile & Identity (/admin/company):
+  Live editing of legal names, slogan, mobile phones, landlines, WhatsApp routing,
+  physical warehouse address, and operational working hours.
+
+- Contact Channels & Inquiries (/admin/contact):
+  WhatsApp template configurator with dynamic {code} substitution and incoming
+  public consultation request ledger.
+
+- Page Content CMS (/admin/content):
+  Live editing of Hero banners, badges, About Us texts, metrics, and disclaimers.
+
+- Search Engine Optimization (/admin/seo):
+  Bilingual meta titles, meta descriptions, OpenGraph image, canonical URL,
+  keywords, and interactive Google SERP live preview card.
+
+- Security, Audit Ledger & Backups (/admin/system):
+  PBKDF2 master password changer, full JSON snapshot export, backup restore with
+  integrity verification, factory reset to canonical 68 items, and audit logs.
+
+5. AUDIT TRAIL & LEDGER ACTIONS
+--------------------------------------------------------------------------------
+All administrative operations are permanently logged with timestamps and users:
+- PRODUCT_CREATED / PRODUCT_UPDATED / PRODUCT_DELETED
+- PRODUCT_ARCHIVED / PRODUCT_RESTORED
+- LOGIN / LOGOUT / FAILED_LOGIN / PASSWORD_CHANGED
+- COMPANY_UPDATED / CONTENT_UPDATED / SEO_UPDATED
+- BACKUP_EXPORTED / BACKUP_IMPORTED / SYSTEM_RESET
+
+6. DATASET & VERIFICATION STATUS
+--------------------------------------------------------------------------------
+- Catalog Size: 68 fully specified industrial bearing products
+- Data Health Check: 100% Passed (zero duplicate codes, zero missing dimensions)
+- TypeScript Compilation: 0 errors (tsc --noEmit passed)
+- Production Build: Successfully compiled (npm run build)
+- Documentation: ADMIN_SETUP.md and .env.example created
+
+================================================================================
+END OF REPORT
+================================================================================

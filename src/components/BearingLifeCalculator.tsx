@@ -602,55 +602,86 @@ export const BearingLifeCalculator: React.FC<BearingLifeCalculatorProps> = ({
         {/* 3. CALCULATION RESULTS & ENGINEERING METRICS */}
         <div className="lg:col-span-6 space-y-6">
           {/* Main Life Result Card */}
-          <div className="bg-gradient-to-br from-[#232c86] to-[#151c5e] rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
+          {loadFactors.isSafetyLocked ? (
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden border border-amber-500/40">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold font-mono border border-amber-400/30 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                  <span>CALCULATION SAFETY LOCK</span>
+                </span>
+                <span className="text-xs text-slate-400 font-mono">
+                  ISO 281 / ISO 76 Safeguard
+                </span>
+              </div>
 
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <span className="px-3 py-1 rounded-full bg-white/15 text-blue-100 text-xs font-bold font-mono">
-                {language === 'fa' 
-                  ? `طول عمر محاسبه‌شده (L${100 - reliabilityLevel}h / a₁=${a1Factor})` 
-                  : `Calculated Life (L${100 - reliabilityLevel}h / a₁=${a1Factor})`}
-              </span>
-              <span className="text-xs text-blue-200 font-mono">
-                P = {loadFactors.P} kN | C/P = {loadRatio}
-              </span>
+              <div className="my-5">
+                <h4 className="text-lg sm:text-xl font-bold text-amber-300 mb-2">
+                  {language === 'fa' 
+                    ? 'ضرایب معتبر سازنده برای این بیرینگ در دسترس نیست.' 
+                    : 'Verified manufacturer coefficient unavailable for this bearing.'}
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  {language === 'fa' 
+                    ? 'مطابق الزامات مهندسی و استاندارد محاسبه، استفاده از ضرایب عمومی/تخمینی برای اقلام کاتالوگ به صورت خودکار مسدود شده است. محاسبه تا ارائه ضرایب تأییدشده سازنده متوقف می‌باشد.' 
+                    : 'Per engineering safety standards, generic coefficient fallbacks are strictly disabled for catalog products. Calculation is halted until verified manufacturer factors (e, Y) are supplied.'}
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+                <span>{language === 'fa' ? 'جهت ورود ضرایب دلخواه، از حالت "ورود دستی (Custom)" استفاده نمایید.' : 'For manual evaluation, switch to "Custom Parameters" mode.'}</span>
+              </div>
             </div>
+          ) : (
+            <div className="bg-gradient-to-br from-[#232c86] to-[#151c5e] rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="my-4">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-white">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <span className="px-3 py-1 rounded-full bg-white/15 text-blue-100 text-xs font-bold font-mono">
+                  {language === 'fa' 
+                    ? `طول عمر محاسبه‌شده (L${100 - reliabilityLevel}h / a₁=${a1Factor})` 
+                    : `Calculated Life (L${100 - reliabilityLevel}h / a₁=${a1Factor})`}
+                </span>
+                <span className="text-xs text-blue-200 font-mono">
+                  P = {loadFactors.P} kN | C/P = {loadRatio}
+                </span>
+              </div>
+
+              <div className="my-4">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-white">
+                    {isLoadZero 
+                      ? '---' 
+                      : LnaHours > 1_000_000 
+                        ? '> 1,000,000' 
+                        : LnaHours.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US')}
+                  </span>
+                  <span className="text-lg font-bold text-blue-200">
+                    {language === 'fa' ? 'ساعت کاری (Operating Hours)' : 'Hours'}
+                  </span>
+                </div>
+                <p className="text-xs text-blue-200 mt-1 font-mono">
                   {isLoadZero 
-                    ? '---' 
-                    : LnaHours > 1_000_000 
-                      ? '> 1,000,000' 
-                      : LnaHours.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US')}
-                </span>
-                <span className="text-lg font-bold text-blue-200">
-                  {language === 'fa' ? 'ساعت کاری (Operating Hours)' : 'Hours'}
-                </span>
+                    ? (language === 'fa' ? 'لطفاً مقادیر بار را وارد کنید' : 'Please input applied load values')
+                    : `≈ ${LnaRevolutionsMillions.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US')} ${language === 'fa' ? 'میلیون دور چرخش (10⁶ Revolutions)' : 'Million Revolutions'}`
+                  }
+                </p>
               </div>
-              <p className="text-xs text-blue-200 mt-1 font-mono">
-                {isLoadZero 
-                  ? (language === 'fa' ? 'لطفاً مقادیر بار را وارد کنید' : 'Please input applied load values')
-                  : `≈ ${LnaRevolutionsMillions.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US')} ${language === 'fa' ? 'میلیون دور چرخش (10⁶ Revolutions)' : 'Million Revolutions'}`
-                }
-              </p>
-            </div>
 
-            {/* Assessment Badge */}
-            <div className="mt-6 pt-4 border-t border-white/15">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 text-xs font-bold text-white mb-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{lifeAssessment.badge}</span>
+              {/* Assessment Badge */}
+              <div className="mt-6 pt-4 border-t border-white/15">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 text-xs font-bold text-white mb-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{lifeAssessment.badge}</span>
+                </div>
+                <p className="text-xs text-blue-100 leading-relaxed">
+                  {language === 'fa' ? lifeAssessment.descFa : lifeAssessment.descEn}
+                </p>
               </div>
-              <p className="text-xs text-blue-100 leading-relaxed">
-                {language === 'fa' ? lifeAssessment.descFa : lifeAssessment.descEn}
-              </p>
             </div>
-          </div>
+          )}
 
           {/* Family Warning Box if applicable */}
-          {loadFactors.isWarning && (
+          {!loadFactors.isSafetyLocked && loadFactors.isWarning && (
             <div className="bg-amber-50 rounded-2xl p-4 border border-amber-300 text-xs text-amber-900 leading-relaxed flex items-start gap-2.5">
               <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
@@ -677,10 +708,12 @@ export const BearingLifeCalculator: React.FC<BearingLifeCalculatorProps> = ({
                 </span>
               </div>
               <div className="text-lg font-black font-mono text-[#232c86]">
-                {loadFactors.P} kN
+                {loadFactors.isSafetyLocked ? '---' : `${loadFactors.P} kN`}
               </div>
               <span className="text-[10px] text-slate-500 font-mono block mt-1">
-                X = {loadFactors.X}, Y = {loadFactors.Y.toFixed(2)} (e = {loadFactors.e.toFixed(2)})
+                {loadFactors.isSafetyLocked 
+                  ? (language === 'fa' ? 'ضرایب قفل ایمنی' : 'Safety Locked') 
+                  : `X = ${loadFactors.X}, Y = ${loadFactors.Y.toFixed(2)} (e = ${loadFactors.e.toFixed(2)})`}
               </span>
             </div>
 
@@ -695,14 +728,16 @@ export const BearingLifeCalculator: React.FC<BearingLifeCalculatorProps> = ({
                 </span>
               </div>
               <div className={`text-lg font-black font-mono ${
-                isLoadZero ? 'text-slate-400' : s0 >= 1.5 ? 'text-emerald-700' : 'text-amber-600'
+                loadFactors.isSafetyLocked ? 'text-slate-400' : isLoadZero ? 'text-slate-400' : s0 >= 1.5 ? 'text-emerald-700' : 'text-amber-600'
               }`}>
-                {isLoadZero ? '---' : `s₀ = ${s0}`}
+                {loadFactors.isSafetyLocked ? '---' : isLoadZero ? '---' : `s₀ = ${s0}`}
               </div>
               <span className="text-[10px] text-slate-500 block mt-1">
-                {isLoadZero 
-                  ? 'P0 = 0 kN' 
-                  : `P₀ = ${loadFactors.P0} kN (${s0 >= 1.5 ? (language === 'fa' ? 'ایمن در برابر دفرمگی' : 'Safe plastic limit') : (language === 'fa' ? 'بررسی بارهای ضربه‌ای' : 'Verify shock loads')})`}
+                {loadFactors.isSafetyLocked
+                  ? (language === 'fa' ? 'محاسبه متوقف شد' : 'Halted')
+                  : isLoadZero 
+                    ? 'P0 = 0 kN' 
+                    : `P₀ = ${loadFactors.P0} kN (${s0 >= 1.5 ? (language === 'fa' ? 'ایمن در برابر دفرمگی' : 'Safe plastic limit') : (language === 'fa' ? 'بررسی بارهای ضربه‌ای' : 'Verify shock loads')})`}
               </span>
             </div>
           </div>
