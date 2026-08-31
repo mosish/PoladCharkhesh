@@ -980,69 +980,98 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
             </g>
           )}
 
-          {/* 5. INTEGRATED CAD HALF-SECTION CUTAWAY + DIRECT FEATURE ISO DIMENSIONS */}
+          {/* 5. INTEGRATED CAD HALF-SECTION CUTAWAY (1/2 Longitudinal Section) + DIRECT ISO DIMENSIONS */}
           {viewMode === 'engineering-cutaway' && (
             <g className="animate-in fade-in duration-200">
-              {/* Semi-transparent Half-Plane Mask & Section Background (Top-Right Quarter Section) */}
+              {/* Semi-transparent 1/2 Longitudinal Semicircle Background Plane (Right Half: x >= 200) */}
               <path
-                d="M 200,200 L 386,200 A 186,186 0 0,0 200,14 Z"
+                d="M 200,14 A 186,186 0 0,1 200,386 Z"
                 fill="#ffffff"
-                fillOpacity="0.88"
+                fillOpacity="0.92"
                 stroke="#0284c7"
                 strokeWidth="2"
               />
               
-              {/* Outer Ring Cut Face with 45° ISO Section Hatch */}
+              {/* Outer Ring Top Section with 45° ISO Section Hatch */}
               <path
                 d="M 200,14 A 186,186 0 0,1 386,200 L 350,200 A 150,150 0 0,0 200,50 Z"
                 fill="url(#isoSectionHatch)"
                 stroke="#0369a1"
                 strokeWidth="2"
               />
+
+              {/* Outer Ring Bottom Section with 45° ISO Section Hatch */}
+              <path
+                d="M 350,200 L 386,200 A 186,186 0 0,1 200,386 L 200,350 A 150,150 0 0,0 350,200 Z"
+                fill="url(#isoSectionHatch)"
+                stroke="#0369a1"
+                strokeWidth="2"
+              />
               
-              {/* Inner Ring Cut Face with 45° ISO Section Hatch */}
+              {/* Inner Ring Top Section with 45° ISO Section Hatch */}
               <path
                 d="M 200,114 A 86,86 0 0,1 286,200 L 248,200 A 48,48 0 0,0 200,152 Z"
                 fill="url(#isoSectionHatch)"
                 stroke="#0369a1"
                 strokeWidth="2"
               />
+
+              {/* Inner Ring Bottom Section with 45° ISO Section Hatch */}
+              <path
+                d="M 286,200 A 86,86 0 0,1 200,286 L 200,248 A 48,48 0 0,0 248,200 Z"
+                fill="url(#isoSectionHatch)"
+                stroke="#0369a1"
+                strokeWidth="2"
+              />
               
-              {/* Quarter Ball Cut Profile in Raceway */}
-              <circle cx="283" cy="117" r="23" fill="#ffffff" stroke="#0284c7" strokeWidth="2.5" />
+              {/* Top Rolling Element Longitudinal Cut */}
+              <circle cx="283" cy="117" r="23" fill="#f8fafc" stroke="#0284c7" strokeWidth="2.5" />
               <line x1="267" y1="133" x2="299" y2="101" stroke="#0284c7" strokeWidth="1.5" strokeDasharray="3 2" />
               <line x1="283" y1="94" x2="283" y2="140" stroke="#0284c7" strokeWidth="1" strokeDasharray="4 2" />
 
-              {/* Contact Angle Vector Line */}
+              {/* Bottom Rolling Element Longitudinal Cut */}
+              <circle cx="283" cy="283" r="23" fill="#f8fafc" stroke="#0284c7" strokeWidth="2.5" />
+              <line x1="267" y1="267" x2="299" y2="299" stroke="#0284c7" strokeWidth="1.5" strokeDasharray="3 2" />
+              <line x1="283" y1="260" x2="283" y2="306" stroke="#0284c7" strokeWidth="1" strokeDasharray="4 2" />
+
+              {/* Contact Angle Vector Line (Top & Bottom) */}
               <line x1="248" y1="152" x2="318" y2="82" stroke="#ea580c" strokeWidth="2" strokeDasharray="4 2" />
               <circle cx="318" cy="82" r="3" fill="#ea580c" />
+              <line x1="248" y1="248" x2="318" y2="318" stroke="#ea580c" strokeWidth="2" strokeDasharray="4 2" />
+              <circle cx="318" cy="318" r="3" fill="#ea580c" />
 
               {/* Pitch Circle Diameter (PCD dm) Dot-Dash Centerline */}
-              <circle
-                cx="200"
-                cy="200"
-                r="118"
+              <path
+                d="M 200,82 A 118,118 0 0,1 200,318"
                 fill="none"
                 stroke="#0284c7"
-                strokeWidth="1.6"
+                strokeWidth="1.8"
                 strokeDasharray="8 4 2 4"
-                opacity="0.85"
+                opacity="0.9"
               />
               
-              {/* Center Crosshairs */}
-              <line x1="200" y1="8" x2="200" y2="392" stroke="#0284c7" strokeWidth="1" strokeDasharray="10 5" opacity="0.5" />
-              <line x1="8" y1="200" x2="392" y2="200" stroke="#0284c7" strokeWidth="1" strokeDasharray="10 5" opacity="0.5" />
+              {/* Longitudinal Section Plane Dividing Centerline */}
+              <line x1="200" y1="4" x2="200" y2="396" stroke="#0369a1" strokeWidth="2" strokeDasharray="14 4 3 4" opacity="0.9" />
+              <line x1="8" y1="200" x2="392" y2="200" stroke="#0284c7" strokeWidth="1" strokeDasharray="10 5" opacity="0.45" />
 
-              {/* DIRECT FEATURE DIMENSION 1: OUTER DIAMETER (Ø D = 80mm) pointing to Outer Rim */}
+              {/* SECTION LABELS A-A */}
+              <g>
+                <polygon points="200,10 193,2 207,2" fill="#0369a1" />
+                <text x="214" y="14" fill="#0369a1" fontSize="12" fontWeight="900" fontFamily="JetBrains Mono, monospace">A</text>
+                <polygon points="200,390 193,398 207,398" fill="#0369a1" />
+                <text x="214" y="394" fill="#0369a1" fontSize="12" fontWeight="900" fontFamily="JetBrains Mono, monospace">A</text>
+              </g>
+
+              {/* DIRECT FEATURE DIMENSION 1: OUTER DIAMETER (Ø D) */}
               <g>
                 <line x1="386" y1="200" x2="430" y2="200" stroke="#1d4ed8" strokeWidth="2" />
-                <line x1="430" y1="200" x2="430" y2="90" stroke="#1d4ed8" strokeWidth="1.5" strokeDasharray="3 2" />
-                <line x1="430" y1="90" x2="350" y2="90" stroke="#1d4ed8" strokeWidth="1.5" />
+                <line x1="430" y1="200" x2="430" y2="80" stroke="#1d4ed8" strokeWidth="1.5" strokeDasharray="3 2" />
+                <line x1="430" y1="80" x2="350" y2="80" stroke="#1d4ed8" strokeWidth="1.5" />
                 <polygon points="386,200 376,196 376,204" fill="#1d4ed8" />
 
                 <rect 
                   x="290" 
-                  y="62" 
+                  y="52" 
                   width="160" 
                   height="30" 
                   rx="8" 
@@ -1051,7 +1080,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                   strokeWidth="2" 
                   filter="drop-shadow(0 3px 8px rgba(29,78,216,0.18))" 
                 />
-                <text x="370" y="82" fill="#1e3a8a" fontSize="13.5" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
+                <text x="370" y="72" fill="#1e3a8a" fontSize="13.5" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   Ø D = {currentPart.D} mm
                 </text>
               </g>
@@ -1060,12 +1089,12 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
               <g>
                 <circle cx="318" cy="200" r="3" fill="#0284c7" />
                 <line x1="318" y1="200" x2="420" y2="200" stroke="#0284c7" strokeWidth="1.8" />
-                <line x1="420" y1="200" x2="420" y2="145" stroke="#0284c7" strokeWidth="1.5" strokeDasharray="3 2" />
-                <line x1="420" y1="145" x2="330" y2="145" stroke="#0284c7" strokeWidth="1.5" />
+                <line x1="420" y1="200" x2="420" y2="135" stroke="#0284c7" strokeWidth="1.5" strokeDasharray="3 2" />
+                <line x1="420" y1="135" x2="330" y2="135" stroke="#0284c7" strokeWidth="1.5" />
 
                 <rect 
                   x="280" 
-                  y="120" 
+                  y="110" 
                   width="170" 
                   height="28" 
                   rx="8" 
@@ -1074,12 +1103,12 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                   strokeWidth="1.8" 
                   filter="drop-shadow(0 3px 6px rgba(2,132,199,0.18))" 
                 />
-                <text x="365" y="139" fill="#0369a1" fontSize="13" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
+                <text x="365" y="129" fill="#0369a1" fontSize="13" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   P.C.D dm = {currentPart.dm} mm
                 </text>
               </g>
 
-              {/* DIRECT FEATURE DIMENSION 3: INNER BORE DIAMETER (Ø d = 40mm) pointing to Bore Rim */}
+              {/* DIRECT FEATURE DIMENSION 3: INNER BORE DIAMETER (Ø d) */}
               <g>
                 <circle cx="248" cy="200" r="3" fill="#059669" />
                 <line x1="248" y1="200" x2="410" y2="200" stroke="#059669" strokeWidth="1.8" />
@@ -1107,7 +1136,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
               <g>
                 <rect 
                   x="290" 
-                  y="290" 
+                  y="295" 
                   width="160" 
                   height="30" 
                   rx="8" 
@@ -1116,17 +1145,17 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                   strokeWidth="2" 
                   filter="drop-shadow(0 3px 8px rgba(217,119,6,0.18))" 
                 />
-                <text x="370" y="310" fill="#92400e" fontSize="13.5" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
+                <text x="370" y="315" fill="#92400e" fontSize="13.5" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   Width B = {currentPart.B} mm
                 </text>
               </g>
 
-              {/* Top Left Badge: ISO 15 Standard & Chamfer Dimension */}
+              {/* Top Left Badge: ISO Standard & Chamfer Dimension */}
               <g>
                 <rect 
                   x="14" 
                   y="16" 
-                  width="168" 
+                  width="175" 
                   height="30" 
                   rx="8" 
                   fill="#ffffff" 
@@ -1134,7 +1163,7 @@ export const RealisticBearingViewer: React.FC<RealisticBearingViewerProps> = ({ 
                   strokeWidth="1.8" 
                   filter="drop-shadow(0 2px 6px rgba(124,58,237,0.15))" 
                 />
-                <text x="98" y="35" fill="#5b21b6" fontSize="11" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
+                <text x="101" y="35" fill="#5b21b6" fontSize="11" fontWeight="900" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
                   r min = {currentPart.rMin} mm {currentPart.contactAngle ? `| α=${currentPart.contactAngle}` : ''}
                 </text>
               </g>

@@ -18,13 +18,14 @@ import { bearingProducts } from '../data/products';
 
 interface BearingThermalEstimatorProps {
   language: Language;
+  embedded?: boolean;
 }
 
 type LubricationMode = 'grease' | 'oil';
 type LoadLevel = 'light' | 'normal' | 'heavy';
 type CoolingCondition = 'natural' | 'forced';
 
-export const BearingThermalEstimator: React.FC<BearingThermalEstimatorProps> = ({ language }) => {
+export const BearingThermalEstimator: React.FC<BearingThermalEstimatorProps> = ({ language, embedded = false }) => {
   // Filter out seals and lubricants to focus on rolling bearings and units
   const availableBearings = useMemo(() => {
     return bearingProducts.filter(p => p.category !== 'seal' && p.category !== 'lubricant' && p.speedGreaseRpm > 0);
@@ -203,35 +204,12 @@ export const BearingThermalEstimator: React.FC<BearingThermalEstimatorProps> = (
   const activePointX = getX(activeRpm);
   const activePointY = getY(estimatedTempAtActiveRpm);
 
-  return (
-    <section id="thermal-estimator" className="relative py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
-
-      {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto mb-8">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-[#232c86] text-xs font-bold font-mono-spec mb-3 shadow-sm">
-          <Activity className="w-3.5 h-3.5 text-blue-600" />
-          <span>{language === 'fa' ? 'ابزار محاسباتی و تحلیل مهندسی' : 'Engineering Calculation & Thermal Tool'}</span>
-        </div>
+  const content = (
+    <div className="glass-panel rounded-3xl p-5 sm:p-7 border border-white/80 shadow-[0_16px_40px_-10px_rgba(35,44,134,0.1)]">
+      
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-          {language === 'fa' ? 'برآورد سرعت و دمای کاری بیرینگ' : 'Bearing Speed & Thermal Estimator'}
-        </h2>
-        
-        <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed">
-          {language === 'fa' 
-            ? 'بررسی رفتار حرارتی و حد مجاز دور بر دقیقه (RPM) بر اساس استاندارد ابعادی و مشخصات کاتالوگ سازندگان' 
-            : 'Explore rotational velocity boundaries and indicative thermal trends based on verified manufacturer catalog parameters'}
-        </p>
-      </div>
-
-      {/* Main Container Card */}
-      <div className="glass-panel rounded-3xl p-5 sm:p-7 border border-white/80 shadow-[0_16px_40px_-10px_rgba(35,44,134,0.1)]">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          {/* Left Column: Product Selector & Assumptions Controls (5 cols) */}
+        {/* Left Column: Product Selector & Assumptions Controls (5 cols) */}
           <div className="lg:col-span-5 space-y-5">
             
             {/* 1. Bearing Selector */}
@@ -693,12 +671,42 @@ export const BearingThermalEstimator: React.FC<BearingThermalEstimatorProps> = (
             <p>
               {language === 'fa' 
                 ? 'مقادیر نمایش‌داده‌شده تخمینی و جهت نمایش مهندسی هستند و به بار، روانکاری، دمای محیط، نحوه نصب، دفع حرارت و سایر شرایط کاری وابسته‏اند. برای کاربردهای حساس، انتخاب نهایی بیرینگ و حدود کاری باید بر اساس مستندات فنی سازنده بررسی شود.'
-                : 'Estimated values are indicative and depend on load, lubrication, ambient temperature, mounting, heat dissipation and other operating conditions. For critical applications, final bearing selection and operating limits must be verified against the manufacturer\'s technical documentation.'}
+                : "Estimated values are indicative and depend on load, lubrication, ambient temperature, mounting, heat dissipation and other operating conditions. For critical applications, final bearing selection and operating limits must be verified against the manufacturer's technical documentation."}
             </p>
           </div>
         </div>
 
       </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
+  return (
+    <section id="thermal-estimator" className="relative py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      {/* Background Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      {/* Section Header */}
+      <div className="text-center max-w-3xl mx-auto mb-8">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-[#232c86] text-xs font-bold font-mono-spec mb-3 shadow-sm">
+          <Activity className="w-3.5 h-3.5 text-blue-600" />
+          <span>{language === 'fa' ? 'ابزار محاسباتی و تحلیل مهندسی' : 'Engineering Calculation & Thermal Tool'}</span>
+        </div>
+        
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+          {language === 'fa' ? 'برآورد سرعت و دمای کاری بیرینگ' : 'Bearing Speed & Thermal Estimator'}
+        </h2>
+        
+        <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed">
+          {language === 'fa' 
+            ? 'بررسی رفتار حرارتی و حد مجاز دور بر دقیقه (RPM) بر اساس استاندارد ابعادی و مشخصات کاتالوگ سازندگان' 
+            : 'Explore rotational velocity boundaries and indicative thermal trends based on verified manufacturer catalog parameters'}
+        </p>
+      </div>
+
+      {content}
     </section>
   );
 };

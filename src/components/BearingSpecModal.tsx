@@ -32,13 +32,23 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
 
-  // Perceived performance loading state when opening or switching product
+  // Escape key listener & Perceived performance loading state
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   useEffect(() => {
     if (product) {
       setIsLoading(true);
       const timer = setTimeout(() => {
         setIsLoading(false);
-      }, 260);
+      }, 200);
       return () => clearTimeout(timer);
     }
   }, [product?.id]);
@@ -75,7 +85,10 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+      onClick={onClose}
+    >
       <div 
         id="bearing-spec-modal-card"
         className="relative w-full max-w-4xl max-h-[92vh] glass-card rounded-3xl shadow-2xl overflow-y-auto bg-white/95 flex flex-col"
@@ -257,6 +270,16 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
               </div>
             </div>
           )}
+
+          {/* B2B Engineering Consultation & Technical Notice */}
+          <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[11px] text-amber-900 leading-relaxed flex items-start gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+            <span>
+              {language === 'fa' 
+                ? 'مشخصات ابعادی و ظرفیت بار بر اساس استاندارد ISO و کاتالوگ سازندگان مرجع درج گردیده است. جهت تطبیق شرایط بار دینامیکی، انتخاب روانکار، لقی مجاز و دریافت تأییدیه فنی، با مهندسین پولاد چرخه‌ش تماس حاصل فرمایید.'
+                : 'Dimensions and load capacities reflect ISO standards and manufacturer catalog data. Contact Polad Charkhesh engineering team for application verification and official quotes.'}
+            </span>
+          </div>
 
           {/* Applications list */}
           <div>

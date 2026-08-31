@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
 import { MetricImperialConverter } from './MetricImperialConverter';
+import { BearingThermalEstimator } from './BearingThermalEstimator';
 import { 
   Wrench, 
   HelpCircle, 
@@ -16,7 +17,8 @@ import {
   ArrowRight,
   Info,
   Sliders,
-  Settings2
+  Settings2,
+  Activity
 } from 'lucide-react';
 import {
   BearingFamily,
@@ -37,7 +39,7 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
   const [ambientTemp, setAmbientTemp] = useState<number>(25);
   const [shaftTolerance, setShaftTolerance] = useState<string>('k5');
   const [speedCategory, setSpeedCategory] = useState<'normal' | 'high' | 'very-high'>('normal');
-  const [activeToolTab, setActiveToolTab] = useState<'clearance' | 'converter' | 'all'>('clearance');
+  const [activeToolTab, setActiveToolTab] = useState<'clearance' | 'thermal' | 'converter' | 'all'>('clearance');
 
   const t = translations[language];
 
@@ -253,12 +255,12 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
           </div>
 
           {/* Primary Tool Tab Switcher */}
-          <div className="flex items-center p-1.5 bg-slate-200/60 backdrop-blur-md rounded-2xl border border-white/80 shadow-xs self-start md:self-auto">
+          <div className="flex flex-wrap items-center p-1.5 bg-slate-200/60 backdrop-blur-md rounded-2xl border border-white/80 shadow-xs self-start md:self-auto gap-1">
             <button
               id="tab-clearance-btn"
               type="button"
               onClick={() => setActiveToolTab('clearance')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'clearance'
                   ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
                   : 'text-slate-700 hover:text-slate-900'
@@ -269,10 +271,24 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
             </button>
 
             <button
+              id="tab-thermal-btn"
+              type="button"
+              onClick={() => setActiveToolTab('thermal')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeToolTab === 'thermal'
+                  ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
+                  : 'text-slate-700 hover:text-slate-900'
+              }`}
+            >
+              <Activity className="w-4 h-4" />
+              <span>{language === 'fa' ? 'برآورد سرعت و دما' : 'Speed & Thermal'}</span>
+            </button>
+
+            <button
               id="tab-converter-btn"
               type="button"
               onClick={() => setActiveToolTab('converter')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'converter'
                   ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
                   : 'text-slate-700 hover:text-slate-900'
@@ -297,6 +313,13 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
             </button>
           </div>
         </div>
+
+        {/* SPEED & THERMAL ESTIMATOR VIEW (When thermal tab is selected) */}
+        {activeToolTab === 'thermal' && (
+          <div className="animate-in fade-in duration-200">
+            <BearingThermalEstimator language={language} embedded={true} />
+          </div>
+        )}
 
         {/* METRIC / IMPERIAL DIMENSION CONVERTER VIEW (When converter tab or all tools is selected) */}
         {(activeToolTab === 'converter' || activeToolTab === 'all') && (
@@ -640,6 +663,13 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
               </div>
 
             </div>
+          </div>
+        )}
+
+        {/* SPEED & THERMAL ESTIMATOR IN ALL TOOLS TAB */}
+        {activeToolTab === 'all' && (
+          <div className="mt-12 pt-12 border-t border-slate-200/60 animate-in fade-in duration-200">
+            <BearingThermalEstimator language={language} embedded={true} />
           </div>
         )}
 

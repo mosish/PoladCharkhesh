@@ -2,12 +2,10 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { BearingProduct, Language } from '../types';
 import { translations } from '../data/translations';
 import { searchAndRankProducts } from '../utils/search';
-import { getProductSlug } from '../utils/productSlug';
 import { PartMediaSlider } from './PartMediaSlider';
 import { ProductCardSkeleton, ProductTableSkeleton } from './Skeletons';
 import { 
   Search, 
-  Filter, 
   SlidersHorizontal, 
   Layers, 
   CheckCircle2, 
@@ -17,11 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
   X,
-  Sparkles,
-  Tag,
-  Building2,
-  Boxes,
-  Compass
+  Sparkles
 } from 'lucide-react';
 
 interface ProductCatalogProps {
@@ -35,20 +29,14 @@ interface ProductCatalogProps {
 
 const INITIAL_VISIBLE_COUNT = 6;
 
-type SearchScope = 'all' | 'code' | 'brand' | 'type' | 'app';
-
 export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   products,
   language,
   onSelectProduct,
-  onNavigateProduct,
   selectedBearingCode,
   initialCategory = 'all',
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
-  const [selectedBrand, setSelectedBrand] = useState<string>('all');
-  const [selectedSeries, setSelectedSeries] = useState<string>('all');
-  const [searchScope, setSearchScope] = useState<SearchScope>('all');
   const [searchQuery, setSearchQuery] = useState<string>(selectedBearingCode || '');
   const [minD, setMinD] = useState<string>('');
   const [maxD, setMaxD] = useState<string>('');
@@ -64,46 +52,21 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
   const t = translations[language];
 
-  // Brand filter options
-  const brandList = [
-    { id: 'all', label: language === 'fa' ? 'همه برندها' : 'All Brands' },
-    { id: 'SKF', label: 'SKF' },
-    { id: 'FAG', label: 'FAG / INA' },
-    { id: 'TIMKEN', label: 'TIMKEN' },
-    { id: 'NSK', label: 'NSK' },
-    { id: 'NTN', label: 'NTN' },
-    { id: 'KOYO', label: 'KOYO' },
-    { id: 'NACHI', label: 'NACHI' },
-    { id: 'Corteco', label: 'CORTECO' },
-  ];
-
-  // Standard ISO Series filter options
-  const seriesList = useMemo(() => [
-    { id: 'all', labelFa: 'همه سری‌ها', labelEn: 'All Series', prefixes: [] },
-    { id: '6000-6300', labelFa: 'سری ۶۰۰۰/۶۲۰۰/۶۳۰۰', labelEn: '6000/6200/6300 Series', prefixes: ['60', '62', '63', '64'] },
-    { id: '22000-22300', labelFa: 'سری ۲۲۲۰۰/۲۲۳۰۰', labelEn: '22200/22300 Series', prefixes: ['222', '223', '230', '240'] },
-    { id: '30000-32200', labelFa: 'سری ۳۰۲۰۰/۳۲۲۰۰/LM', labelEn: '30200/32200/LM Series', prefixes: ['302', '303', '320', '322', '323', 'LM', 'HM', 'JL', 'SET'] },
-    { id: 'cylindrical', labelFa: 'سری NU/NJ/NUP', labelEn: 'NU/NJ/NUP Series', prefixes: ['NU', 'NJ', 'NUP', 'N', 'NN'] },
-    { id: '51000', labelFa: 'سری ۵۱۱۰۰/۵۱۲۰۰', labelEn: '51100/51200 Series', prefixes: ['511', '512', '513', '294'] },
-    { id: 'housing', labelFa: 'سری UCP/UCF/SNL', labelEn: 'UCP/UCF/SNL Series', prefixes: ['UCP', 'UCF', 'UCFL', 'SNL', 'SNH', 'SY', 'FY'] },
-    { id: 'seal', labelFa: 'سری TC/BABSL/Simmerring', labelEn: 'TC/BABSL Series', prefixes: ['TC', 'SC', 'BABSL', 'Simmerring', 'Cassette'] },
-  ], []);
-
-  // Quick preset chips for rapid exploration
+  // Quick preset chips for rapid engineering exploration
   const quickFilterPresets = useMemo(() => [
-    { id: '6200-quick', labelFa: '⚡ موتور الکتریکی (6200/6300)', labelEn: '⚡ Motor (6200/6300)', series: '6000-6300', category: 'ball' },
-    { id: '22200-quick', labelFa: '🔥 کوره و آسیاب (22200/22300)', labelEn: '🔥 Kiln & Mill (22200)', series: '22000-22300', category: 'spherical' },
-    { id: '30200-quick', labelFa: '⚙️ گیربکس و اکسل (30200/32200)', labelEn: '⚙️ Gearbox (30200)', series: '30000-32200', category: 'roller' },
-    { id: 'nu-quick', labelFa: '🏭 بار شعاعی سنگین (NU/NJ)', labelEn: '🏭 Heavy Radial (NU/NJ)', series: 'cylindrical', category: 'cylindrical' },
-    { id: 'housing-quick', labelFa: '🔩 یاتاقان کامل (UCP/UCF)', labelEn: '🔩 Housings (UCP/UCF)', series: 'housing', category: 'housing' },
-    { id: 'corteco-quick', labelFa: '🛡️ آب‌بند و کاسه نمد (Corteco)', labelEn: '🛡️ Oil Seals (Corteco)', series: 'seal', category: 'seal', brand: 'Corteco' },
+    { id: '6200-quick', labelFa: '⚡ موتور الکتریکی (6200/6300)', labelEn: '⚡ Motors (6200/6300)', query: '620' },
+    { id: '22200-quick', labelFa: '🔥 کوره و ارتعاشات سنگین (22200)', labelEn: '🔥 Kiln & Vibratory (22200)', query: '222' },
+    { id: '30200-quick', labelFa: '⚙️ گیربکس و اکسل (30200/32200)', labelEn: '⚙️ Gearbox & Pinion (30200)', query: '302' },
+    { id: 'nu-quick', labelFa: '🏭 بار شعاعی سنگین (NU/NJ)', labelEn: '🏭 Heavy Radial (NU/NJ)', query: 'NU' },
+    { id: 'housing-quick', labelFa: '🔩 یاتاقان کامل (UCP/UCF)', labelEn: '🔩 Housings (UCP/UCF)', query: 'UCP' },
+    { id: 'seal-quick', labelFa: '🛡️ کاسه نمد و آب‌بند صنعتی', labelEn: '🛡️ Industrial Seals', query: 'TC' },
   ], []);
 
   // Initial loading simulation
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 300);
+    }, 280);
     return () => clearTimeout(timer);
   }, []);
 
@@ -113,12 +76,12 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
     searchDebounceRef.current = setTimeout(() => {
       setIsLoading(false);
-    }, 220);
+    }, 200);
 
     return () => {
       if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
     };
-  }, [selectedCategory, selectedBrand, selectedSeries, searchScope, searchQuery, minD, maxD, minOuterD, maxOuterD]);
+  }, [selectedCategory, searchQuery, minD, maxD, minOuterD, maxOuterD]);
 
   // If selectedBearingCode changes from props, update search query
   useEffect(() => {
@@ -130,7 +93,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   // Reset visible count back to 2 rows (6 items) when filters change
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE_COUNT);
-  }, [selectedCategory, selectedBrand, selectedSeries, searchScope, searchQuery, minD, maxD, minOuterD, maxOuterD]);
+  }, [selectedCategory, searchQuery, minD, maxD, minOuterD, maxOuterD]);
 
   const categories = [
     { id: 'all', label: t.catalog.categories.all },
@@ -145,39 +108,17 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   ];
 
   const filteredProducts = useMemo(() => {
-    // 1. First run multi-attribute search and ranking
-    let list = searchAndRankProducts(products, searchQuery, {
+    return searchAndRankProducts(products, searchQuery, {
       category: selectedCategory,
-      brand: selectedBrand,
-      scope: searchScope,
       minD: minD ? Number(minD) : undefined,
       maxD: maxD ? Number(maxD) : undefined,
       minOuterD: minOuterD ? Number(minOuterD) : undefined,
       maxOuterD: maxOuterD ? Number(maxOuterD) : undefined,
     });
-
-    // 2. Series filter
-    if (selectedSeries !== 'all') {
-      const seriesItem = seriesList.find((s) => s.id === selectedSeries);
-      if (seriesItem && seriesItem.prefixes.length > 0) {
-        list = list.filter((p) => {
-          const upperCode = p.code.toUpperCase();
-          return seriesItem.prefixes.some((prefix) =>
-            upperCode.startsWith(prefix) || upperCode.includes(prefix)
-          );
-        });
-      }
-    }
-
-    return list;
-  }, [products, selectedCategory, selectedBrand, selectedSeries, searchScope, searchQuery, minD, maxD, minOuterD, maxOuterD, seriesList]);
+  }, [products, selectedCategory, searchQuery, minD, maxD, minOuterD, maxOuterD]);
 
   const handleProductClick = (product: BearingProduct) => {
-    if (onNavigateProduct) {
-      onNavigateProduct(getProductSlug(product));
-    } else {
-      onSelectProduct(product);
-    }
+    onSelectProduct(product);
   };
 
   const displayedProducts = useMemo(() => {
@@ -186,9 +127,6 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
   const handleResetFilters = () => {
     setSelectedCategory('all');
-    setSelectedBrand('all');
-    setSelectedSeries('all');
-    setSearchScope('all');
     setSearchQuery('');
     setMinD('');
     setMaxD('');
@@ -198,19 +136,12 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   };
 
   const handleApplyPreset = (preset: typeof quickFilterPresets[0]) => {
-    if (preset.category) setSelectedCategory(preset.category);
-    if (preset.series) setSelectedSeries(preset.series);
-    if (preset.brand) setSelectedBrand(preset.brand);
-    else setSelectedBrand('all');
-    setSearchQuery('');
+    setSearchQuery(preset.query);
   };
 
   const hasActiveFilters = Boolean(
     searchQuery || 
     selectedCategory !== 'all' || 
-    selectedBrand !== 'all' || 
-    selectedSeries !== 'all' || 
-    searchScope !== 'all' || 
     minD || 
     maxD || 
     minOuterD || 
@@ -236,7 +167,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         </div>
 
         {/* Top Category Tabs (Apple Frosted Glass Capsule Bar) */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-3 scrollbar-none no-scrollbar mb-3 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 scrollbar-none no-scrollbar mb-5 -mx-4 px-4 sm:mx-0 sm:px-0">
           {categories.map((cat) => {
             const isSelected = selectedCategory === cat.id;
             return (
@@ -255,123 +186,39 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           })}
         </div>
 
-        {/* Brand Filter Chips Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-3 scrollbar-none no-scrollbar mb-5 -mx-4 px-4 sm:mx-0 sm:px-0">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1 shrink-0 flex items-center gap-1">
-            <Building2 className="w-3.5 h-3.5" />
-            {language === 'fa' ? 'برند:' : 'Brand:'}
-          </span>
-          {brandList.map((brand) => {
-            const isBrandSelected = selectedBrand === brand.id;
-            return (
-              <button
-                key={brand.id}
-                onClick={() => setSelectedBrand(brand.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1 active:scale-95 cursor-pointer ${
-                  isBrandSelected
-                    ? 'bg-amber-500 text-white shadow-sm font-bold ring-2 ring-amber-300'
-                    : 'bg-slate-100/90 text-slate-600 hover:bg-slate-200/90 hover:text-slate-900'
-                }`}
-              >
-                <span>{brand.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Main Enhanced Search & In-Search Category/Series/Brand Filter Panel */}
+        {/* Main Enhanced Search & Dimension Filter Panel */}
         <div className="glass-panel p-4 sm:p-6 rounded-3xl mb-8 sm:mb-10 space-y-4">
           
-          {/* Integrated Multi-Filter Search Bar */}
+          {/* Streamlined Search Bar */}
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
             
-            {/* Unified Search Input with Integrated Category/Series/Scope Filters */}
-            <div className="relative flex-1 flex flex-col sm:flex-row items-stretch bg-white/90 rounded-2xl border border-slate-200/80 shadow-inner focus-within:ring-2 focus-within:ring-[#232c86]/30 focus-within:border-[#232c86] transition-all overflow-hidden">
-              
-              {/* Filter 1: In-Search Category / Bearing Type Selector */}
-              <div className="sm:border-e border-b sm:border-b-0 border-slate-200/80 bg-slate-50/70 shrink-0">
-                <select
-                  id="in-search-category-select"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full sm:w-auto px-3.5 py-3 text-xs font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer"
-                  title={language === 'fa' ? 'فیلتر دسته‌بندی قطعه' : 'Filter Bearing Type'}
+            {/* Direct Intelligent Search Input Field */}
+            <div className="relative flex-1 flex items-center bg-white/90 rounded-2xl border border-slate-200/80 shadow-inner focus-within:ring-2 focus-within:ring-[#232c86]/30 focus-within:border-[#232c86] transition-all overflow-hidden">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                id="catalog-search-input"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={
+                  language === 'fa'
+                    ? 'جستجوی هوشمند در کاتالوگ (شماره فنی مانند 6205، 22216، ابعاد، کاربرد صنعتی یا برند)...'
+                    : 'Search catalog by part number (e.g. 6205, 22216), dimensions, application or brand...'
+                }
+                className="w-full pl-10 pr-9 py-3 text-xs sm:text-sm text-slate-900 bg-transparent placeholder:text-slate-400 focus:outline-none"
+              />
+
+              {/* Clear Input (X) Button */}
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 cursor-pointer"
+                  title={language === 'fa' ? 'پاک کردن متن جستجو' : 'Clear search text'}
                 >
-                  <option value="all">{language === 'fa' ? 'همه انواع برینگ' : 'All Types'}</option>
-                  <option value="ball">{language === 'fa' ? 'بلبرینگ شیار عمیق' : 'Deep Groove Ball'}</option>
-                  <option value="roller">{language === 'fa' ? 'رولبرینگ مخروطی' : 'Tapered Roller'}</option>
-                  <option value="spherical">{language === 'fa' ? 'رولبرینگ بشکه‌ای' : 'Spherical Roller'}</option>
-                  <option value="cylindrical">{language === 'fa' ? 'رولبرینگ استوانه‌ای' : 'Cylindrical Roller'}</option>
-                  <option value="thrust">{language === 'fa' ? 'کف‌گرد (محوری)' : 'Thrust Bearing'}</option>
-                  <option value="housing">{language === 'fa' ? 'یاتاقان و محفظه' : 'Pillow Block Housing'}</option>
-                  <option value="seal">{language === 'fa' ? 'کاسه نمد صنعتی' : 'Radial Oil Seal'}</option>
-                  <option value="lubricant">{language === 'fa' ? 'گریس و روانکار' : 'Lubricant'}</option>
-                </select>
-              </div>
-
-              {/* Filter 2: In-Search ISO Series Selector */}
-              <div className="sm:border-e border-b sm:border-b-0 border-slate-200/80 bg-slate-50/40 shrink-0">
-                <select
-                  id="in-search-series-select"
-                  value={selectedSeries}
-                  onChange={(e) => setSelectedSeries(e.target.value)}
-                  className="w-full sm:w-auto px-3 py-3 text-xs font-semibold text-slate-700 bg-transparent focus:outline-none cursor-pointer"
-                  title={language === 'fa' ? 'فیلتر سری کد استاندارد' : 'Filter Bearing Series'}
-                >
-                  {seriesList.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {language === 'fa' ? s.labelFa : s.labelEn}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Text Search Input Field */}
-              <div className="relative flex-1 flex items-center">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  id="catalog-search-input"
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={
-                    language === 'fa'
-                      ? 'جستجو بر اساس شماره فنی (مثلاً 6205، 22216، NU214 یا ابعاد)...'
-                      : 'Search by part # (e.g. 6205, 22216, NU214, or application)...'
-                  }
-                  className="w-full pl-10 pr-9 py-3 text-xs sm:text-sm text-slate-900 bg-transparent placeholder:text-slate-400 focus:outline-none"
-                />
-
-                {/* Clear Input (X) Button */}
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 cursor-pointer"
-                    title={language === 'fa' ? 'پاک کردن متن جستجو' : 'Clear search text'}
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-
-              {/* Filter 3: Search Scope Selector (Code, Brand, Type, App) */}
-              <div className="sm:border-s border-t sm:border-t-0 border-slate-200/80 bg-slate-50/50 shrink-0">
-                <select
-                  id="in-search-scope-select"
-                  value={searchScope}
-                  onChange={(e) => setSearchScope(e.target.value as SearchScope)}
-                  className="w-full sm:w-auto px-3 py-3 text-xs text-slate-600 font-medium bg-transparent focus:outline-none cursor-pointer"
-                  title={language === 'fa' ? 'محدوده جستجو' : 'Search Scope'}
-                >
-                  <option value="all">{language === 'fa' ? 'تمام فیلدها' : 'All Fields'}</option>
-                  <option value="code">{language === 'fa' ? 'فقط شماره فنی (#)' : 'Part Number'}</option>
-                  <option value="type">{language === 'fa' ? 'فقط تیپ برینگ' : 'Bearing Type'}</option>
-                  <option value="brand">{language === 'fa' ? 'فقط برند سازنده' : 'Brand'}</option>
-                  <option value="app">{language === 'fa' ? 'کاربرد صنعتی' : 'Application'}</option>
-                </select>
-              </div>
-
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             {/* Controls: Dimensional Filter Toggle, Reset & View Mode */}
@@ -435,7 +282,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none no-scrollbar text-xs">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1 shrink-0 flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              {language === 'fa' ? 'پیش‌فرض‌های پرکاربرد:' : 'Quick Presets:'}
+              {language === 'fa' ? 'پیش‌فرض‌های مهندسی:' : 'Quick Presets:'}
             </span>
             {quickFilterPresets.map((preset) => (
               <button
@@ -460,24 +307,6 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-100 text-[#232c86] text-xs font-semibold">
                   <span>{categories.find((c) => c.id === selectedCategory)?.label}</span>
                   <button onClick={() => setSelectedCategory('all')} className="hover:text-red-600 cursor-pointer">
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-
-              {selectedBrand !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold">
-                  <span>{brandList.find((b) => b.id === selectedBrand)?.label}</span>
-                  <button onClick={() => setSelectedBrand('all')} className="hover:text-red-600 cursor-pointer">
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-
-              {selectedSeries !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 text-xs font-semibold">
-                  <span>{seriesList.find((s) => s.id === selectedSeries)?.labelFa}</span>
-                  <button onClick={() => setSelectedSeries('all')} className="hover:text-red-600 cursor-pointer">
                     <X className="w-3 h-3" />
                   </button>
                 </span>

@@ -11,7 +11,6 @@ import { ProductCatalog } from './components/ProductCatalog';
 import { ProductPage } from './components/ProductPage';
 import { ProductNotFound } from './components/ProductNotFound';
 import { BearingCalculator } from './components/BearingCalculator';
-import { BearingThermalEstimator } from './components/BearingThermalEstimator';
 import { WhyChooseUs } from './components/WhyChooseUs';
 import { Industries } from './components/Industries';
 import { TeamMembers } from './components/TeamMembers';
@@ -220,13 +219,11 @@ export default function App() {
               language={language}
               selectedBearingCode={catalogSearch}
               initialCategory={catalogCategory}
-              onSelectProduct={(p) => navigateToProduct(getProductSlug(p))}
+              onSelectProduct={(p) => setSelectedProduct(p)}
               onNavigateProduct={navigateToProduct}
             />
 
             <BearingCalculator language={language} />
-
-            <BearingThermalEstimator language={language} />
 
             <WhyChooseUs language={language} />
 
