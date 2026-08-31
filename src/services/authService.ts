@@ -17,16 +17,13 @@ import {
   checkRateLimit, 
   recordFailedAttempt, 
   clearRateLimit,
+  validatePasswordStrength,
   AUTH_CONFIG 
 } from '../utils/cryptoAuth';
 import { auditService } from './auditService';
 
 const SESSION_STORAGE_KEY = 'polad_admin_session_v1';
 const CREDENTIALS_STORAGE_KEY = 'polad_admin_credentials_v1';
-
-// Safe development baseline: Pre-computed PBKDF2 hash for initial dev username "admin" / password "admin123"
-// $pbkdf2$100000$d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1$b722cb984bf4da2cfc3a0785ddfbf04ae7a9446d3e8e19ffea8e89f81d11ea89
-const DEFAULT_DEV_ADMIN_HASH = '$pbkdf2$100000$3a7f9c2e1b4d8a5f6e0c3b2a1d9e8f7a$62e3d92f7c0a969e5d481b37b60098df23351ec1099f493540ebfba4c1851e44';
 
 interface StoredAdminRecord {
   user: AdminUser;
@@ -44,29 +41,91 @@ class AuthService {
 
   private async init(): Promise<void> {
     if (typeof window === 'undefined') return;
-
-    // Ensure default credentials exist in local encrypted credentials store
-    const storedCreds = localStorage.getItem(CREDENTIALS_STORAGE_KEY);
-    if (!storedCreds) {
-      // First-time setup: Generate dynamic hash for dev password 'admin123' if default hash needs fresh generation
-      const initialHash = await hashPassword('admin123');
-      const defaultRecord: StoredAdminRecord = {
-        user: {
-          id: 'usr_admin_master',
-          username: 'admin',
-          email: 'admin@poladcharkhesh.ir',
-          name: 'مدیریت ارشد سیستم (Super Admin)',
-          role: 'superadmin',
-          createdAt: new Date().toISOString(),
-        },
-        passwordHash: initialHash,
-      };
-      localStorage.setItem(CREDENTIALS_STORAGE_KEY, JSON.stringify(defaultRecord));
-    }
-
     // Try restoring existing session
     await this.restoreSession();
     this.isInitialized = true;
+  }
+
+  /**
+   * Checks whether the master administrator account has been provisioned.
+   */
+  public isConfigured(): boolean {
+    if (typeof window === 'undefined') return false;
+    const storedCreds = localStorage.getItem(CREDENTIALS_STORAGE_KEY);
+    if (!storedCreds) return false;
+    try {
+      const parsed = JSON.parse(storedCreds);
+      return !!(parsed && parsed.user && parsed.passwordHash);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Performs first-time initialization of master admin account
+   */
+  public async setupInitialMasterAdmin(params: {
+    username: string;
+    password: string;
+    name?: string;
+    email?: string;
+  }): Promise<{ success: boolean; error?: string }> {
+    const cleanUsername = params.username.trim().toLowerCase();
+    if (!cleanUsername || cleanUsername.length < 3) {
+      return { success: false, error: 'نام کاربری باید حداقل ۳ کاراکتر باشد.' };
+    }
+
+    const passValidation = validatePasswordStrength(params.password);
+    if (!passValidation.isValid) {
+      return { success: false, error: passValidation.error };
+    }
+
+    const initialHash = await hashPassword(params.password);
+    const masterRecord: StoredAdminRecord = {
+      user: {
+        id: `usr_admin_${Date.now()}`,
+        username: cleanUsername,
+        email: params.email?.trim() || `${cleanUsername}@poladcharkhesh.ir`,
+        name: params.name?.trim() || 'مدیریت ارشد سامانه',
+        role: 'superadmin',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+      },
+      passwordHash: initialHash,
+    };
+
+    localStorage.setItem(CREDENTIALS_STORAGE_KEY, JSON.stringify(masterRecord));
+
+    // Automatically issue session
+    const issuedAt = Date.now();
+    const expiresAt = issuedAt + AUTH_CONFIG.TOKEN_VALIDITY_HOURS * 60 * 60 * 1000;
+
+    const token = await generateSessionToken({
+      userId: masterRecord.user.id,
+      username: masterRecord.user.username,
+      role: masterRecord.user.role,
+      expiresAt,
+    });
+
+    const session: AuthSession = {
+      token,
+      user: masterRecord.user,
+      expiresAt,
+      issuedAt,
+    };
+
+    this.currentSession = session;
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+    this.notifyListeners();
+
+    auditService.record({
+      action: 'SYSTEM_RESET',
+      entity: 'auth',
+      summary: `راه‌اندازی اولیه و امن حساب کاربری مدیریت ارشد (${masterRecord.user.username})`,
+      performedBy: masterRecord.user.username,
+    });
+
+    return { success: true };
   }
 
   private getStoredAdmin(): StoredAdminRecord | null {
@@ -90,9 +149,9 @@ class AuthService {
       }
 
       const session: AuthSession = JSON.parse(storedSession);
-      const tokenVerification進 = await verifySessionToken(session.token);
+      const tokenVerification = await verifySessionToken(session.token);
 
-      if (tokenVerification進.isValid && tokenVerification進.payload) {
+      if (tokenVerification.isValid && tokenVerification.payload) {
         this.currentSession = session;
         this.notifyListeners();
       } else {
@@ -279,8 +338,9 @@ class AuthService {
       return { success: false, error: 'احراز هویت معتبر نیست.' };
     }
 
-    if (params.newPassword.length < 8) {
-      return { success: false, error: 'رمز عبور جدید باید حداقل ۸ کاراکتر باشد.' };
+    const passValidation = validatePasswordStrength(params.newPassword);
+    if (!passValidation.isValid) {
+      return { success: false, error: passValidation.error };
     }
 
     const adminRecord = this.getStoredAdmin();

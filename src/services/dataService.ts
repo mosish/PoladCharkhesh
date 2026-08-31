@@ -22,6 +22,7 @@ import {
 } from '../types/admin';
 import { validateProductDataset } from '../utils/productValidation';
 import { getProductSlug } from '../utils/productSlug';
+import { sanitizeObjectTree, sanitizePlainText, sanitizeUrl } from '../utils/sanitizer';
 import { auditService } from './auditService';
 
 const STORAGE_KEYS = {
@@ -430,31 +431,36 @@ class DataService {
       };
     }
 
-    const newId = product.id || `prod_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const cleanId = product.id || `prod_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const cleanCode = product.code!.trim().toUpperCase();
+    const cleanImageUrl = sanitizeUrl(product.imageUrl, '/icon.png');
+    const cleanPdfUrl = product.pdfUrl ? sanitizeUrl(product.pdfUrl) : undefined;
+    const cleanImages = (product.images || [cleanImageUrl]).map((img) => sanitizeUrl(img, '/icon.png'));
+
     const fullProduct: AdminProductItem = {
-      id: newId,
-      code: product.code!.trim(),
+      id: cleanId,
+      code: cleanCode,
+      nameFa: sanitizePlainText(product.nameFa),
+      nameEn: sanitizePlainText(product.nameEn),
       category: product.category || 'roller',
-      nameFa: product.nameFa!.trim(),
-      nameEn: product.nameEn!.trim(),
-      descriptionFa: product.descriptionFa || '',
-      descriptionEn: product.descriptionEn || '',
+      descriptionFa: sanitizePlainText(product.descriptionFa),
+      descriptionEn: sanitizePlainText(product.descriptionEn),
       inStock: product.inStock !== false,
       featured: !!product.featured,
       d: Number(product.d) || 0,
       D: Number(product.D) || 0,
       B: Number(product.B) || 0,
-      weightKg: Number(product.weightKg) || 0,
+      weightKg: product.weightKg ? Number(product.weightKg) : undefined,
       crKn: Number(product.crKn) || 0,
       corKn: Number(product.corKn) || 0,
       speedGreaseRpm: Number(product.speedGreaseRpm) || 0,
       speedOilRpm: Number(product.speedOilRpm) || Number(product.speedGreaseRpm) || 0,
       thermalSpeedRatingRpm: product.thermalSpeedRatingRpm ? Number(product.thermalSpeedRatingRpm) : undefined,
-      cageMaterialFa: product.cageMaterialFa || 'فولاد آلیاژی',
-      cageMaterialEn: product.cageMaterialEn || 'Standard Alloy Steel',
-      sealingFa: product.sealingFa || 'Open (طراحی باز)',
-      sealingEn: product.sealingEn || 'Open Design',
-      clearanceOptions: product.clearanceOptions || ['Normal', 'C3'],
+      cageMaterialFa: sanitizePlainText(product.cageMaterialFa || 'فولاد آلیاژی'),
+      cageMaterialEn: sanitizePlainText(product.cageMaterialEn || 'Standard Alloy Steel'),
+      sealingFa: sanitizePlainText(product.sealingFa || 'Open (طراحی باز)'),
+      sealingEn: sanitizePlainText(product.sealingEn || 'Open Design'),
+      clearanceOptions: (product.clearanceOptions || ['Normal', 'C3']).map(sanitizePlainText),
       schematicType: product.schematicType || 'tapered',
       rMin: product.rMin ? Number(product.rMin) : undefined,
       calculationFactorE: product.calculationFactorE ? Number(product.calculationFactorE) : undefined,
@@ -463,25 +469,30 @@ class DataService {
       calculationFactorY1: product.calculationFactorY1 ? Number(product.calculationFactorY1) : undefined,
       calculationFactorY2: product.calculationFactorY2 ? Number(product.calculationFactorY2) : undefined,
       calculationFactorF0: product.calculationFactorF0 ? Number(product.calculationFactorF0) : undefined,
-      imageUrl: product.imageUrl || '/icon.png',
-      images: product.images || [product.imageUrl || '/icon.png'],
-      pdfUrl: product.pdfUrl,
-      applicationsFa: product.applicationsFa || ['صنایع عمومی'],
-      applicationsEn: product.applicationsEn || ['General Industry'],
+      imageUrl: cleanImageUrl,
+      images: cleanImages,
+      pdfUrl: cleanPdfUrl,
+      applicationsFa: (product.applicationsFa || ['صنایع عمومی']).map(sanitizePlainText),
+      applicationsEn: (product.applicationsEn || ['General Industry']).map(sanitizePlainText),
       industryIds: product.industryIds || ['steel', 'mining'],
-      brands: product.brands && product.brands.length > 0 ? product.brands : ['SKF', 'FAG', 'TIMKEN'],
-      metaTitleFa: product.metaTitleFa,
-      metaTitleEn: product.metaTitleEn,
-      metaDescriptionFa: product.metaDescriptionFa,
-      metaDescriptionEn: product.metaDescriptionEn,
-      technicalSources: product.technicalSources || [
+      brands: (product.brands && product.brands.length > 0 ? product.brands : ['SKF', 'FAG', 'TIMKEN']).map(sanitizePlainText),
+      metaTitleFa: product.metaTitleFa ? sanitizePlainText(product.metaTitleFa) : undefined,
+      metaTitleEn: product.metaTitleEn ? sanitizePlainText(product.metaTitleEn) : undefined,
+      metaDescriptionFa: product.metaDescriptionFa ? sanitizePlainText(product.metaDescriptionFa) : undefined,
+      metaDescriptionEn: product.metaDescriptionEn ? sanitizePlainText(product.metaDescriptionEn) : undefined,
+      technicalSources: (product.technicalSources || [
         {
           manufacturer: 'Standard Engineering Catalog',
           sourceType: 'official_catalog',
           reference: 'ISO 281 Catalog Data',
           verifiedAt: new Date().toISOString().split('T')[0],
         },
-      ],
+      ]).map((src) => ({
+        manufacturer: sanitizePlainText(src.manufacturer),
+        sourceType: src.sourceType,
+        reference: sanitizePlainText(src.reference),
+        verifiedAt: sanitizePlainText(src.verifiedAt),
+      })),
       isArchived: false,
       updatedAt: new Date().toISOString(),
       updatedBy: performedBy,
@@ -620,9 +631,27 @@ class DataService {
   }
 
   public updateCompanyInfo(updates: Partial<CompanyContactInfo>, performedBy: string = 'admin'): boolean {
+    const sanitizedUpdates: Partial<CompanyContactInfo> = {
+      ...updates,
+      nameFa: updates.nameFa ? sanitizePlainText(updates.nameFa) : undefined,
+      nameEn: updates.nameEn ? sanitizePlainText(updates.nameEn) : undefined,
+      legalNameFa: updates.legalNameFa ? sanitizePlainText(updates.legalNameFa) : undefined,
+      legalNameEn: updates.legalNameEn ? sanitizePlainText(updates.legalNameEn) : undefined,
+      sloganFa: updates.sloganFa ? sanitizePlainText(updates.sloganFa) : undefined,
+      sloganEn: updates.sloganEn ? sanitizePlainText(updates.sloganEn) : undefined,
+      primaryPhone: updates.primaryPhone ? sanitizePlainText(updates.primaryPhone) : undefined,
+      landlinePhone: updates.landlinePhone ? sanitizePlainText(updates.landlinePhone) : undefined,
+      whatsappNumber: updates.whatsappNumber ? sanitizePlainText(updates.whatsappNumber) : undefined,
+      whatsappUrl: updates.whatsappUrl ? sanitizeUrl(updates.whatsappUrl) : undefined,
+      website: updates.website ? sanitizeUrl(updates.website) : undefined,
+      email: updates.email ? sanitizePlainText(updates.email) : undefined,
+      addressFa: updates.addressFa ? sanitizePlainText(updates.addressFa) : undefined,
+      addressEn: updates.addressEn ? sanitizePlainText(updates.addressEn) : undefined,
+    };
+
     this.companyInfo = {
       ...this.companyInfo,
-      ...updates,
+      ...sanitizedUpdates,
     };
 
     this.saveCompanyToStorage();
@@ -649,9 +678,10 @@ class DataService {
   }
 
   public updatePageContent(updates: Partial<CmsPageContent>, performedBy: string = 'admin'): boolean {
+    const safeUpdates = sanitizeObjectTree(updates);
     this.pageContent = {
       ...this.pageContent,
-      ...updates,
+      ...safeUpdates,
     };
 
     this.saveContentToStorage();
@@ -682,9 +712,21 @@ class DataService {
   }
 
   public updateSeoConfig(updates: Partial<SiteSeoConfig>, performedBy: string = 'admin'): boolean {
+    const sanitizedUpdates: Partial<SiteSeoConfig> = {
+      ...updates,
+      defaultTitleFa: updates.defaultTitleFa ? sanitizePlainText(updates.defaultTitleFa) : undefined,
+      defaultTitleEn: updates.defaultTitleEn ? sanitizePlainText(updates.defaultTitleEn) : undefined,
+      defaultDescriptionFa: updates.defaultDescriptionFa ? sanitizePlainText(updates.defaultDescriptionFa) : undefined,
+      defaultDescriptionEn: updates.defaultDescriptionEn ? sanitizePlainText(updates.defaultDescriptionEn) : undefined,
+      ogImageUrl: updates.ogImageUrl ? sanitizeUrl(updates.ogImageUrl, '/icon.png') : undefined,
+      canonicalBaseUrl: updates.canonicalBaseUrl ? sanitizeUrl(updates.canonicalBaseUrl) : undefined,
+      keywordsFa: updates.keywordsFa ? updates.keywordsFa.map(sanitizePlainText) : undefined,
+      keywordsEn: updates.keywordsEn ? updates.keywordsEn.map(sanitizePlainText) : undefined,
+    };
+
     this.seoConfig = {
       ...this.seoConfig,
-      ...updates,
+      ...sanitizedUpdates,
     };
 
     this.saveSeoToStorage();
@@ -714,11 +756,11 @@ class DataService {
     const newInquiry: InquiryLog = {
       id: `inq_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       timestamp: new Date().toISOString(),
-      fullName: params.fullName,
-      phone: params.phone,
-      message: params.message,
-      company: params.company,
-      email: params.email,
+      fullName: sanitizePlainText(params.fullName),
+      phone: sanitizePlainText(params.phone),
+      message: sanitizePlainText(params.message),
+      company: params.company ? sanitizePlainText(params.company) : undefined,
+      email: params.email ? sanitizePlainText(params.email) : undefined,
       status: 'new',
     };
 
@@ -764,17 +806,24 @@ class DataService {
     return snapshot;
   }
 
-  public importSnapshot(snapshot: DatasetSnapshot, performedBy: string = 'admin'): {
+  public importSnapshot(rawSnapshot: DatasetSnapshot, performedBy: string = 'admin'): {
     success: boolean;
     error?: string;
     productsCount?: number;
   } {
     try {
-      if (!snapshot || !Array.isArray(snapshot.products) || snapshot.products.length === 0) {
+      if (!rawSnapshot || typeof rawSnapshot !== 'object') {
+        return { success: false, error: 'ساختار فایل پشتیبان نامعتبر است.' };
+      }
+
+      // 1. Sanitize object tree against prototype pollution
+      const snapshot = sanitizeObjectTree(rawSnapshot);
+
+      if (!Array.isArray(snapshot.products) || snapshot.products.length === 0) {
         return { success: false, error: 'ساختار فایل پشتیبان نامعتبر است (لیست محصولات خالی است).' };
       }
 
-      // Validate integrity of candidate products
+      // 2. Validate integrity of candidate products
       const report = validateProductDataset(snapshot.products);
       if (!report.isValid) {
         return {
@@ -783,7 +832,18 @@ class DataService {
         };
       }
 
-      this.products = [...snapshot.products];
+      // 3. Sanitize product URLs and content before applying
+      const sanitizedProducts: AdminProductItem[] = snapshot.products.map((p) => ({
+        ...p,
+        imageUrl: sanitizeUrl(p.imageUrl, '/icon.png'),
+        pdfUrl: p.pdfUrl ? sanitizeUrl(p.pdfUrl) : undefined,
+        images: (p.images || []).map((img) => sanitizeUrl(img, '/icon.png')),
+        nameFa: sanitizePlainText(p.nameFa),
+        nameEn: sanitizePlainText(p.nameEn),
+        code: sanitizePlainText(p.code).toUpperCase(),
+      }));
+
+      this.products = sanitizedProducts;
       if (snapshot.companyInfo) this.companyInfo = { ...canonicalCompanyInfo, ...snapshot.companyInfo };
       if (snapshot.pageContent) this.pageContent = { ...DEFAULT_PAGE_CONTENT, ...snapshot.pageContent };
       if (snapshot.seoConfig) this.seoConfig = { ...DEFAULT_SEO_CONFIG, ...snapshot.seoConfig };

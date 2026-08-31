@@ -14,6 +14,26 @@ const PBKDF2_ITERATIONS = 100000;
 const SALT_BYTES = 16;
 const TOKEN_VALIDITY_HOURS = 12;
 
+const SIGNING_SEED_STORAGE_KEY = 'polad_sec_signing_seed_v1';
+
+/**
+ * Retrieves or generates an ephemeral client-side signing seed
+ */
+function getOrCreateSigningSeed(): string {
+  if (typeof window === 'undefined') return 'polad-server-fallback-seed';
+  try {
+    let seed = sessionStorage.getItem(SIGNING_SEED_STORAGE_KEY) || localStorage.getItem(SIGNING_SEED_STORAGE_KEY);
+    if (!seed) {
+      seed = generateSalt(32);
+      sessionStorage.setItem(SIGNING_SEED_STORAGE_KEY, seed);
+      localStorage.setItem(SIGNING_SEED_STORAGE_KEY, seed);
+    }
+    return seed;
+  } catch (e) {
+    return 'polad-crypto-fallback-seed';
+  }
+}
+
 // In-memory rate limiting state
 interface RateLimitRecord {
   failedAttempts: number;
@@ -47,6 +67,19 @@ export function generateSalt(byteLength: number = SALT_BYTES): string {
   const salt = new Uint8Array(byteLength);
   crypto.getRandomValues(salt);
   return arrayBufferToHex(salt.buffer);
+}
+
+/**
+ * Validates password strength policy
+ */
+export function validatePasswordStrength(password: string): { isValid: boolean; error?: string } {
+  if (!password || password.length < 8) {
+    return { isValid: false, error: 'رمز عبور باید حداقل ۸ کاراکتر باشد.' };
+  }
+  if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return { isValid: false, error: 'رمز عبور باید ترکیبی از حروف انگلیسی و اعداد باشد.' };
+  }
+  return { isValid: true };
 }
 
 /**
@@ -127,13 +160,14 @@ export async function generateSessionToken(payload: {
   const enc = new TextEncoder();
   const payloadBase64 = btoa(unescape(encodeURIComponent(payloadJson)));
 
-  // Generate or derive signing key from a unique salt
+  // Generate unique salt per token
   const randomEntropy = generateSalt(16);
   const dataToSign = `${payloadBase64}.${randomEntropy}`;
 
+  const seed = getOrCreateSigningSeed();
   const key = await crypto.subtle.importKey(
     'raw',
-    enc.encode('poladcharkhesh-session-key-v1'),
+    enc.encode(`polad-auth-${seed}`),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']
@@ -168,9 +202,10 @@ export async function verifySessionToken(token: string): Promise<{
     const enc = new TextEncoder();
     const dataToSign = `${payloadBase64}.${randomEntropy}`;
 
+    const seed = getOrCreateSigningSeed();
     const key = await crypto.subtle.importKey(
       'raw',
-      enc.encode('poladcharkhesh-session-key-v1'),
+      enc.encode(`polad-auth-${seed}`),
       { name: 'HMAC', hash: 'SHA-256' },
       false,
       ['verify']

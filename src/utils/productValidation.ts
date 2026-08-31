@@ -76,27 +76,35 @@ export function validateProductDataset(products: BearingProduct[]): ProductValid
       invalidCategories.push({ id: product.id, category: product.category });
     }
 
-    // 5. Missing Required Fields Check
+    // 5. Missing Required Fields & Engineering Geometry Sanity Check
     const missing: string[] = [];
     if (!product.id) missing.push('id');
     if (!product.code) missing.push('code');
     if (!product.nameFa) missing.push('nameFa');
     if (!product.nameEn) missing.push('nameEn');
-    if (product.d <= 0 && product.category !== 'seal' && product.category !== 'lubricant') missing.push('d');
-    if (product.D <= 0 && product.category !== 'seal' && product.category !== 'lubricant') missing.push('D');
-    if (product.B <= 0 && product.category !== 'seal' && product.category !== 'lubricant') missing.push('B');
+    
+    const isRotaryBearing = ['ball', 'roller', 'spherical', 'cylindrical', 'thrust'].includes(product.category);
+
+    if (isRotaryBearing) {
+      if (product.d <= 0) missing.push('d (must be > 0)');
+      if (product.D <= 0) missing.push('D (must be > 0)');
+      if (product.B <= 0) missing.push('B (must be > 0)');
+      if (product.D <= product.d) missing.push('D must be greater than d');
+      if (product.crKn <= 0) missing.push('crKn (must be > 0)');
+      if (product.corKn <= 0) missing.push('corKn (must be > 0)');
+    }
 
     if (missing.length > 0) {
       missingRequiredFields.push({ id: product.id, missing });
     }
 
     // 6. Engineering Warnings
-    if (product.category !== 'seal' && product.category !== 'lubricant') {
-      if (product.crKn <= 0) {
-        warnings.push(`Bearing ${product.code} (${product.id}) has non-positive Cr rating (${product.crKn} kN)`);
-      }
+    if (isRotaryBearing) {
       if (product.speedGreaseRpm <= 0) {
         warnings.push(`Bearing ${product.code} (${product.id}) has non-positive grease speed (${product.speedGreaseRpm} RPM)`);
+      }
+      if (product.calculationFactorE !== undefined && product.calculationFactorE < 0) {
+        warnings.push(`Bearing ${product.code} has negative calculation factor e (${product.calculationFactorE})`);
       }
     }
   }

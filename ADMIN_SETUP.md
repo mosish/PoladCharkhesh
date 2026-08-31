@@ -14,10 +14,12 @@ The Polad Charkhesh Admin Architecture is an engineering-grade, secure data mana
 ## 2. Accessing the Admin Portal
 - **Direct Path**: Navigate to `/admin` or `/#admin` in the browser.
 - **Footer Link**: Discreet `[Admin]` link located at the bottom-right corner of the website footer.
-- **Default Development / Demo Credentials**:
-  - **Username**: `admin`
-  - **Password**: `admin123`
-  - *Note*: You can change this password immediately from the **Security & Backup (`/admin/system`)** tab.
+- **Secure First-Time Setup Flow**:
+  - On the first visit to the admin panel, the system detects if the master administrator account has been provisioned.
+  - If not provisioned, a **First-Time Master Admin Setup** screen will appear, prompting you to set your custom administrator username, full name, email, and strong password ($\ge 8$ characters, combining letters and numbers).
+  - Credentials are encrypted using **PBKDF2-HMAC-SHA256** (100,000 iterations + cryptographically secure salt).
+  - No plaintext or hardcoded default passwords are stored in source code.
+  - You can change this password at any time from the **Security & Backup (`/admin/system`)** tab.
 
 ---
 
