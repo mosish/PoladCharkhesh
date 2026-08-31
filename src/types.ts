@@ -63,6 +63,13 @@ export interface ProductTechnicalSpecs {
   schematicType: BearingSchematicType;
   rMin?: number; // Minimum chamfer radius (mm)
   contactAngle?: string; // e.g. "40°", "15°"
+  // Canonical calculation factors (ISO 281 / ISO 76 / Manufacturer Catalogs)
+  calculationFactorE?: number; // Limiting load ratio e (Fa / Fr)
+  calculationFactorY?: number; // Thrust factor Y (for single row tapered / angular)
+  calculationFactorY0?: number; // Static thrust factor Y0 (ISO 76)
+  calculationFactorY1?: number; // Thrust factor Y1 when Fa/Fr <= e (spherical roller)
+  calculationFactorY2?: number; // Thrust factor Y2 when Fa/Fr > e (spherical roller)
+  calculationFactorX?: number; // Radial factor X
 }
 
 // 3. Media Sub-Contract
