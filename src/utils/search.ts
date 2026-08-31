@@ -90,69 +90,96 @@ export function searchAndRankProducts(
     const nameEnLower = product.nameEn.toLowerCase();
     const descFaLower = product.descriptionFa.toLowerCase();
     const descEnLower = product.descriptionEn.toLowerCase();
+    const scope = options.scope || 'all';
 
-    // 1. EXACT PRODUCT CODE / DESIGNATION MATCH
-    if (codeLower === query || codeAlphaNum === queryAlphaNum) {
-      score += 200;
-      matchType = 'exact_code';
-    } else if (codeLower.startsWith(query) || (queryAlphaNum.length >= 3 && codeAlphaNum.startsWith(queryAlphaNum))) {
-      score += 150;
-      matchType = 'exact_code';
-    } else if (codeLower.includes(query) || (queryAlphaNum.length >= 3 && codeAlphaNum.includes(queryAlphaNum))) {
-      score += 120;
-      matchType = 'partial_code';
-    }
-
-    // 2. BRAND + CODE COMBINATION (e.g. 'SKF 6204' or 'FAG 22216')
-    for (const brand of product.brands) {
-      const brandLower = brand.toLowerCase();
-      if (query.includes(brandLower) && (codeLower.includes(query.replace(brandLower, '').trim()) || query.replace(brandLower, '').trim() === '')) {
-        score += 110;
-        if (matchType === 'general') matchType = 'brand_code';
+    // 1. PRODUCT CODE / DESIGNATION & DIMENSION MATCHING
+    if (scope === 'all' || scope === 'code') {
+      if (codeLower === query || codeAlphaNum === queryAlphaNum) {
+        score += 200;
+        matchType = 'exact_code';
+      } else if (codeLower.startsWith(query) || (queryAlphaNum.length >= 3 && codeAlphaNum.startsWith(queryAlphaNum))) {
+        score += 150;
+        matchType = 'exact_code';
+      } else if (codeLower.includes(query) || (queryAlphaNum.length >= 3 && codeAlphaNum.includes(queryAlphaNum))) {
+        score += 120;
+        matchType = 'partial_code';
       }
-    }
 
-    // 3. PRODUCT NAME & TYPE MATCH (Persian / English)
-    if (nameFaLower.includes(query) || nameEnLower.includes(query)) {
-      score += 85;
-      if (matchType === 'general') matchType = 'name';
-    }
+      // Suffix / clearance check
+      if (product.clearanceOptions.some((c) => c.toLowerCase().includes(query))) {
+        score += 80;
+        if (matchType === 'general') matchType = 'partial_code';
+      }
 
-    // 4. DIMENSIONAL EXACT MATCH (e.g. '20 47 14' or '20x47x14')
-    if (dimQuery) {
-      if (dimQuery.d !== undefined && dimQuery.D !== undefined && dimQuery.B !== undefined) {
-        if (product.d === dimQuery.d && product.D === dimQuery.D && product.B === dimQuery.B) {
-          score += 160;
-          matchType = 'dimension';
+      // Dimensional matching
+      if (dimQuery) {
+        if (dimQuery.d !== undefined && dimQuery.D !== undefined && dimQuery.B !== undefined) {
+          if (product.d === dimQuery.d && product.D === dimQuery.D && product.B === dimQuery.B) {
+            score += 160;
+            matchType = 'dimension';
+          }
+        } else if (dimQuery.d !== undefined && dimQuery.D !== undefined) {
+          if (product.d === dimQuery.d && product.D === dimQuery.D) {
+            score += 100;
+            matchType = 'dimension';
+          }
+        } else if (dimQuery.d !== undefined && product.d === dimQuery.d) {
+          score += 40;
+          if (matchType === 'general') matchType = 'dimension';
         }
-      } else if (dimQuery.d !== undefined && dimQuery.D !== undefined) {
-        if (product.d === dimQuery.d && product.D === dimQuery.D) {
-          score += 100;
-          matchType = 'dimension';
-        }
-      } else if (dimQuery.d !== undefined && product.d === dimQuery.d) {
-        score += 40;
+      }
+
+      // Direct dimension substring matching (e.g. '20x47' or '20 47')
+      if (query.includes(`${product.d}x${product.D}`) || query.includes(`${product.d}*${product.D}`) || query.includes(`${product.d} ${product.D}`)) {
+        score += 90;
         if (matchType === 'general') matchType = 'dimension';
       }
     }
 
-    // Direct dimension substring matching (e.g. 'd=20' or '20mm')
-    if (query.includes(`${product.d}x${product.D}`) || query.includes(`${product.d}*${product.D}`) || query.includes(`${product.d} ${product.D}`)) {
-      score += 90;
-      if (matchType === 'general') matchType = 'dimension';
+    // 2. BRAND SEARCH TARGET
+    if (scope === 'all' || scope === 'brand') {
+      for (const brand of product.brands) {
+        const brandLower = brand.toLowerCase();
+        if (brandLower === query) {
+          score += 180;
+          matchType = 'brand_code';
+        } else if (brandLower.includes(query)) {
+          score += 130;
+          matchType = 'brand_code';
+        } else if (query.includes(brandLower) && (codeLower.includes(query.replace(brandLower, '').trim()) || query.replace(brandLower, '').trim() === '')) {
+          score += 110;
+          if (matchType === 'general') matchType = 'brand_code';
+        }
+      }
     }
 
-    // 5. APPLICATION KEYWORD MATCH
-    const appFaMatch = product.applicationsFa.some((a) => a.toLowerCase().includes(query));
-    const appEnMatch = product.applicationsEn.some((a) => a.toLowerCase().includes(query));
-    if (appFaMatch || appEnMatch) {
-      score += 60;
-      if (matchType === 'general') matchType = 'application';
+    // 3. PRODUCT TYPE & CATEGORY SEARCH TARGET (Persian / English)
+    if (scope === 'all' || scope === 'type') {
+      if (nameFaLower === query || nameEnLower === query) {
+        score += 180;
+        matchType = 'name';
+      } else if (nameFaLower.includes(query) || nameEnLower.includes(query)) {
+        score += 95;
+        if (matchType === 'general') matchType = 'name';
+      } else if (product.category.toLowerCase().includes(query) || product.schematicType.toLowerCase().includes(query)) {
+        score += 70;
+        if (matchType === 'general') matchType = 'name';
+      }
     }
 
-    // 6. DESCRIPTION KEYWORD MATCH
-    if (descFaLower.includes(query) || descEnLower.includes(query)) {
-      score += 25;
+    // 4. APPLICATION & DESCRIPTION SEARCH TARGET
+    if (scope === 'all' || scope === 'app') {
+      const appFaMatch = product.applicationsFa.some((a) => a.toLowerCase().includes(query));
+      const appEnMatch = product.applicationsEn.some((a) => a.toLowerCase().includes(query));
+      if (appFaMatch || appEnMatch) {
+        score += 90;
+        if (matchType === 'general') matchType = 'application';
+      }
+
+      if (descFaLower.includes(query) || descEnLower.includes(query)) {
+        score += 45;
+        if (matchType === 'general') matchType = 'application';
+      }
     }
 
     // If query matches any token

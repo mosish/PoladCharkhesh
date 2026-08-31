@@ -96,10 +96,6 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
       'sku': product.id,
       'description': isPersian ? product.descriptionFa : product.descriptionEn,
       'category': isPersian ? categoryLabel || product.category : product.category,
-      'brand': product.brands.map((b) => ({
-        '@type': 'Brand',
-        'name': b,
-      })),
       'weight': {
         '@type': 'QuantitativeValue',
         'value': product.weightKg,
@@ -143,6 +139,28 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
         },
       ],
     };
+
+    // Truthful Brand / Manufacturer Representation
+    if (product.technicalSources && product.technicalSources.length > 0 && product.technicalSources[0].manufacturer) {
+      productSchema.manufacturer = {
+        '@type': 'Organization',
+        'name': product.technicalSources[0].manufacturer,
+      };
+    }
+
+    if (product.brands && product.brands.length > 0) {
+      if (product.brands.length === 1) {
+        productSchema.brand = {
+          '@type': 'Brand',
+          'name': product.brands[0],
+        };
+      } else {
+        productSchema.brand = product.brands.map((b) => ({
+          '@type': 'Brand',
+          'name': b,
+        }));
+      }
+    }
 
     if (product.imageUrl) {
       productSchema.image = product.imageUrl.startsWith('http') ? product.imageUrl : `${SITE_URL}${product.imageUrl}`;
@@ -245,7 +263,6 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     'alternateName': 'Polad Charkhesh Bearing Trading',
     'url': SITE_URL,
     'telephone': COMPANY_INFO.landlinePhone,
-    'priceRange': 'N/A - Industrial B2B Technical Quotation',
     'address': {
       '@type': 'PostalAddress',
       'streetAddress': isPersian ? COMPANY_INFO.addressFa : COMPANY_INFO.addressEn,
@@ -258,12 +275,6 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
         'dayOfWeek': ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
         'opens': '08:00',
         'closes': '16:00',
-      },
-      {
-        '@type': 'OpeningHoursSpecification',
-        'dayOfWeek': ['Thursday'],
-        'opens': '08:00',
-        'closes': '12:30',
       },
     ],
     'contactPoint': [

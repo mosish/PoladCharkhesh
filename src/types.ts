@@ -39,6 +39,7 @@ export interface BearingProduct {
   inStock: boolean;
   featured?: boolean;
   imageUrl?: string;
+  images?: string[];
   schematicType: 'deep-groove' | 'tapered' | 'spherical' | 'cylindrical' | 'thrust' | 'pillow-block' | 'oil-seal';
   technicalSources?: TechnicalSource[];
 }

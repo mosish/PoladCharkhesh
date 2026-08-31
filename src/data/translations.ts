@@ -272,7 +272,7 @@ export const translations = {
         addressLabel: 'آدرس دفتر و انبار:',
         addressValue: 'تهران، منطقه نارمک، خیابان دردشت، پلاک ۴۳۳',
         hoursLabel: 'ساعات کاری و پاسخگویی:',
-        hoursValue: 'شنبه تا چهارشنبه: ۸:۳۰ الی ۱۸:۰۰ | پنجشنبه: ۸:۳۰ الی ۱۴:۰۰',
+        hoursValue: 'شنبه تا چهارشنبه: ۰۸:۰۰ الی ۱۶:۰۰',
       },
       form: {
         title: 'فرم پیام و استعلام مشخصات فنی',
@@ -592,7 +592,7 @@ export const translations = {
         addressLabel: 'Office & Warehouse Address:',
         addressValue: 'No 433, Dardasht St, Narmak District, Tehran, Iran',
         hoursLabel: 'Working Hours:',
-        hoursValue: 'Sat - Wed: 8:30 AM - 6:00 PM | Thu: 8:30 AM - 2:00 PM',
+        hoursValue: 'Sat - Wed: 08:00 - 16:00',
       },
       form: {
         title: 'Technical Inquiry & Message Form',

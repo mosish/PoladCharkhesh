@@ -1,11 +1,25 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import { defineConfig, Plugin } from 'vite';
+import { generateSitemap } from './scripts/generate-sitemap.mjs';
+
+function sitemapPlugin(): Plugin {
+  return {
+    name: 'generate-sitemap-plugin',
+    buildStart() {
+      try {
+        generateSitemap();
+      } catch (err) {
+        console.warn('Sitemap generation skipped in dev:', err);
+      }
+    },
+  };
+}
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), sitemapPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

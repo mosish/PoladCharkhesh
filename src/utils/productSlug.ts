@@ -134,6 +134,7 @@ export function validateProductData(products: BearingProduct[]): {
   const errors: string[] = [];
   const idSet = new Set<string>();
   const slugSet = new Set<string>();
+  const codeSet = new Set<string>();
 
   products.forEach((p, index) => {
     // Check ID
@@ -155,8 +156,15 @@ export function validateProductData(products: BearingProduct[]): {
       slugSet.add(slug);
     }
 
-    // Check required fields
-    if (!p.code) errors.push(`Product '${p.id}' is missing 'code'.`);
+    // Check required fields & duplicate code
+    if (!p.code) {
+      errors.push(`Product '${p.id}' is missing 'code'.`);
+    } else if (codeSet.has(p.code)) {
+      errors.push(`Duplicate product code found: '${p.code}'.`);
+    } else {
+      codeSet.add(p.code);
+    }
+
     if (!p.nameFa) errors.push(`Product '${p.id}' is missing 'nameFa'.`);
     if (!p.nameEn) errors.push(`Product '${p.id}' is missing 'nameEn'.`);
     if (!p.category) errors.push(`Product '${p.id}' is missing 'category'.`);

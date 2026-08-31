@@ -31,114 +31,18 @@ import bearing7312_brass from '../assets/images/bearing_7312_brass_1787678774838
 import bearing3308_doublerow from '../assets/images/bearing_3308_doublerow_1787678851991.webp';
 import bearing1309_align from '../assets/images/bearing_1309_align_1787678841334.webp';
 
-export function getProductRealImage(product: Partial<BearingProduct>): string {
-  // Direct specific ID mappings
-  switch (product.id) {
-    case 'pc-6204-2rs':
-      return bearing6204_2rs;
-    case 'pc-6308-2z':
-      return bearing6308_2z;
-    case 'pc-6005-open':
-      return bearing6005_open;
-    case 'pc-6206-c3':
-      return ballBearingImg;
-    case 'pc-6310-2z':
-      return bearing6308_2z;
-    case 'pc-6210-2z-va208':
-      return bearing6210_kiln;
-    case 'pc-30208':
-      return bearing30208_tapered;
-    case 'pc-32210':
-      return bearing32210_tapered;
-    case 'pc-32014-x':
-      return bearing30208_tapered;
-    case 'pc-32218-j2-q':
-      return taperedBearingImg;
-    case 'pc-32314-j2-q':
-      return bearing32210_tapered;
-    case 'pc-22212-ek':
-      return bearing22212_spherical;
-    case 'pc-22316-cc-w33':
-      return bearing22316_spherical;
-    case 'pc-22220-ek':
-      return sphericalBearingImg;
-    case 'pc-22324-ccja-w33va405':
-      return bearing22324_brass;
-    case 'pc-23228-cc-w33':
-      return sphericalBearingImg;
-    case 'pc-nu-208-ecp':
-      return bearingNu208_cylindrical;
-    case 'pc-nj-212-ecp':
-      return cylindricalBearingImg;
-    case 'pc-nup-310-ecp':
-      return cylindricalBearingImg;
-    case 'pc-nu-2224-ecp':
-      return bearingNu208_cylindrical;
-    case 'pc-na-4910':
-      return bearingNa4910_needle;
-    case 'pc-51108':
-      return bearing51108_thrust;
-    case 'pc-51210':
-      return bearing51108_thrust;
-    case 'pc-29420-e':
-      return bearing29420_thrust;
-    case 'pc-ucp-205':
-      return unitUcp205_pillow;
-    case 'pc-ucp-210':
-      return pillowBlockImg;
-    case 'pc-ucf-208':
-      return unitUcf208_flange;
-    case 'pc-snl-511-609':
-      return housingSnl511_split;
-    case 'pc-snl-518-615':
-      return housingSnl511_split;
-    case 'pc-tc-35-52-10':
-      return sealTc35_nbr;
-    case 'pc-tc-60-85-10':
-      return oilSealImg;
-    case 'pc-tc-75-100-12':
-      return sealTc35_nbr;
-    case 'pc-tc-50-72-8-viton':
-      return sealTc50_viton;
-    case 'pc-fkm-tc-80-100-12':
-      return sealTc50_viton;
-    case 'pc-tc-100-125-13-viton':
-      return sealTc50_viton;
-    case 'pc-skf-lgmt-2':
-      return greaseSkfLgmt2;
-    case 'pc-mobilith-shc-220':
-      return greaseMobilithRed;
-    case 'pc-7312-becbm':
-      return bearing7312_brass;
-    case 'pc-7210-becbp':
-      return bearing7312_brass;
-    case 'pc-3308-a-2z':
-      return bearing3308_doublerow;
-    case 'pc-1309-ektn9':
-      return bearing1309_align;
-    default:
-      break;
-  }
-
-  // Fallback category matching
-  if (product.category === 'housing' || product.schematicType === 'pillow-block') {
-    return pillowBlockImg;
-  }
-  if (product.category === 'seal' || product.schematicType === 'oil-seal') {
-    return oilSealImg;
-  }
-  if (product.category === 'spherical' || product.schematicType === 'spherical') {
-    return sphericalBearingImg;
-  }
-  if (product.category === 'roller' && (product.schematicType === 'tapered' || product.code?.startsWith('3') || product.code?.includes('32') || product.code?.includes('30'))) {
-    return taperedBearingImg;
-  }
-  if (product.category === 'cylindrical' || product.schematicType === 'cylindrical' || product.code?.includes('NU') || product.code?.includes('NJ') || product.code?.includes('NA') || product.code?.includes('HK')) {
-    return cylindricalBearingImg;
-  }
-  if (product.schematicType === 'thrust' || product.category === 'thrust') {
-    return bearing51108_thrust;
-  }
+/**
+ * Fallback image resolver when an item does not define an explicit image.
+ */
+export function getProductFallbackImage(product: Partial<BearingProduct>): string {
+  if (product.imageUrl) return product.imageUrl;
+  if (product.images && product.images.length > 0) return product.images[0];
+  if (product.category === 'housing' || product.schematicType === 'pillow-block') return pillowBlockImg;
+  if (product.category === 'seal' || product.schematicType === 'oil-seal') return oilSealImg;
+  if (product.category === 'spherical' || product.schematicType === 'spherical') return sphericalBearingImg;
+  if (product.category === 'roller' && (product.schematicType === 'tapered' || product.code?.startsWith('3') || product.code?.includes('32') || product.code?.includes('30'))) return taperedBearingImg;
+  if (product.category === 'cylindrical' || product.schematicType === 'cylindrical' || product.code?.includes('NU') || product.code?.includes('NJ') || product.code?.includes('NA') || product.code?.includes('HK')) return cylindricalBearingImg;
+  if (product.schematicType === 'thrust' || product.category === 'thrust') return bearing51108_thrust;
   return ballBearingImg;
 }
 
@@ -146,6 +50,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 1. Deep Groove Ball Bearings
   {
     id: 'pc-6204-2rs',
+    slug: '6204-2rs',
+    imageUrl: bearing6204_2rs,
+    images: [bearing6204_2rs],
     code: '6204-2RSH / 2RS1',
     category: 'ball',
     nameFa: 'بلبرینگ شیار عمیق تک ردیفه 6204-2RS',
@@ -184,6 +91,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-6308-2z',
+    slug: '6308-2z',
+    imageUrl: bearing6308_2z,
+    images: [bearing6308_2z],
     code: '6308-2Z / ZZ C3',
     category: 'ball',
     nameFa: 'بلبرینگ دور بالای سری سنگین 6308-2Z C3',
@@ -222,6 +132,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-6005-open',
+    slug: '6005-open',
+    imageUrl: bearing6005_open,
+    images: [bearing6005_open],
     code: '6005 Open / C3',
     category: 'ball',
     nameFa: 'بلبرینگ باریک شیار عمیق 6005 باز',
@@ -260,6 +173,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-6206-c3',
+    slug: '6206-c3',
+    imageUrl: ballBearingImg,
+    images: [ballBearingImg],
     code: '6206-2RS1 C3',
     category: 'ball',
     nameFa: 'بلبرینگ شیار عمیق دور بالا 6206-2RS C3',
@@ -298,6 +214,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-6310-2z',
+    slug: '6310-2z',
+    imageUrl: bearing6308_2z,
+    images: [bearing6308_2z],
     code: '6310-2Z / C3',
     category: 'ball',
     nameFa: 'بلبرینگ سنگین صنعتی 6310-2Z',
@@ -338,6 +257,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 2. Tapered Roller Bearings
   {
     id: 'pc-30208',
+    slug: '30208',
+    imageUrl: bearing30208_tapered,
+    images: [bearing30208_tapered],
     code: '30208 J2/Q',
     category: 'roller',
     nameFa: 'رولبرینگ مخروطی یک ردیفه 30208',
@@ -376,6 +298,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-32210',
+    slug: '32210',
+    imageUrl: bearing32210_tapered,
+    images: [bearing32210_tapered],
     code: '32210 J2/Q',
     category: 'roller',
     nameFa: 'رولبرینگ مخروطی سری عریض 32210',
@@ -414,6 +339,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-32014-x',
+    slug: '32014-x',
+    imageUrl: bearing30208_tapered,
+    images: [bearing30208_tapered],
     code: '32014 X / Q',
     category: 'roller',
     nameFa: 'رولبرینگ مخروطی کم‌ارتفاع 32014 X',
@@ -454,6 +382,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 3. Spherical Roller Bearings
   {
     id: 'pc-22212-ek',
+    slug: '22212-ek',
+    imageUrl: bearing22212_spherical,
+    images: [bearing22212_spherical],
     code: '22212 EK / C3 + H312',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای خودتنظیم 22212 EK',
@@ -491,6 +422,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-22316-cc-w33',
+    slug: '22316-cc-w33',
+    imageUrl: bearing22316_spherical,
+    images: [bearing22316_spherical],
     code: '22316 CC/W33 / C3',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای سنگین سری 22316 CC/W33',
@@ -528,6 +462,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-22220-ek',
+    slug: '22220-ek',
+    imageUrl: sphericalBearingImg,
+    images: [sphericalBearingImg],
     code: '22220 EK / C3',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای 22220 EK شفت ۱۰۰',
@@ -567,6 +504,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 4. Cylindrical Roller Bearings
   {
     id: 'pc-nu-208-ecp',
+    slug: 'nu-208-ecp',
+    imageUrl: bearingNu208_cylindrical,
+    images: [bearingNu208_cylindrical],
     code: 'NU 208 ECP / C3',
     category: 'cylindrical',
     nameFa: 'رولبرینگ استوانه‌ای یک ردیفه NU 208 ECP',
@@ -604,6 +544,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-nj-212-ecp',
+    slug: 'nj-212-ecp',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'NJ 212 ECP',
     category: 'cylindrical',
     nameFa: 'رولبرینگ استوانه‌ای لبه‌دار NJ 212 ECP',
@@ -641,6 +584,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-nup-310-ecp',
+    slug: 'nup-310-ecp',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'NUP 310 ECP / C3',
     category: 'cylindrical',
     nameFa: 'رولبرینگ استوانه‌ای مهارکننده دوطرفه NUP 310',
@@ -680,6 +626,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 5. Thrust Bearings
   {
     id: 'pc-51108',
+    slug: '51108',
+    imageUrl: bearing51108_thrust,
+    images: [bearing51108_thrust],
     code: '51108 Single Direction',
     category: 'thrust',
     nameFa: 'بلبرینگ کف‌گرد یک‌طرفه 51108',
@@ -717,6 +666,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-51210',
+    slug: '51210',
+    imageUrl: bearing51108_thrust,
+    images: [bearing51108_thrust],
     code: '51210 High Capacity',
     category: 'thrust',
     nameFa: 'بلبرینگ کف‌گرد سری سنگین 51210',
@@ -756,6 +708,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 6. Mounted Pillow Block Units
   {
     id: 'pc-ucp-205',
+    slug: 'ucp-205',
+    imageUrl: unitUcp205_pillow,
+    images: [unitUcp205_pillow],
     code: 'UCP 205 (Cast Iron Pillow Block)',
     category: 'housing',
     nameFa: 'یاتاقان پایه‌دار چدنی UCP 205',
@@ -793,6 +748,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-ucf-208',
+    slug: 'ucf-208',
+    imageUrl: unitUcf208_flange,
+    images: [unitUcf208_flange],
     code: 'UCF 208 (4-Bolt Flange Housing)',
     category: 'housing',
     nameFa: 'یاتاقان ۴ پیچ فلنجی UCF 208',
@@ -830,6 +788,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-snl-511-609',
+    slug: 'snl-511-609',
+    imageUrl: housingSnl511_split,
+    images: [housingSnl511_split],
     code: 'SNL 511-609 (Split Plummer Block)',
     category: 'housing',
     nameFa: 'پوسته یاتاقان دوتکه سنگین SNL 511-609',
@@ -869,6 +830,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 7. Rotary Oil Seals & Hydraulic Seals
   {
     id: 'pc-tc-35-52-10',
+    slug: 'tc-35-52-10',
+    imageUrl: sealTc35_nbr,
+    images: [sealTc35_nbr],
     code: 'TC 35-52-10 NBR (Dual Lip)',
     category: 'seal',
     nameFa: 'کاسه نمد دو لبه فنردار 35x52x10 NBR',
@@ -906,6 +870,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-tc-50-72-8-viton',
+    slug: 'tc-50-72-8-viton',
+    imageUrl: sealTc50_viton,
+    images: [sealTc50_viton],
     code: 'TC 50-72-8 Viton / FKM High-Temp',
     category: 'seal',
     nameFa: 'کاسه نمد نسوز وایتون 50x72x8 FKM',
@@ -943,6 +910,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-tc-75-100-12',
+    slug: 'tc-75-100-12',
+    imageUrl: sealTc35_nbr,
+    images: [sealTc35_nbr],
     code: 'TC 75-100-12 NBR Heavy Duty',
     category: 'seal',
     nameFa: 'کاسه نمد سنگین صنعتی 75x100x12',
@@ -982,6 +952,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 8. Industrial Greases & Specialized Lubricants
   {
     id: 'pc-skf-lgmt-2',
+    slug: 'skf-lgmt-2',
+    imageUrl: greaseSkfLgmt2,
+    images: [greaseSkfLgmt2],
     code: 'SKF LGMT 2 / 1kg',
     category: 'lubricant',
     nameFa: 'گریس تخصصی چندمنظوره بلبرینگ SKF LGMT 2',
@@ -1019,6 +992,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-22324-ccja-w33va405',
+    slug: '22324-ccja-w33va405',
+    imageUrl: bearing22324_brass,
+    images: [bearing22324_brass],
     code: '22324 CCJA/W33VA405 (Vibrating Screen Special)',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای ویژه سرند معدنی 22324 VA405',
@@ -1056,6 +1032,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-32218-j2-q',
+    slug: '32218-j2-q',
+    imageUrl: taperedBearingImg,
+    images: [taperedBearingImg],
     code: '32218 J2/Q (Heavy Steel Mill & Axle)',
     category: 'roller',
     nameFa: 'رولبرینگ مخروطی سنگین خطوط نورد فولاد 32218',
@@ -1094,6 +1073,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-29420-e',
+    slug: '29420-e',
+    imageUrl: bearing29420_thrust,
+    images: [bearing29420_thrust],
     code: '29420 E (Spherical Roller Thrust Bearing)',
     category: 'thrust',
     nameFa: 'رولبرینگ بشکه‌ای کف‌گرد دکل حفاری و نفت 29420 E',
@@ -1131,6 +1113,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-nu-2224-ecp',
+    slug: 'nu-2224-ecp',
+    imageUrl: bearingNu208_cylindrical,
+    images: [bearingNu208_cylindrical],
     code: 'NU 2224 ECP / C3 (Heavy Refinery Pump)',
     category: 'cylindrical',
     nameFa: 'رولبرینگ استوانه‌ای پمپ‌های پالایشگاهی NU 2224 ECP',
@@ -1168,6 +1153,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-6210-2z-va208',
+    slug: '6210-2z-va208',
+    imageUrl: bearing6210_kiln,
+    images: [bearing6210_kiln],
     code: '6210-2Z/VA208 (High-Temp 350°C Kiln Bearing)',
     category: 'ball',
     nameFa: 'بلبرینگ نسوز کوره حرارت ۳۵۰ درجه 6210-2Z/VA208',
@@ -1205,6 +1193,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-fkm-tc-80-100-12',
+    slug: 'fkm-tc-80-100-12',
+    imageUrl: sealTc50_viton,
+    images: [sealTc50_viton],
     code: 'TC 80-100-12 Viton / FKM Petrochemical',
     category: 'seal',
     nameFa: 'کاسه نمد وایتون نسوز صنایع پتروشیمی 80x100x12',
@@ -1242,6 +1233,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-snl-518-615',
+    slug: 'snl-518-615',
+    imageUrl: housingSnl511_split,
+    images: [housingSnl511_split],
     code: 'SNL 518-615 (Heavy Mining Split Housing)',
     category: 'housing',
     nameFa: 'پوسته یاتاقان دوتکه سنگین معدن و فولاد SNL 518-615',
@@ -1279,6 +1273,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-mobilith-shc-220',
+    slug: 'mobilith-shc-220',
+    imageUrl: greaseMobilithRed,
+    images: [greaseMobilithRed],
     code: 'Mobilith SHC 220 Synthetic',
     category: 'lubricant',
     nameFa: 'گریس تمام سنتتیک سنگین Mobilith SHC 220',
@@ -1318,6 +1315,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 9. Angular Contact Ball Bearings
   {
     id: 'pc-7312-becbm',
+    slug: '7312-becbm',
+    imageUrl: bearing7312_brass,
+    images: [bearing7312_brass],
     code: '7312 BECBM (40° Brass Cage)',
     category: 'ball',
     nameFa: 'بلبرینگ تماس زاویه‌ای قفسه برنجی 7312 BECBM',
@@ -1356,6 +1356,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-7210-becbp',
+    slug: '7210-becbp',
+    imageUrl: bearing7312_brass,
+    images: [bearing7312_brass],
     code: '7210 BECBP / P6',
     category: 'ball',
     nameFa: 'بلبرینگ تماس زاویه‌ای دقیق 7210 BECBP',
@@ -1394,6 +1397,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-3308-a-2z',
+    slug: '3308-a-2z',
+    imageUrl: bearing3308_doublerow,
+    images: [bearing3308_doublerow],
     code: '3308 A-2Z/C3 (Double Row)',
     category: 'ball',
     nameFa: 'بلبرینگ دو ردیفه تماس زاویه‌ای شیلددار 3308-2Z',
@@ -1434,6 +1440,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 10. Self-Aligning Ball Bearings & Needle Roller Bearings
   {
     id: 'pc-1309-ektn9',
+    slug: '1309-ektn9',
+    imageUrl: bearing1309_align,
+    images: [bearing1309_align],
     code: '1309 EKTN9 (Self-Aligning Tapered Bore)',
     category: 'ball',
     nameFa: 'بلبرینگ خودتنظیم کونیک 1309 EKTN9',
@@ -1472,6 +1481,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-na-4910',
+    slug: 'na-4910',
+    imageUrl: bearingNa4910_needle,
+    images: [bearingNa4910_needle],
     code: 'NA 4910 (Machined Needle Roller)',
     category: 'roller',
     nameFa: 'رولبرینگ سوزنی رینگ‌دار ماشین‌کاری NA 4910',
@@ -1512,6 +1524,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 11. Heavy Industrial Spherical & Tapered Additions
   {
     id: 'pc-23228-cc-w33',
+    slug: '23228-cc-w33',
+    imageUrl: sphericalBearingImg,
+    images: [sphericalBearingImg],
     code: '23228 CC/W33 (Heavy Mining SAG Mill)',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای سنگین آسیاب معدن 23228 CC/W33',
@@ -1549,6 +1564,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-32314-j2-q',
+    slug: '32314-j2-q',
+    imageUrl: bearing32210_tapered,
+    images: [bearing32210_tapered],
     code: '32314 J2/Q (Heavy Crusher & Crane Wheel)',
     category: 'roller',
     nameFa: 'رولبرینگ مخروطی سنگین سری ۳۲۳ سایز 32314',
@@ -1589,6 +1607,9 @@ const rawBearingProducts: BearingProduct[] = [
   // 12. Additional Housings & Heavy Seals
   {
     id: 'pc-ucp-210',
+    slug: 'ucp-210',
+    imageUrl: pillowBlockImg,
+    images: [pillowBlockImg],
     code: 'UCP 210 (50mm Heavy Duty Pillow Block)',
     category: 'housing',
     nameFa: 'یاتاقان پایه‌دار چدنی سنگین UCP 210',
@@ -1626,6 +1647,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-tc-100-125-13-viton',
+    slug: 'tc-100-125-13-viton',
+    imageUrl: sealTc50_viton,
+    images: [sealTc50_viton],
     code: 'TC 100-125-13 Viton / FKM Heavy Refractory',
     category: 'seal',
     nameFa: 'کاسه نمد وایتون نسوز نسوز کوره 100x125x13',
@@ -1663,6 +1687,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-tc-60-85-10',
+    slug: 'tc-60-85-10',
+    imageUrl: oilSealImg,
+    images: [oilSealImg],
     code: 'TC 60-85-10 NBR (Dual Lip)',
     category: 'seal',
     nameFa: 'کاسه نمد دو لبه فنردار صنعتی 60x85x10 NBR',
@@ -1704,6 +1731,9 @@ const rawBearingProducts: BearingProduct[] = [
   // ==========================================
   {
     id: 'pc-skf-6311-c3',
+    slug: 'skf-6311-c3',
+    imageUrl: ballBearingImg,
+    images: [ballBearingImg],
     code: 'SKF 6311 / C3 Explorer',
     category: 'ball',
     nameFa: 'بلبرینگ شیار عمیق سنگین SKF 6311 C3 اکسپلورر',
@@ -1742,6 +1772,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-skf-c-2215-k',
+    slug: 'skf-c-2215-k',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'SKF C 2215 K CARB® Toroidal',
     category: 'roller',
     nameFa: 'رولبرینگ توریدال خودتنظیم SKF C 2215 K سوراخ مخروطی',
@@ -1780,6 +1813,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-skf-sy-50-tf',
+    slug: 'skf-sy-50-tf',
+    imageUrl: pillowBlockImg,
+    images: [pillowBlockImg],
     code: 'SKF SY 50 TF (Y-Bearing Unit)',
     category: 'housing',
     nameFa: 'یاتاقان پایه‌دار چدنی SKF مدل SY 50 TF شفت ۵۰ میلی‌متر',
@@ -1821,6 +1857,9 @@ const rawBearingProducts: BearingProduct[] = [
   // ==========================================
   {
     id: 'pc-fag-6312-tb-p6',
+    slug: 'fag-6312-tb-p6',
+    imageUrl: ballBearingImg,
+    images: [ballBearingImg],
     code: 'FAG 6312-TB-P6 Schaeffler',
     category: 'ball',
     nameFa: 'بلبرینگ دور بالا و دقیق FAG 6312-TB-P6 با قفسه تکستولیت',
@@ -1859,6 +1898,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-fag-22216-e1-xl-k',
+    slug: 'fag-22216-e1-xl-k',
+    imageUrl: sphericalBearingImg,
+    images: [sphericalBearingImg],
     code: 'FAG 22216-E1-XL-K X-Life',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای FAG 22216-E1-XL-K سری X-Life سوراخ مخروطی',
@@ -1896,6 +1938,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-fag-nj-2312-e-m1a',
+    slug: 'fag-nj-2312-e-m1a',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'FAG NJ2312-E-XL-M1A Cylindrical',
     category: 'cylindrical',
     nameFa: 'رولبرینگ استوانه‌ای قفسه برنجی سنگین FAG NJ 2312 E M1A',
@@ -1933,6 +1978,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-ina-nk-25-20',
+    slug: 'ina-nk-25-20',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'INA NK 25/20 Heavy Needle Roller',
     category: 'roller',
     nameFa: 'رولبرینگ سوزنی سنگین بدون رینگ داخلی INA NK 25/20',
@@ -1971,6 +2019,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-ina-kr-35-pp',
+    slug: 'ina-kr-35-pp',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'INA KR 35 PP Cam Follower',
     category: 'roller',
     nameFa: 'بادامک پیرو پیچ‌دار گاید و ریل INA KR 35 PP آلمان',
@@ -2012,6 +2063,9 @@ const rawBearingProducts: BearingProduct[] = [
   // ==========================================
   {
     id: 'pc-timken-lm11749-10',
+    slug: 'timken-lm11749-10',
+    imageUrl: taperedBearingImg,
+    images: [taperedBearingImg],
     code: 'TIMKEN LM11749 / LM11710 (SET1)',
     category: 'roller',
     nameFa: 'رولبرینگ مخروطی اینچی آمریکایی TIMKEN LM11749/10',
@@ -2050,6 +2104,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-timken-lm67048-10',
+    slug: 'timken-lm67048-10',
+    imageUrl: taperedBearingImg,
+    images: [taperedBearingImg],
     code: 'TIMKEN LM67048 / LM67010 (SET6)',
     category: 'roller',
     nameFa: 'رولبرینگ مخروطی اینچی ۱.۲۵ اینچ TIMKEN LM67048/10',
@@ -2088,6 +2145,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-timken-22220-emw33c3',
+    slug: 'timken-22220-emw33c3',
+    imageUrl: sphericalBearingImg,
+    images: [sphericalBearingImg],
     code: 'TIMKEN 22220EMW33C3 Solid Brass',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای قفسه برنجی توپر TIMKEN 22220 EMW33 C3',
@@ -2129,6 +2189,9 @@ const rawBearingProducts: BearingProduct[] = [
   // ==========================================
   {
     id: 'pc-nsk-6206-ddu-cm',
+    slug: 'nsk-6206-ddu-cm',
+    imageUrl: ballBearingImg,
+    images: [ballBearingImg],
     code: 'NSK 6206 DDU CM Japan',
     category: 'ball',
     nameFa: 'بلبرینگ ژاپنی الکتروموتوری NSK 6206 DDU CM ضد آب',
@@ -2166,6 +2229,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-nsk-7010-ctyndblp4',
+    slug: 'nsk-7010-ctyndblp4',
+    imageUrl: ballBearingImg,
+    images: [ballBearingImg],
     code: 'NSK 7010 CTYNDBLP4 Super Precision',
     category: 'ball',
     nameFa: 'بلبرینگ اسپیندل تماس زاویه‌ای فوق دقیق جفت NSK 7010 P4',
@@ -2204,6 +2270,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-nsk-nu-2214-et',
+    slug: 'nsk-nu-2214-et',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'NSK NU 2214 ET Cylindrical',
     category: 'cylindrical',
     nameFa: 'رولبرینگ استوانه‌ای دور بالا NSK NU 2214 ET ژاپن',
@@ -2245,6 +2314,9 @@ const rawBearingProducts: BearingProduct[] = [
   // ==========================================
   {
     id: 'pc-ntn-6204-llu-c3',
+    slug: 'ntn-6204-llu-c3',
+    imageUrl: ballBearingImg,
+    images: [ballBearingImg],
     code: 'NTN 6204 LLU / C3 Japan',
     category: 'ball',
     nameFa: 'بلبرینگ ضد آب و غبار NTN ژاپن مدل 6204 LLU C3',
@@ -2282,6 +2354,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-ntn-22214-eakd1',
+    slug: 'ntn-22214-eakd1',
+    imageUrl: sphericalBearingImg,
+    images: [sphericalBearingImg],
     code: 'NTN 22214 EAKD1 ULTAGE®',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای NTN 22214 EAKD1 سری فوق‌العاده ULTAGE',
@@ -2319,6 +2394,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-ntn-5206-s',
+    slug: 'ntn-5206-s',
+    imageUrl: ballBearingImg,
+    images: [ballBearingImg],
     code: 'NTN 5206 S Double Row',
     category: 'ball',
     nameFa: 'بلبرینگ دو ردیفه تماس زاویه‌ای NTN مدل 5206 S ژاپن',
@@ -2361,6 +2439,9 @@ const rawBearingProducts: BearingProduct[] = [
   // ==========================================
   {
     id: 'pc-koyo-6207-2rs',
+    slug: 'koyo-6207-2rs',
+    imageUrl: ballBearingImg,
+    images: [ballBearingImg],
     code: 'KOYO 6207-2RS (JTEKT Japan)',
     category: 'ball',
     nameFa: 'بلبرینگ شیار عمیق ژاپنی KOYO مدل 6207 2RS با آب‌بند لاستیکی',
@@ -2398,6 +2479,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-koyo-30212-jr',
+    slug: 'koyo-30212-jr',
+    imageUrl: taperedBearingImg,
+    images: [taperedBearingImg],
     code: 'KOYO 30212 JR Tapered Roller',
     category: 'roller',
     nameFa: 'رولبرینگ مخروطی ژاپنی KOYO مدل 30212 JR دقیق',
@@ -2436,6 +2520,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-koyo-22218-rhr',
+    slug: 'koyo-22218-rhr',
+    imageUrl: sphericalBearingImg,
+    images: [sphericalBearingImg],
     code: 'KOYO 22218 RHR Spherical Roller',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای KOYO 22218 RHR با ظرفیت بار استثنایی',
@@ -2477,6 +2564,9 @@ const rawBearingProducts: BearingProduct[] = [
   // ==========================================
   {
     id: 'pc-nachi-6008-2nse9',
+    slug: 'nachi-6008-2nse9',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'NACHI 6008-2NSE9 Quest® Japan',
     category: 'ball',
     nameFa: 'بلبرینگ باریک دور بالا NACHI 6008 2NSE9 سری کوئست ژاپن',
@@ -2514,6 +2604,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-nachi-22222-ex',
+    slug: 'nachi-22222-ex',
+    imageUrl: sphericalBearingImg,
+    images: [sphericalBearingImg],
     code: 'NACHI 22222 EX Quest Spherical',
     category: 'spherical',
     nameFa: 'رولبرینگ بشکه‌ای پرقدرت NACHI مدل 22222 EX ساخت ژاپن',
@@ -2551,6 +2644,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-nachi-nup-310-eg',
+    slug: 'nachi-nup-310-eg',
+    imageUrl: cylindricalBearingImg,
+    images: [cylindricalBearingImg],
     code: 'NACHI NUP 310 EG Cylindrical',
     category: 'cylindrical',
     nameFa: 'رولبرینگ استوانه‌ای لبه‌دار تثبیت‌کننده NACHI NUP 310 EG',
@@ -2592,6 +2688,9 @@ const rawBearingProducts: BearingProduct[] = [
   // ==========================================
   {
     id: 'pc-corteco-12011153b',
+    slug: 'corteco-12011153b',
+    imageUrl: oilSealImg,
+    images: [oilSealImg],
     code: 'CORTECO 12011153B Simmerring® TC 35x52x7',
     category: 'seal',
     nameFa: 'کاسه نمد سیمرینگ ایتالیایی کورتکو CORTECO 35x52x7 NBR',
@@ -2629,6 +2728,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-corteco-12012014b',
+    slug: 'corteco-12012014b',
+    imageUrl: oilSealImg,
+    images: [oilSealImg],
     code: 'CORTECO 12012014B Viton® TC 50x72x8',
     category: 'seal',
     nameFa: 'کاسه نمد وایتون نسوز کورتکو CORTECO 50x72x8 FKM',
@@ -2666,6 +2768,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-corteco-12019688b-cassette',
+    slug: 'corteco-12019688b-cassette',
+    imageUrl: oilSealImg,
+    images: [oilSealImg],
     code: 'CORTECO 12019688B Cassette Wheel Seal 140x170',
     category: 'seal',
     nameFa: 'کاسه نمد کاسِتی فوق‌سنگین کورتکو 140x170x14.5/16',
@@ -2703,6 +2808,9 @@ const rawBearingProducts: BearingProduct[] = [
   },
   {
     id: 'pc-corteco-babsl-45-65-8',
+    slug: 'corteco-babsl-45-65-8',
+    imageUrl: oilSealImg,
+    images: [oilSealImg],
     code: 'CORTECO BABSL High-Pressure 45x65x8',
     category: 'seal',
     nameFa: 'کاسه نمد هیدرولیک فشار بالا کورتکو CORTECO BABSL 45x65x8',
@@ -2740,7 +2848,11 @@ const rawBearingProducts: BearingProduct[] = [
   },
 ];
 
-export const bearingProducts: BearingProduct[] = rawBearingProducts.map((product) => ({
-  ...product,
-  imageUrl: product.imageUrl || getProductRealImage(product),
-}));
+export const bearingProducts: BearingProduct[] = rawBearingProducts.map((product) => {
+  const resolvedImg = product.imageUrl || (product.images && product.images[0]) || getProductFallbackImage(product);
+  return {
+    ...product,
+    imageUrl: resolvedImg,
+    images: product.images && product.images.length > 0 ? product.images : [resolvedImg],
+  };
+});
