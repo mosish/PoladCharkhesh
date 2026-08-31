@@ -2848,6 +2848,8 @@ const rawBearingProducts: BearingProduct[] = [
   },
 ];
 
+import { runDevProductValidation } from '../utils/productValidation';
+
 export const bearingProducts: BearingProduct[] = rawBearingProducts.map((product) => {
   const resolvedImg = product.imageUrl || (product.images && product.images[0]) || getProductFallbackImage(product);
   return {
@@ -2856,3 +2858,6 @@ export const bearingProducts: BearingProduct[] = rawBearingProducts.map((product
     images: product.images && product.images.length > 0 ? product.images : [resolvedImg],
   };
 });
+
+// Run non-destructive integrity check in development
+runDevProductValidation(bearingProducts);

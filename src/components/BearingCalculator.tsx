@@ -3,6 +3,7 @@ import { Language } from '../types';
 import { translations } from '../data/translations';
 import { MetricImperialConverter } from './MetricImperialConverter';
 import { BearingThermalEstimator } from './BearingThermalEstimator';
+import { BearingLifeCalculator } from './BearingLifeCalculator';
 import { 
   Wrench, 
   HelpCircle, 
@@ -18,7 +19,8 @@ import {
   Info,
   Sliders,
   Settings2,
-  Activity
+  Activity,
+  Hourglass
 } from 'lucide-react';
 import {
   BearingFamily,
@@ -39,7 +41,7 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
   const [ambientTemp, setAmbientTemp] = useState<number>(25);
   const [shaftTolerance, setShaftTolerance] = useState<string>('k5');
   const [speedCategory, setSpeedCategory] = useState<'normal' | 'high' | 'very-high'>('normal');
-  const [activeToolTab, setActiveToolTab] = useState<'clearance' | 'thermal' | 'converter' | 'all'>('clearance');
+  const [activeToolTab, setActiveToolTab] = useState<'clearance' | 'life' | 'thermal' | 'converter' | 'all'>('clearance');
 
   const t = translations[language];
 
@@ -260,42 +262,56 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
               id="tab-clearance-btn"
               type="button"
               onClick={() => setActiveToolTab('clearance')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'clearance'
                   ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
                   : 'text-slate-700 hover:text-slate-900'
               }`}
             >
               <Gauge className="w-4 h-4" />
-              <span>{language === 'fa' ? 'محاسبه‌گر لقی ISO 5753' : 'RIC Clearance'}</span>
+              <span>{language === 'fa' ? 'لقی شعاعی (ISO 5753)' : 'RIC Clearance'}</span>
+            </button>
+
+            <button
+              id="tab-life-btn"
+              type="button"
+              onClick={() => setActiveToolTab('life')}
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeToolTab === 'life'
+                  ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
+                  : 'text-slate-700 hover:text-slate-900'
+              }`}
+            >
+              <Hourglass className="w-4 h-4" />
+              <span>{language === 'fa' ? 'طول عمر نامی (ISO 281)' : 'Bearing Life'}</span>
             </button>
 
             <button
               id="tab-thermal-btn"
               type="button"
               onClick={() => setActiveToolTab('thermal')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'thermal'
                   ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
                   : 'text-slate-700 hover:text-slate-900'
               }`}
             >
               <Activity className="w-4 h-4" />
-              <span>{language === 'fa' ? 'برآورد سرعت و دما' : 'Speed & Thermal'}</span>
+              <span>{language === 'fa' ? 'سرعت و دما' : 'Speed & Thermal'}</span>
             </button>
 
             <button
               id="tab-converter-btn"
               type="button"
               onClick={() => setActiveToolTab('converter')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'converter'
                   ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
                   : 'text-slate-700 hover:text-slate-900'
               }`}
             >
               <Ruler className="w-4 h-4" />
-              <span>{language === 'fa' ? 'مبدل ابعاد (Metric / Inch)' : 'Metric ⇄ Inch'}</span>
+              <span>{language === 'fa' ? 'مبدل ابعاد (mm / Inch)' : 'Metric ⇄ Inch'}</span>
             </button>
 
             <button
@@ -313,6 +329,13 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
             </button>
           </div>
         </div>
+
+        {/* BEARING RATING LIFE CALCULATOR VIEW (When life tab is selected) */}
+        {activeToolTab === 'life' && (
+          <div className="animate-in fade-in duration-200">
+            <BearingLifeCalculator language={language} embedded={true} />
+          </div>
+        )}
 
         {/* SPEED & THERMAL ESTIMATOR VIEW (When thermal tab is selected) */}
         {activeToolTab === 'thermal' && (
@@ -666,11 +689,16 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
           </div>
         )}
 
-        {/* SPEED & THERMAL ESTIMATOR IN ALL TOOLS TAB */}
+        {/* BEARING LIFE & SPEED/THERMAL ESTIMATOR IN ALL TOOLS TAB */}
         {activeToolTab === 'all' && (
-          <div className="mt-12 pt-12 border-t border-slate-200/60 animate-in fade-in duration-200">
-            <BearingThermalEstimator language={language} embedded={true} />
-          </div>
+          <>
+            <div className="mt-12 pt-12 border-t border-slate-200/60 animate-in fade-in duration-200">
+              <BearingLifeCalculator language={language} embedded={true} />
+            </div>
+            <div className="mt-12 pt-12 border-t border-slate-200/60 animate-in fade-in duration-200">
+              <BearingThermalEstimator language={language} embedded={true} />
+            </div>
+          </>
         )}
 
       </div>
