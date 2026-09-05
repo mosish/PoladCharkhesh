@@ -117,7 +117,7 @@ class AuthService {
 
       this._isConfigured = true;
       this.currentSession = {
-        token: data.token || 'server-session-httponly',
+        token: 'server-session-httponly',
         user: data.user,
         expiresAt: Date.now() + 12 * 60 * 60 * 1000,
         issuedAt: Date.now(),
@@ -183,7 +183,7 @@ class AuthService {
       }
 
       this.currentSession = {
-        token: data.token || 'server-session-httponly',
+        token: 'server-session-httponly',
         user: data.user,
         expiresAt: Date.now() + 12 * 60 * 60 * 1000,
         issuedAt: Date.now(),

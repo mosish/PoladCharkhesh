@@ -21,7 +21,7 @@ async function startServer() {
   // 1. Core Parsers & Middlewares
   app.use(express.json({ limit: '15mb' }));
   app.use(express.urlencoded({ extended: true, limit: '15mb' }));
-  app.use(cookieParser());
+  app.use(cookieParser(CONFIG.COOKIE_SECRET));
   app.use(preventPrototypePollution);
 
   // 2. Global Security Headers

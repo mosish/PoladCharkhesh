@@ -1,14 +1,29 @@
 import path from 'node:path';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Strict validation for production mode: fail fast immediately if mandatory secrets are missing
+if (isProduction) {
+  if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.trim() === '') {
+    throw new Error('FATAL SECURITY CONFIGURATION ERROR: "SESSION_SECRET" environment variable is required in production.');
+  }
+  if (!process.env.COOKIE_SECRET || process.env.COOKIE_SECRET.trim() === '') {
+    throw new Error('FATAL SECURITY CONFIGURATION ERROR: "COOKIE_SECRET" environment variable is required in production.');
+  }
+}
+
 export const CONFIG = {
   PORT: 3000,
   HOST: '0.0.0.0',
   NODE_ENV: process.env.NODE_ENV || 'development',
-  isProduction: process.env.NODE_ENV === 'production',
+  isProduction,
   
   DATABASE_PATH: process.env.DATABASE_PATH || path.resolve(process.cwd(), 'data', 'poladcharkhesh.sqlite'),
   
-  SESSION_SECRET: process.env.SESSION_SECRET || 'polad_sec_key_prod_8f7b2c9d1e4a5f6e8b0a9c7d4e2f1a3b5c7d9e',
+  // In development mode, provide explicitly documented dev-only fallback.
+  // In production, the validation above guarantees environment variables are present.
+  SESSION_SECRET: process.env.SESSION_SECRET || (isProduction ? '' : 'dev-only-insecure-session-secret-change-in-production'),
+  COOKIE_SECRET: process.env.COOKIE_SECRET || (isProduction ? '' : 'dev-only-insecure-cookie-secret-change-in-production'),
   SESSION_TTL_HOURS: Number(process.env.SESSION_TTL_HOURS) || 12,
   COOKIE_NAME: 'polad_session',
   

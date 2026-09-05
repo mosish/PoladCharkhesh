@@ -118,11 +118,8 @@ productRouter.get('/', (req: Request, res: Response) => {
   let allowArchived = false;
 
   if (includeArchivedReq) {
-    // Verify session
-    let token = req.cookies?.[CONFIG.COOKIE_NAME];
-    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
-      token = req.headers.authorization.split(' ')[1];
-    }
+    // Verify session via HttpOnly cookie
+    const token = req.cookies?.[CONFIG.COOKIE_NAME];
     if (token && verifySession(token).valid) {
       allowArchived = true;
     }

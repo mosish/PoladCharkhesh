@@ -31,16 +31,8 @@ export function getClientIp(req: Request): string {
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {
   req.clientIp = getClientIp(req);
 
-  // 1. Check HttpOnly cookie
-  let token = req.cookies?.[CONFIG.COOKIE_NAME];
-
-  // 2. Fallback to Authorization: Bearer <token>
-  if (!token && req.headers.authorization) {
-    const parts = req.headers.authorization.split(' ');
-    if (parts.length === 2 && parts[0].toLowerCase() === 'bearer') {
-      token = parts[1].trim();
-    }
-  }
+  // Authentication strictly relies on the HttpOnly session cookie
+  const token = req.cookies?.[CONFIG.COOKIE_NAME];
 
   if (!token) {
     res.status(401).json({
@@ -52,11 +44,12 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
 
   const sessionCheck = verifySession(token);
   if (!sessionCheck.valid || !sessionCheck.user || !sessionCheck.session) {
-    // Clear cookie if present but invalid
+    // Clear cookie if present but invalid or expired
     res.clearCookie(CONFIG.COOKIE_NAME, {
       httpOnly: true,
       sameSite: 'strict',
       secure: CONFIG.isProduction,
+      path: '/',
     });
 
     res.status(401).json({

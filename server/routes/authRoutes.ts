@@ -30,13 +30,7 @@ const loginRateLimiter = createRateLimiter({
 authRouter.get('/status', (req: Request, res: Response) => {
   const isConfigured = isMasterAdminConfigured();
   
-  let token = req.cookies?.[CONFIG.COOKIE_NAME];
-  if (!token && req.headers.authorization) {
-    const parts = req.headers.authorization.split(' ');
-    if (parts.length === 2 && parts[0].toLowerCase() === 'bearer') {
-      token = parts[1].trim();
-    }
-  }
+  const token = req.cookies?.[CONFIG.COOKIE_NAME];
 
   if (token) {
     const check = verifySession(token);
@@ -119,7 +113,6 @@ authRouter.post('/setup', async (req: Request, res: Response): Promise<void> => 
     res.status(201).json({
       success: true,
       user: session.user,
-      token: session.token,
     });
   } catch (err: any) {
     console.error('Setup admin error:', err);
@@ -208,7 +201,6 @@ authRouter.post('/login', loginRateLimiter, async (req: Request, res: Response):
   res.json({
     success: true,
     user: session.user,
-    token: session.token,
   });
 });
 
