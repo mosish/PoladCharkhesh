@@ -1,35 +1,35 @@
 import { BearingProduct } from '../types';
-import ballBearingImg from '../assets/images/ball_bearing_photo_1787677355061.webp';
-import taperedBearingImg from '../assets/images/tapered_bearing_photo_1787677370531.webp';
-import sphericalBearingImg from '../assets/images/spherical_bearing_photo_1787677386106.webp';
-import cylindricalBearingImg from '../assets/images/cylindrical_bearing_photo_1787677431892.webp';
-import pillowBlockImg from '../assets/images/pillow_block_photo_1787677398497.webp';
-import oilSealImg from '../assets/images/oil_seal_photo_1787677410030.webp';
+const ballBearingImg = '/assets/images/ball_bearing_photo_1787677355061.webp';
+const taperedBearingImg = '/assets/images/tapered_bearing_photo_1787677370531.webp';
+const sphericalBearingImg = '/assets/images/spherical_bearing_photo_1787677386106.webp';
+const cylindricalBearingImg = '/assets/images/cylindrical_bearing_photo_1787677431892.webp';
+const pillowBlockImg = '/assets/images/pillow_block_photo_1787677398497.webp';
+const oilSealImg = '/assets/images/oil_seal_photo_1787677410030.webp';
 
 // Dedicated individual near-real industrial photography for each part type (WebP format for ultra-fast loading)
-import bearing6204_2rs from '../assets/images/bearing_6204_2rs_1787678583210.webp';
-import bearing6308_2z from '../assets/images/bearing_6308_2z_1787678597854.webp';
-import bearing6005_open from '../assets/images/bearing_6005_open_1787678608569.webp';
-import bearing6210_kiln from '../assets/images/bearing_6210_kiln_1787678818521.webp';
-import bearing30208_tapered from '../assets/images/bearing_30208_tapered_1787678619565.webp';
-import bearing32210_tapered from '../assets/images/bearing_32210_tapered_1787678639800.webp';
-import bearing22212_spherical from '../assets/images/bearing_22212_spherical_1787678650795.webp';
-import bearing22316_spherical from '../assets/images/bearing_22316_spherical_1787678662094.webp';
-import bearing22324_brass from '../assets/images/bearing_22324_brass_1787678785316.webp';
-import bearingNu208_cylindrical from '../assets/images/bearing_nu208_cylindrical_1787678672477.webp';
-import bearingNa4910_needle from '../assets/images/bearing_na4910_needle_1787678806671.webp';
-import bearing51108_thrust from '../assets/images/bearing_51108_thrust_1787678727693.webp';
-import bearing29420_thrust from '../assets/images/bearing_29420_thrust_1787678796134.webp';
-import unitUcp205_pillow from '../assets/images/unit_ucp205_pillow_1787678692893.webp';
-import unitUcf208_flange from '../assets/images/unit_ucf208_flange_1787678704716.webp';
-import housingSnl511_split from '../assets/images/housing_snl511_split_1787678749335.webp';
-import sealTc35_nbr from '../assets/images/seal_tc35_nbr_1787678715667.webp';
-import sealTc50_viton from '../assets/images/seal_tc50_viton_1787678737812.webp';
-import greaseSkfLgmt2 from '../assets/images/grease_skf_lgmt2_1787678760211.webp';
-import greaseMobilithRed from '../assets/images/grease_mobilith_red_1787678829445.webp';
-import bearing7312_brass from '../assets/images/bearing_7312_brass_1787678774838.webp';
-import bearing3308_doublerow from '../assets/images/bearing_3308_doublerow_1787678851991.webp';
-import bearing1309_align from '../assets/images/bearing_1309_align_1787678841334.webp';
+const bearing6204_2rs = '/assets/images/bearing_6204_2rs_1787678583210.webp';
+const bearing6308_2z = '/assets/images/bearing_6308_2z_1787678597854.webp';
+const bearing6005_open = '/assets/images/bearing_6005_open_1787678608569.webp';
+const bearing6210_kiln = '/assets/images/bearing_6210_kiln_1787678818521.webp';
+const bearing30208_tapered = '/assets/images/bearing_30208_tapered_1787678619565.webp';
+const bearing32210_tapered = '/assets/images/bearing_32210_tapered_1787678639800.webp';
+const bearing22212_spherical = '/assets/images/bearing_22212_spherical_1787678650795.webp';
+const bearing22316_spherical = '/assets/images/bearing_22316_spherical_1787678662094.webp';
+const bearing22324_brass = '/assets/images/bearing_22324_brass_1787678785316.webp';
+const bearingNu208_cylindrical = '/assets/images/bearing_nu208_cylindrical_1787678672477.webp';
+const bearingNa4910_needle = '/assets/images/bearing_na4910_needle_1787678806671.webp';
+const bearing51108_thrust = '/assets/images/bearing_51108_thrust_1787678727693.webp';
+const bearing29420_thrust = '/assets/images/bearing_29420_thrust_1787678796134.webp';
+const unitUcp205_pillow = '/assets/images/unit_ucp205_pillow_1787678692893.webp';
+const unitUcf208_flange = '/assets/images/unit_ucf208_flange_1787678704716.webp';
+const housingSnl511_split = '/assets/images/housing_snl511_split_1787678749335.webp';
+const sealTc35_nbr = '/assets/images/seal_tc35_nbr_1787678715667.webp';
+const sealTc50_viton = '/assets/images/seal_tc50_viton_1787678737812.webp';
+const greaseSkfLgmt2 = '/assets/images/grease_skf_lgmt2_1787678760211.webp';
+const greaseMobilithRed = '/assets/images/grease_mobilith_red_1787678829445.webp';
+const bearing7312_brass = '/assets/images/bearing_7312_brass_1787678774838.webp';
+const bearing3308_doublerow = '/assets/images/bearing_3308_doublerow_1787678851991.webp';
+const bearing1309_align = '/assets/images/bearing_1309_align_1787678841334.webp';
 
 /**
  * Fallback image resolver when an item does not define an explicit image.

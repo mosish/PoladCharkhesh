@@ -1,61 +1,41 @@
 /**
  * POLAD CHARKHESH - AUDIT LOG SERVICE
  * 
- * Provides an immutable activity ledger for tracking administrative actions:
- * - User logins / logouts / failed attempts
- * - Product creation, updates, archival, and deletions
- * - Company data modifications
- * - Page content (CMS) and SEO configuration changes
- * - Backup export / import and system resets
+ * Provides an authoritative activity ledger for tracking administrative actions.
+ * Fetches server-persisted audit entries from SQLite via /api/system/audit-logs.
  */
 
 import { AuditAction, AuditEntity, AuditLog } from '../types/admin';
-
-const AUDIT_STORAGE_KEY = 'polad_admin_audit_logs_v1';
-const MAX_AUDIT_LOGS = 250;
 
 class AuditService {
   private logs: AuditLog[] = [];
   private listeners: Set<(logs: AuditLog[]) => void> = new Set();
 
   constructor() {
-    this.loadLogs();
+    this.cleanLegacyLocalStorage();
+    this.refreshFromServer();
   }
 
-  private loadLogs(): void {
+  private cleanLegacyLocalStorage(): void {
+    if (typeof window === 'undefined') return;
     try {
-      if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem(AUDIT_STORAGE_KEY);
-        if (stored) {
-          this.logs = JSON.parse(stored);
-          return;
+      localStorage.removeItem('polad_admin_audit_logs_v1');
+    } catch {}
+  }
+
+  public async refreshFromServer(): Promise<void> {
+    if (typeof window === 'undefined') return;
+    try {
+      const res = await fetch('/api/system/audit-logs?limit=200', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.logs)) {
+          this.logs = data.logs;
+          this.notifyListeners();
         }
       }
     } catch (e) {
-      console.warn('Could not load audit logs from storage:', e);
-    }
-    
-    // Default initial seed log
-    this.logs = [
-      {
-        id: 'log-init-1',
-        timestamp: new Date().toISOString(),
-        action: 'SYSTEM_RESET',
-        entity: 'system',
-        summary: 'Admin audit engine initialized with canonical data architecture.',
-        performedBy: 'system',
-      },
-    ];
-  }
-
-  private saveLogs(): void {
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(this.logs));
-      }
-      this.notifyListeners();
-    } catch (e) {
-      console.error('Failed to save audit logs:', e);
+      // Offline or unauthenticated fallback
     }
   }
 
@@ -88,12 +68,7 @@ class AuditService {
     };
 
     this.logs.unshift(newLog);
-
-    if (this.logs.length > MAX_AUDIT_LOGS) {
-      this.logs = this.logs.slice(0, MAX_AUDIT_LOGS);
-    }
-
-    this.saveLogs();
+    this.notifyListeners();
     return newLog;
   }
 
@@ -103,20 +78,6 @@ class AuditService {
     return () => {
       this.listeners.delete(listener);
     };
-  }
-
-  public clearLogs(performedBy: string): void {
-    this.logs = [
-      {
-        id: `log-${Date.now()}`,
-        timestamp: new Date().toISOString(),
-        action: 'SYSTEM_RESET',
-        entity: 'system',
-        summary: 'Audit logs cleared by administrator.',
-        performedBy,
-      },
-    ];
-    this.saveLogs();
   }
 }
 

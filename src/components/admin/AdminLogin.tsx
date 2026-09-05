@@ -50,8 +50,13 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   const [lockoutCountdown, setLockoutCountdown] = useState<number | null>(null);
 
   useEffect(() => {
-    setIsConfigured(authService.isConfigured());
-  }, []);
+    authService.checkStatus().then((status) => {
+      setIsConfigured(status.isConfigured);
+      if (status.isAuthenticated) {
+        onSuccess();
+      }
+    });
+  }, [onSuccess]);
 
   // Lockout countdown timer
   useEffect(() => {

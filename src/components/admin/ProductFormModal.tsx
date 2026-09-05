@@ -22,7 +22,7 @@ interface ProductFormModalProps {
   product?: AdminProductItem | null; // null for add mode, item for edit mode
   isOpen: boolean;
   onClose: () => void;
-  onSave: (productData: Partial<BearingProduct>) => { success: boolean; errors?: string[] };
+  onSave: (productData: Partial<BearingProduct>) => Promise<{ success: boolean; errors?: string[] }> | { success: boolean; errors?: string[] };
 }
 
 type ModalTab = 'identity' | 'dimensions' | 'factors' | 'media' | 'brands' | 'seo';
@@ -214,7 +214,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     setApplicationsFa(applicationsFa.filter((item) => item !== app));
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const candidateData: Partial<BearingProduct> = {
@@ -264,10 +264,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       metaDescriptionFa: metaDescriptionFa || undefined,
     };
 
-    const result = onSave(candidateData);
+    const result = await onSave(candidateData);
     if (!result.success && result.errors) {
       setErrors(result.errors);
-    } else {
+    } else if (result.success) {
       onClose();
     }
   };

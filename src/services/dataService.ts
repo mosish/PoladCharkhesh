@@ -1,13 +1,12 @@
 /**
  * POLAD CHARKHESH - CENTRALIZED DATA SERVICE & STORE
  * 
- * Provides reactive, validated data management for:
- * 1. Product Catalog (68 canonical bearings + dynamic additions)
- * 2. Company Identity & Contact Information
- * 3. CMS Page Content (Hero, About Us, Footer)
- * 4. SEO Metadata & OpenGraph Configuration
- * 5. Full JSON Dataset Snapshots (Backup, Restore, Factory Reset)
- * 6. Contact Inquiries Ledger
+ * Production server-backed data architecture:
+ * All product records, company information, CMS pages, SEO metadata,
+ * and contact inquiries are persistently managed via the Express + SQLite backend.
+ * 
+ * In-memory caching and reactive subscription ensure instantaneous, flicker-free
+ * rendering across the entire application with reliable server synchronization.
  */
 
 import { BearingProduct } from '../types';
@@ -18,23 +17,15 @@ import {
   CmsPageContent, 
   SiteSeoConfig, 
   DatasetSnapshot,
-  InquiryLog 
+  InquiryLog,
+  AdminUser 
 } from '../types/admin';
 import { validateProductDataset } from '../utils/productValidation';
 import { getProductSlug } from '../utils/productSlug';
-import { sanitizeObjectTree, sanitizePlainText, sanitizeUrl } from '../utils/sanitizer';
 import { auditService } from './auditService';
 
-const STORAGE_KEYS = {
-  PRODUCTS: 'polad_admin_products_v2',
-  COMPANY: 'polad_admin_company_v2',
-  CONTENT: 'polad_admin_content_v2',
-  SEO: 'polad_admin_seo_v2',
-  INQUIRIES: 'polad_admin_inquiries_v2',
-};
-
 // Default Page Content Baseline
-const DEFAULT_PAGE_CONTENT: CmsPageContent = {
+export const DEFAULT_PAGE_CONTENT: CmsPageContent = {
   hero: {
     badgeFa: 'تأمین مستقیم و اصالت‌سنجی ۱۰۰٪ قطعات صنعتی',
     badgeEn: 'Direct Supply & 100% Authenticity Verification',
@@ -74,7 +65,7 @@ const DEFAULT_PAGE_CONTENT: CmsPageContent = {
 };
 
 // Default SEO Baseline
-const DEFAULT_SEO_CONFIG: SiteSeoConfig = {
+export const DEFAULT_SEO_CONFIG: SiteSeoConfig = {
   defaultTitleFa: 'بازرگانی پولاد چرخِش | کاتالوگ فنی بیرینگ و محاسبات مهندسی ISO 281',
   defaultTitleEn: 'Polad Charkhesh Bearings | Industrial Bearing Catalog & ISO Calculations',
   defaultDescriptionFa: 'کاتالوگ تخصصی بیرینگ، رولبرینگ‌های بشکه‌ای، مخروطی، استوانه‌ای، بلبرینگ و کاسه‌نمد با محاسبه آنلاین طول عمر L10 و استعلام مستقیم واتساپ در پولاد چرخِش.',
@@ -112,781 +103,517 @@ const DEFAULT_SEO_CONFIG: SiteSeoConfig = {
 };
 
 class DataService {
-  private products: AdminProductItem[] = [];
-  private companyInfo: CompanyContactInfo = canonicalCompanyInfo;
-  private pageContent: CmsPageContent = DEFAULT_PAGE_CONTENT;
-  private seoConfig: SiteSeoConfig = DEFAULT_SEO_CONFIG;
+  private products: BearingProduct[] = [...canonicalProducts];
+  private companyInfo: CompanyContactInfo = { ...canonicalCompanyInfo };
+  private pageContent: CmsPageContent = { ...DEFAULT_PAGE_CONTENT };
+  private seoConfig: SiteSeoConfig = { ...DEFAULT_SEO_CONFIG };
   private inquiries: InquiryLog[] = [];
-
-  private productListeners: Set<(products: AdminProductItem[]) => void> = new Set();
-  private companyListeners: Set<(info: CompanyContactInfo) => void> = new Set();
-  private contentListeners: Set<(content: CmsPageContent) => void> = new Set();
-  private seoListeners: Set<(seo: SiteSeoConfig) => void> = new Set();
-  private inquiryListeners: Set<(inquiries: InquiryLog[]) => void> = new Set();
+  
+  private listeners: Set<() => void> = new Set();
+  private initialized: boolean = false;
 
   constructor() {
-    this.initialize();
+    this.cleanLegacyLocalStorage();
+    this.init();
   }
 
-  private initialize(): void {
-    if (typeof window === 'undefined') {
-      this.products = [...canonicalProducts];
-      return;
-    }
-
-    // 1. Products
+  private cleanLegacyLocalStorage(): void {
+    if (typeof window === 'undefined') return;
     try {
-      const storedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-      if (storedProducts) {
-        const parsed = JSON.parse(storedProducts);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.products = parsed;
-        } else {
-          this.products = [...canonicalProducts];
+      localStorage.removeItem('polad_admin_products_v2');
+      localStorage.removeItem('polad_admin_company_v2');
+      localStorage.removeItem('polad_admin_content_v2');
+      localStorage.removeItem('polad_admin_seo_v2');
+      localStorage.removeItem('polad_admin_inquiries_v2');
+      localStorage.removeItem('polad_admin_audit_logs_v1');
+    } catch {}
+  }
+
+  private async init(): Promise<void> {
+    if (typeof window === 'undefined') return;
+    try {
+      await this.refreshFromServer();
+    } catch (err) {
+      console.warn('Initial backend sync failed, using canonical dataset baseline:', err);
+    } finally {
+      this.initialized = true;
+    }
+  }
+
+  /**
+   * Pull complete authoritative state from server API
+   */
+  public async refreshFromServer(): Promise<void> {
+    try {
+      const [prodRes, compRes, contentRes, seoRes] = await Promise.all([
+        fetch('/api/products?includeArchived=true', { credentials: 'include' }),
+        fetch('/api/company', { credentials: 'include' }),
+        fetch('/api/content', { credentials: 'include' }),
+        fetch('/api/seo', { credentials: 'include' }),
+      ]);
+
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        if (Array.isArray(prodData.products) && prodData.products.length > 0) {
+          this.products = prodData.products;
         }
-      } else {
-        this.products = [...canonicalProducts];
-        this.saveProductsToStorage();
       }
-    } catch (e) {
-      console.warn('Fallback to canonical products due to storage parse error:', e);
-      this.products = [...canonicalProducts];
-    }
 
-    // 2. Company Info
-    try {
-      const storedCompany = localStorage.getItem(STORAGE_KEYS.COMPANY);
-      if (storedCompany) {
-        this.companyInfo = { ...canonicalCompanyInfo, ...JSON.parse(storedCompany) };
-      } else {
-        this.companyInfo = { ...canonicalCompanyInfo };
+      if (compRes.ok) {
+        const compData = await compRes.json();
+        if (compData.company) {
+          this.companyInfo = compData.company;
+        }
       }
-    } catch (e) {
-      this.companyInfo = { ...canonicalCompanyInfo };
-    }
 
-    // 3. Page Content
-    try {
-      const storedContent = localStorage.getItem(STORAGE_KEYS.CONTENT);
-      if (storedContent) {
-        this.pageContent = { ...DEFAULT_PAGE_CONTENT, ...JSON.parse(storedContent) };
-      } else {
-        this.pageContent = { ...DEFAULT_PAGE_CONTENT };
+      if (contentRes.ok) {
+        const contentData = await contentRes.json();
+        if (contentData.content) {
+          this.pageContent = contentData.content;
+        }
       }
-    } catch (e) {
-      this.pageContent = { ...DEFAULT_PAGE_CONTENT };
-    }
 
-    // 4. SEO
-    try {
-      const storedSeo = localStorage.getItem(STORAGE_KEYS.SEO);
-      if (storedSeo) {
-        this.seoConfig = { ...DEFAULT_SEO_CONFIG, ...JSON.parse(storedSeo) };
-      } else {
-        this.seoConfig = { ...DEFAULT_SEO_CONFIG };
+      if (seoRes.ok) {
+        const seoData = await seoRes.json();
+        if (seoData.seo) {
+          this.seoConfig = seoData.seo;
+        }
       }
-    } catch (e) {
-      this.seoConfig = { ...DEFAULT_SEO_CONFIG };
-    }
 
-    // 5. Inquiries
-    try {
-      const storedInquiries = localStorage.getItem(STORAGE_KEYS.INQUIRIES);
-      if (storedInquiries) {
-        this.inquiries = JSON.parse(storedInquiries);
-      } else {
-        this.inquiries = [];
+      // Try fetching inquiries if authenticated
+      try {
+        const inqRes = await fetch('/api/inquiries', { credentials: 'include' });
+        if (inqRes.ok) {
+          const inqData = await inqRes.json();
+          if (Array.isArray(inqData.inquiries)) {
+            this.inquiries = inqData.inquiries;
+          }
+        }
+      } catch {}
+
+      this.notifyListeners();
+    } catch (err) {
+      console.error('refreshFromServer error:', err);
+    }
+  }
+
+  private notifyListeners(): void {
+    this.listeners.forEach((listener) => {
+      try {
+        listener();
+      } catch (e) {
+        console.error('Error in data listener:', e);
       }
-    } catch (e) {
-      this.inquiries = [];
-    }
+    });
   }
 
-  // --- STORAGE WRITERS ---
-
-  private saveProductsToStorage(): void {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(this.products));
-      this.notifyProductListeners();
-    } catch (e) {
-      console.error('Failed to persist products to storage:', e);
-    }
-  }
-
-  private saveCompanyToStorage(): void {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(STORAGE_KEYS.COMPANY, JSON.stringify(this.companyInfo));
-      this.notifyCompanyListeners();
-    } catch (e) {
-      console.error('Failed to persist company info:', e);
-    }
-  }
-
-  private saveContentToStorage(): void {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(STORAGE_KEYS.CONTENT, JSON.stringify(this.pageContent));
-      this.notifyContentListeners();
-    } catch (e) {
-      console.error('Failed to persist page content:', e);
-    }
-  }
-
-  private saveSeoToStorage(): void {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(STORAGE_KEYS.SEO, JSON.stringify(this.seoConfig));
-      this.notifySeoListeners();
-    } catch (e) {
-      console.error('Failed to persist SEO config:', e);
-    }
-  }
-
-  private saveInquiriesToStorage(): void {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(this.inquiries));
-      this.notifyInquiryListeners();
-    } catch (e) {
-      console.error('Failed to persist inquiries:', e);
-    }
-  }
-
-  // --- NOTIFIERS ---
-
-  private notifyProductListeners(): void {
-    const copy = [...this.products];
-    this.productListeners.forEach((fn) => fn(copy));
-  }
-
-  private notifyCompanyListeners(): void {
-    const copy = { ...this.companyInfo };
-    this.companyListeners.forEach((fn) => fn(copy));
-  }
-
-  private notifyContentListeners(): void {
-    const copy = { ...this.pageContent };
-    this.contentListeners.forEach((fn) => fn(copy));
-  }
-
-  private notifySeoListeners(): void {
-    const copy = { ...this.seoConfig };
-    this.seoListeners.forEach((fn) => fn(copy));
-  }
-
-  private notifyInquiryListeners(): void {
-    const copy = [...this.inquiries];
-    this.inquiryListeners.forEach((fn) => fn(copy));
-  }
-
-  // --- SUBSCRIBERS ---
-
-  public subscribeToProducts(listener: (products: AdminProductItem[]) => void): () => void {
-    this.productListeners.add(listener);
-    listener([...this.products]);
+  public subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
     return () => {
-      this.productListeners.delete(listener);
+      this.listeners.delete(listener);
     };
   }
 
-  public subscribeToCompanyInfo(listener: (info: CompanyContactInfo) => void): () => void {
-    this.companyListeners.add(listener);
-    listener({ ...this.companyInfo });
-    return () => {
-      this.companyListeners.delete(listener);
-    };
+  public subscribeToProducts(listener: (products: BearingProduct[]) => void): () => void {
+    const handler = () => listener(this.getActiveProducts());
+    listener(this.getActiveProducts());
+    return this.subscribe(handler);
   }
 
-  public subscribeToCompany(listener: (info: CompanyContactInfo) => void): () => void {
-    return this.subscribeToCompanyInfo(listener);
+  public subscribeToCompany(listener: (company: CompanyContactInfo) => void): () => void {
+    const handler = () => listener(this.getCompanyInfo());
+    listener(this.getCompanyInfo());
+    return this.subscribe(handler);
   }
 
   public subscribeToContent(listener: (content: CmsPageContent) => void): () => void {
-    this.contentListeners.add(listener);
-    listener({ ...this.pageContent });
-    return () => {
-      this.contentListeners.delete(listener);
-    };
-  }
-
-  public subscribeToPageContent(listener: (content: CmsPageContent) => void): () => void {
-    return this.subscribeToContent(listener);
+    const handler = () => listener(this.getPageContent());
+    listener(this.getPageContent());
+    return this.subscribe(handler);
   }
 
   public subscribeToSeo(listener: (seo: SiteSeoConfig) => void): () => void {
-    this.seoListeners.add(listener);
-    listener({ ...this.seoConfig });
-    return () => {
-      this.seoListeners.delete(listener);
-    };
+    const handler = () => listener(this.getSeoConfig());
+    listener(this.getSeoConfig());
+    return this.subscribe(handler);
   }
 
   public subscribeToInquiries(listener: (inquiries: InquiryLog[]) => void): () => void {
-    this.inquiryListeners.add(listener);
-    listener([...this.inquiries]);
-    return () => {
-      this.inquiryListeners.delete(listener);
-    };
+    const handler = () => listener(this.getInquiries());
+    listener(this.getInquiries());
+    return this.subscribe(handler);
   }
 
-  // --- PRODUCT CRUD METHODS ---
+  public isInitialized(): boolean {
+    return this.initialized;
+  }
 
-  public getProducts(includeArchived: boolean = false): AdminProductItem[] {
-    if (includeArchived) {
-      return [...this.products];
-    }
+  // ==========================================
+  // PRODUCTS ACCESS & MUTATION
+  // ==========================================
+
+  public getActiveProducts(): BearingProduct[] {
     return this.products.filter((p) => !p.isArchived);
   }
 
-  public getActiveProducts(): AdminProductItem[] {
-    return this.getProducts(false);
+  public getAllProducts(): AdminProductItem[] {
+    return [...this.products];
   }
 
-  public getProductById(id: string): AdminProductItem | undefined {
+  public getProductById(id: string): BearingProduct | undefined {
     return this.products.find((p) => p.id === id);
   }
 
-  public getProductBySlug(slug: string): AdminProductItem | undefined {
-    const clean = slug.trim().toLowerCase();
-    return this.products.find((p) => {
-      const productSlug = (p.slug || getProductSlug(p)).toLowerCase();
-      return productSlug === clean || p.code.toLowerCase().replace(/\s+/g, '-') === clean || p.id === clean;
-    });
+  public getProductBySlug(slug: string): BearingProduct | undefined {
+    return this.products.find((p) => p.slug === slug);
   }
 
-  /**
-   * Validate a product candidate for mandatory engineering rules
-   */
-  public validateProduct(candidate: Partial<BearingProduct>): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
+  public async addProduct(
+    product: Partial<BearingProduct>,
+    user?: AdminUser | string
+  ): Promise<{ success: boolean; product?: BearingProduct; errors?: string[] }> {
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(product),
+        credentials: 'include',
+      });
 
-    if (!candidate.code || !candidate.code.trim()) {
-      errors.push('شماره فنی قطعه (Technical Code) الزامی است.');
-    }
-    if (!candidate.nameFa || !candidate.nameFa.trim()) {
-      errors.push('نام فارسی کالا الزامی است.');
-    }
-    if (!candidate.nameEn || !candidate.nameEn.trim()) {
-      errors.push('نام انگلیسی کالا الزامی است.');
-    }
-    if (!candidate.category) {
-      errors.push('دسته‌بندی مهندسی قطعه الزامی است.');
-    }
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, errors: data.errors || [data.error || 'خطا در ثبت کالا'] };
+      }
 
-    if (candidate.category !== 'seal' && candidate.category !== 'lubricant') {
-      if (candidate.d === undefined || candidate.d <= 0) {
-        errors.push('قطر داخلی (d) باید عددی بزرگتر از صفر باشد.');
-      }
-      if (candidate.D === undefined || candidate.D <= 0) {
-        errors.push('قطر خارجی (D) باید عددی بزرگتر از صفر باشد.');
-      }
-      if (candidate.d !== undefined && candidate.D !== undefined && candidate.D <= candidate.d) {
-        errors.push('قطر خارجی (D) باید اکیداً بزرگتر از قطر داخلی (d) باشد.');
-      }
-      if (candidate.B === undefined || candidate.B <= 0) {
-        errors.push('عرض/ضخامت (B) باید عددی بزرگتر از صفر باشد.');
-      }
-      if (candidate.crKn === undefined || candidate.crKn <= 0) {
-        errors.push('بار دینامیکی پایه (Cr) باید عددی بزرگتر از صفر باشد.');
-      }
-      if (candidate.corKn === undefined || candidate.corKn <= 0) {
-        errors.push('بار استاتیکی پایه (C0r) باید عددی بزرگتر از صفر باشد.');
-      }
-      if (candidate.speedGreaseRpm === undefined || candidate.speedGreaseRpm <= 0) {
-        errors.push('سرعت مجاز با گریس (RPM) باید مشخص و معتبر باشد.');
-      }
-    }
+      const created = data.product as BearingProduct;
+      this.products.unshift(created);
+      this.notifyListeners();
 
-    return {
-      isValid: errors.length === 0,
-      errors,
-    };
+      return { success: true, product: created };
+    } catch (err: any) {
+      return { success: false, errors: ['خطا در ارتباط با سرور پایگاه داده.'] };
+    }
   }
 
-  /**
-   * Add a new product to the catalog
-   */
-  public addProduct(product: Partial<BearingProduct>, performedBy: string = 'admin'): {
-    success: boolean;
-    product?: AdminProductItem;
-    errors?: string[];
-  } {
-    const validation = this.validateProduct(product);
-    if (!validation.isValid) {
-      return { success: false, errors: validation.errors };
-    }
+  public async updateProduct(
+    id: string,
+    updates: Partial<BearingProduct>,
+    user?: AdminUser | string
+  ): Promise<{ success: boolean; product?: BearingProduct; errors?: string[] }> {
+    try {
+      const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(updates),
+        credentials: 'include',
+      });
 
-    // Check duplicate code
-    const normalizedCode = product.code!.trim().toUpperCase().replace(/\s+/g, '');
-    const isDuplicate = this.products.some(
-      (p) => p.code.trim().toUpperCase().replace(/\s+/g, '') === normalizedCode
-    );
-
-    if (isDuplicate) {
-      return {
-        success: false,
-        errors: [`کد فنی ${product.code} قبلاً در کاتالوگ ثبت گردیده است.`],
-      };
-    }
-
-    const cleanId = product.id || `prod_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-    const cleanCode = product.code!.trim().toUpperCase();
-    const cleanImageUrl = sanitizeUrl(product.imageUrl, '/icon.png');
-    const cleanPdfUrl = product.pdfUrl ? sanitizeUrl(product.pdfUrl) : undefined;
-    const cleanImages = (product.images || [cleanImageUrl]).map((img) => sanitizeUrl(img, '/icon.png'));
-
-    const fullProduct: AdminProductItem = {
-      id: cleanId,
-      code: cleanCode,
-      nameFa: sanitizePlainText(product.nameFa),
-      nameEn: sanitizePlainText(product.nameEn),
-      category: product.category || 'roller',
-      descriptionFa: sanitizePlainText(product.descriptionFa),
-      descriptionEn: sanitizePlainText(product.descriptionEn),
-      inStock: product.inStock !== false,
-      featured: !!product.featured,
-      d: Number(product.d) || 0,
-      D: Number(product.D) || 0,
-      B: Number(product.B) || 0,
-      weightKg: product.weightKg ? Number(product.weightKg) : undefined,
-      crKn: Number(product.crKn) || 0,
-      corKn: Number(product.corKn) || 0,
-      speedGreaseRpm: Number(product.speedGreaseRpm) || 0,
-      speedOilRpm: Number(product.speedOilRpm) || Number(product.speedGreaseRpm) || 0,
-      thermalSpeedRatingRpm: product.thermalSpeedRatingRpm ? Number(product.thermalSpeedRatingRpm) : undefined,
-      cageMaterialFa: sanitizePlainText(product.cageMaterialFa || 'فولاد آلیاژی'),
-      cageMaterialEn: sanitizePlainText(product.cageMaterialEn || 'Standard Alloy Steel'),
-      sealingFa: sanitizePlainText(product.sealingFa || 'Open (طراحی باز)'),
-      sealingEn: sanitizePlainText(product.sealingEn || 'Open Design'),
-      clearanceOptions: (product.clearanceOptions || ['Normal', 'C3']).map(sanitizePlainText),
-      schematicType: product.schematicType || 'tapered',
-      rMin: product.rMin ? Number(product.rMin) : undefined,
-      calculationFactorE: product.calculationFactorE ? Number(product.calculationFactorE) : undefined,
-      calculationFactorY: product.calculationFactorY ? Number(product.calculationFactorY) : undefined,
-      calculationFactorY0: product.calculationFactorY0 ? Number(product.calculationFactorY0) : undefined,
-      calculationFactorY1: product.calculationFactorY1 ? Number(product.calculationFactorY1) : undefined,
-      calculationFactorY2: product.calculationFactorY2 ? Number(product.calculationFactorY2) : undefined,
-      calculationFactorF0: product.calculationFactorF0 ? Number(product.calculationFactorF0) : undefined,
-      imageUrl: cleanImageUrl,
-      images: cleanImages,
-      pdfUrl: cleanPdfUrl,
-      applicationsFa: (product.applicationsFa || ['صنایع عمومی']).map(sanitizePlainText),
-      applicationsEn: (product.applicationsEn || ['General Industry']).map(sanitizePlainText),
-      industryIds: product.industryIds || ['steel', 'mining'],
-      brands: (product.brands && product.brands.length > 0 ? product.brands : ['SKF', 'FAG', 'TIMKEN']).map(sanitizePlainText),
-      metaTitleFa: product.metaTitleFa ? sanitizePlainText(product.metaTitleFa) : undefined,
-      metaTitleEn: product.metaTitleEn ? sanitizePlainText(product.metaTitleEn) : undefined,
-      metaDescriptionFa: product.metaDescriptionFa ? sanitizePlainText(product.metaDescriptionFa) : undefined,
-      metaDescriptionEn: product.metaDescriptionEn ? sanitizePlainText(product.metaDescriptionEn) : undefined,
-      technicalSources: (product.technicalSources || [
-        {
-          manufacturer: 'Standard Engineering Catalog',
-          sourceType: 'official_catalog',
-          reference: 'ISO 281 Catalog Data',
-          verifiedAt: new Date().toISOString().split('T')[0],
-        },
-      ]).map((src) => ({
-        manufacturer: sanitizePlainText(src.manufacturer),
-        sourceType: src.sourceType,
-        reference: sanitizePlainText(src.reference),
-        verifiedAt: sanitizePlainText(src.verifiedAt),
-      })),
-      isArchived: false,
-      updatedAt: new Date().toISOString(),
-      updatedBy: performedBy,
-    };
-
-    fullProduct.slug = getProductSlug(fullProduct);
-
-    this.products.unshift(fullProduct);
-    this.saveProductsToStorage();
-
-    auditService.record({
-      action: 'PRODUCT_CREATED',
-      entity: 'product',
-      entityId: fullProduct.id,
-      summary: `کالای جدید با شماره فنی ${fullProduct.code} ایجاد شد.`,
-      performedBy,
-      details: { code: fullProduct.code, category: fullProduct.category },
-    });
-
-    return { success: true, product: fullProduct };
-  }
-
-  /**
-   * Update an existing product
-   */
-  public updateProduct(id: string, updates: Partial<BearingProduct>, performedBy: string = 'admin'): {
-    success: boolean;
-    product?: AdminProductItem;
-    errors?: string[];
-  } {
-    const index = this.products.findIndex((p) => p.id === id);
-    if (index === -1) {
-      return { success: false, errors: ['کالای مورد نظر یافت نشد.'] };
-    }
-
-    const current = this.products[index];
-    const candidate = { ...current, ...updates };
-
-    const validation = this.validateProduct(candidate);
-    if (!validation.isValid) {
-      return { success: false, errors: validation.errors };
-    }
-
-    // If code changed, check uniqueness
-    if (updates.code && updates.code !== current.code) {
-      const normalized = updates.code.trim().toUpperCase().replace(/\s+/g, '');
-      const duplicate = this.products.some(
-        (p) => p.id !== id && p.code.trim().toUpperCase().replace(/\s+/g, '') === normalized
-      );
-      if (duplicate) {
-        return { success: false, errors: [`کد فنی ${updates.code} تکراری است.`] };
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, errors: data.errors || [data.error || 'خطا در ویرایش کالا'] };
       }
+
+      const updated = data.product as BearingProduct;
+      const idx = this.products.findIndex((p) => p.id === id);
+      if (idx !== -1) {
+        this.products[idx] = updated;
+      }
+      this.notifyListeners();
+
+      return { success: true, product: updated };
+    } catch (err: any) {
+      return { success: false, errors: ['خطا در ارتباط با سرور پایگاه داده.'] };
     }
-
-    const updated: AdminProductItem = {
-      ...current,
-      ...updates,
-      updatedAt: new Date().toISOString(),
-      updatedBy: performedBy,
-    };
-
-    updated.slug = getProductSlug(updated);
-
-    this.products[index] = updated;
-    this.saveProductsToStorage();
-
-    auditService.record({
-      action: 'PRODUCT_UPDATED',
-      entity: 'product',
-      entityId: id,
-      summary: `مشخصات قطعه ${updated.code} به‌روزرسانی شد.`,
-      performedBy,
-      details: { code: updated.code, changes: Object.keys(updates) },
-    });
-
-    return { success: true, product: updated };
   }
 
-  /**
-   * Archive / Disable a product from public catalog
-   */
-  public toggleArchiveProduct(id: string, performedBy: string = 'admin'): boolean {
-    const index = this.products.findIndex((p) => p.id === id);
-    if (index === -1) return false;
+  public async deleteProduct(id: string, user?: AdminUser | string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'include',
+      });
 
-    const product = this.products[index];
-    const newArchived = !product.isArchived;
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'خطا در حذف کالا' };
+      }
 
-    this.products[index] = {
-      ...product,
-      isArchived: newArchived,
-      updatedAt: new Date().toISOString(),
-      updatedBy: performedBy,
-    };
+      this.products = this.products.filter((p) => p.id !== id);
+      this.notifyListeners();
 
-    this.saveProductsToStorage();
-
-    auditService.record({
-      action: newArchived ? 'PRODUCT_ARCHIVED' : 'PRODUCT_RESTORED',
-      entity: 'product',
-      entityId: id,
-      summary: `${newArchived ? 'بایگانی و غیرفعال‌سازی' : 'بازیابی و فعال‌سازی مجدد'} قطعه ${product.code}`,
-      performedBy,
-    });
-
-    return true;
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: 'خطا در ارتباط با سرور.' };
+    }
   }
 
-  /**
-   * Delete a product (with protection check)
-   */
-  public deleteProduct(id: string, performedBy: string = 'admin'): boolean {
-    const index = this.products.findIndex((p) => p.id === id);
-    if (index === -1) return false;
+  public async toggleArchiveProduct(
+    id: string,
+    user?: AdminUser | string
+  ): Promise<{ success: boolean; isArchived?: boolean }> {
+    try {
+      const res = await fetch(`/api/products/${encodeURIComponent(id)}/archive`, {
+        method: 'PATCH',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'include',
+      });
 
-    const target = this.products[index];
-    this.products.splice(index, 1);
-    this.saveProductsToStorage();
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false };
+      }
 
-    auditService.record({
-      action: 'PRODUCT_DELETED',
-      entity: 'product',
-      entityId: id,
-      summary: `حذف قطعه ${target.code} (${target.id}) از پایگاه داده`,
-      performedBy,
-      details: { code: target.code, name: target.nameFa },
-    });
+      const product = this.products.find((p) => p.id === id);
+      if (product) {
+        product.isArchived = data.isArchived;
+      }
+      this.notifyListeners();
 
-    return true;
+      return { success: true, isArchived: data.isArchived };
+    } catch {
+      return { success: false };
+    }
   }
 
-  // --- COMPANY INFO METHODS ---
+  // ==========================================
+  // COMPANY & CMS & SEO
+  // ==========================================
 
   public getCompanyInfo(): CompanyContactInfo {
     return { ...this.companyInfo };
   }
 
-  public updateCompanyInfo(updates: Partial<CompanyContactInfo>, performedBy: string = 'admin'): boolean {
-    const sanitizedUpdates: Partial<CompanyContactInfo> = {
-      ...updates,
-      nameFa: updates.nameFa ? sanitizePlainText(updates.nameFa) : undefined,
-      nameEn: updates.nameEn ? sanitizePlainText(updates.nameEn) : undefined,
-      legalNameFa: updates.legalNameFa ? sanitizePlainText(updates.legalNameFa) : undefined,
-      legalNameEn: updates.legalNameEn ? sanitizePlainText(updates.legalNameEn) : undefined,
-      sloganFa: updates.sloganFa ? sanitizePlainText(updates.sloganFa) : undefined,
-      sloganEn: updates.sloganEn ? sanitizePlainText(updates.sloganEn) : undefined,
-      primaryPhone: updates.primaryPhone ? sanitizePlainText(updates.primaryPhone) : undefined,
-      landlinePhone: updates.landlinePhone ? sanitizePlainText(updates.landlinePhone) : undefined,
-      whatsappNumber: updates.whatsappNumber ? sanitizePlainText(updates.whatsappNumber) : undefined,
-      whatsappUrl: updates.whatsappUrl ? sanitizeUrl(updates.whatsappUrl) : undefined,
-      website: updates.website ? sanitizeUrl(updates.website) : undefined,
-      email: updates.email ? sanitizePlainText(updates.email) : undefined,
-      addressFa: updates.addressFa ? sanitizePlainText(updates.addressFa) : undefined,
-      addressEn: updates.addressEn ? sanitizePlainText(updates.addressEn) : undefined,
-    };
+  public async updateCompanyInfo(
+    updates: Partial<CompanyContactInfo>,
+    user?: AdminUser | string
+  ): Promise<{ success: boolean }> {
+    try {
+      const res = await fetch('/api/company', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(updates),
+        credentials: 'include',
+      });
 
-    this.companyInfo = {
-      ...this.companyInfo,
-      ...sanitizedUpdates,
-    };
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false };
+      }
 
-    this.saveCompanyToStorage();
-
-    auditService.record({
-      action: 'COMPANY_UPDATED',
-      entity: 'company',
-      summary: 'اطلاعات هویتی و راه‌های ارتباطی شرکت به‌روزرسانی شد.',
-      performedBy,
-      details: { fields: Object.keys(updates) },
-    });
-
-    return true;
-  }
-
-  // --- CMS PAGE CONTENT METHODS ---
-
-  public getPageContent(): CmsPageContent {
-    return { ...this.pageContent };
+      this.companyInfo = data.company;
+      this.notifyListeners();
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
   }
 
   public getContent(): CmsPageContent {
     return this.getPageContent();
   }
 
-  public updatePageContent(updates: Partial<CmsPageContent>, performedBy: string = 'admin'): boolean {
-    const safeUpdates = sanitizeObjectTree(updates);
-    this.pageContent = {
-      ...this.pageContent,
-      ...safeUpdates,
-    };
-
-    this.saveContentToStorage();
-
-    auditService.record({
-      action: 'CONTENT_UPDATED',
-      entity: 'content',
-      summary: 'محتوای متنی صفحات عمومی (Hero / About / Footer) ویرایش شد.',
-      performedBy,
-      details: { sections: Object.keys(updates) },
-    });
-
-    return true;
+  public async updateContent(
+    updates: Partial<CmsPageContent>,
+    user?: AdminUser | string
+  ): Promise<{ success: boolean }> {
+    return this.updatePageContent(updates, user);
   }
 
-  public updateContent(updates: Partial<CmsPageContent>, performedBy: string = 'admin'): boolean {
-    return this.updatePageContent(updates, performedBy);
+  public getPageContent(): CmsPageContent {
+    return { ...this.pageContent };
   }
 
-  // --- SEO CONFIG METHODS ---
+  public async updatePageContent(
+    updates: Partial<CmsPageContent>,
+    user?: AdminUser | string
+  ): Promise<{ success: boolean }> {
+    try {
+      const res = await fetch('/api/content', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(updates),
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false };
+      }
+
+      this.pageContent = data.content;
+      this.notifyListeners();
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
 
   public getSeoConfig(): SiteSeoConfig {
     return { ...this.seoConfig };
   }
 
-  public getSeo(): SiteSeoConfig {
-    return this.getSeoConfig();
+  public async updateSeoConfig(
+    updates: Partial<SiteSeoConfig>,
+    user?: AdminUser | string
+  ): Promise<{ success: boolean }> {
+    try {
+      const res = await fetch('/api/seo', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(updates),
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false };
+      }
+
+      this.seoConfig = data.seo;
+      this.notifyListeners();
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
   }
 
-  public updateSeoConfig(updates: Partial<SiteSeoConfig>, performedBy: string = 'admin'): boolean {
-    const sanitizedUpdates: Partial<SiteSeoConfig> = {
-      ...updates,
-      defaultTitleFa: updates.defaultTitleFa ? sanitizePlainText(updates.defaultTitleFa) : undefined,
-      defaultTitleEn: updates.defaultTitleEn ? sanitizePlainText(updates.defaultTitleEn) : undefined,
-      defaultDescriptionFa: updates.defaultDescriptionFa ? sanitizePlainText(updates.defaultDescriptionFa) : undefined,
-      defaultDescriptionEn: updates.defaultDescriptionEn ? sanitizePlainText(updates.defaultDescriptionEn) : undefined,
-      ogImageUrl: updates.ogImageUrl ? sanitizeUrl(updates.ogImageUrl, '/icon.png') : undefined,
-      canonicalBaseUrl: updates.canonicalBaseUrl ? sanitizeUrl(updates.canonicalBaseUrl) : undefined,
-      keywordsFa: updates.keywordsFa ? updates.keywordsFa.map(sanitizePlainText) : undefined,
-      keywordsEn: updates.keywordsEn ? updates.keywordsEn.map(sanitizePlainText) : undefined,
-    };
-
-    this.seoConfig = {
-      ...this.seoConfig,
-      ...sanitizedUpdates,
-    };
-
-    this.saveSeoToStorage();
-
-    auditService.record({
-      action: 'SEO_UPDATED',
-      entity: 'seo',
-      summary: 'تنظیمات سئو و متاتگ‌های عمومی وب‌سایت به‌روزرسانی شد.',
-      performedBy,
-      details: { fields: Object.keys(updates) },
-    });
-
-    return true;
-  }
-
-  public updateSeo(updates: Partial<SiteSeoConfig>, performedBy: string = 'admin'): boolean {
-    return this.updateSeoConfig(updates, performedBy);
-  }
-
-  // --- INQUIRIES METHODS ---
+  // ==========================================
+  // INQUIRIES
+  // ==========================================
 
   public getInquiries(): InquiryLog[] {
     return [...this.inquiries];
   }
 
-  public recordInquiry(params: Omit<InquiryLog, 'id' | 'timestamp' | 'status'>): InquiryLog {
-    const newInquiry: InquiryLog = {
-      id: `inq_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      timestamp: new Date().toISOString(),
-      fullName: sanitizePlainText(params.fullName),
-      phone: sanitizePlainText(params.phone),
-      message: sanitizePlainText(params.message),
-      company: params.company ? sanitizePlainText(params.company) : undefined,
-      email: params.email ? sanitizePlainText(params.email) : undefined,
-      status: 'new',
-    };
-
-    this.inquiries.unshift(newInquiry);
-    this.saveInquiriesToStorage();
-    return newInquiry;
+  public async recordInquiry(data: {
+    fullName: string;
+    phone: string;
+    message: string;
+    company?: string;
+    email?: string;
+  }): Promise<{ success: boolean; id?: string; error?: string }> {
+    return this.submitInquiry(data);
   }
 
-  public updateInquiryStatus(id: string, status: InquiryLog['status']): boolean {
-    const index = this.inquiries.findIndex((i) => i.id === id);
-    if (index === -1) return false;
-
-    this.inquiries[index] = {
-      ...this.inquiries[index],
-      status,
-    };
-
-    this.saveInquiriesToStorage();
-    return true;
-  }
-
-  // --- DATASET SNAPSHOT / BACKUP / RESTORE ---
-
-  public exportSnapshot(performedBy: string = 'admin'): DatasetSnapshot {
-    const snapshot: DatasetSnapshot = {
-      version: '2.0.0',
-      exportedAt: new Date().toISOString(),
-      exportedBy: performedBy,
-      products: [...this.products],
-      companyInfo: { ...this.companyInfo },
-      pageContent: { ...this.pageContent },
-      seoConfig: { ...this.seoConfig },
-      auditLogsCount: auditService.getLogs().length,
-    };
-
-    auditService.record({
-      action: 'BACKUP_EXPORTED',
-      entity: 'system',
-      summary: `خروجی پشتیبان کامل از ${this.products.length} کالا و تنظیمات سیستم تولید گردید.`,
-      performedBy,
-    });
-
-    return snapshot;
-  }
-
-  public importSnapshot(rawSnapshot: DatasetSnapshot, performedBy: string = 'admin'): {
-    success: boolean;
-    error?: string;
-    productsCount?: number;
-  } {
+  public async submitInquiry(data: {
+    fullName: string;
+    phone: string;
+    message: string;
+    company?: string;
+    email?: string;
+  }): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
-      if (!rawSnapshot || typeof rawSnapshot !== 'object') {
-        return { success: false, error: 'ساختار فایل پشتیبان نامعتبر است.' };
-      }
-
-      // 1. Sanitize object tree against prototype pollution
-      const snapshot = sanitizeObjectTree(rawSnapshot);
-
-      if (!Array.isArray(snapshot.products) || snapshot.products.length === 0) {
-        return { success: false, error: 'ساختار فایل پشتیبان نامعتبر است (لیست محصولات خالی است).' };
-      }
-
-      // 2. Validate integrity of candidate products
-      const report = validateProductDataset(snapshot.products);
-      if (!report.isValid) {
-        return {
-          success: false,
-          error: `فایل پشتیبان دارای خطای ساختار داده است (شناسه‌های تکراری یا فیلدهای ناقص).`,
-        };
-      }
-
-      // 3. Sanitize product URLs and content before applying
-      const sanitizedProducts: AdminProductItem[] = snapshot.products.map((p) => ({
-        ...p,
-        imageUrl: sanitizeUrl(p.imageUrl, '/icon.png'),
-        pdfUrl: p.pdfUrl ? sanitizeUrl(p.pdfUrl) : undefined,
-        images: (p.images || []).map((img) => sanitizeUrl(img, '/icon.png')),
-        nameFa: sanitizePlainText(p.nameFa),
-        nameEn: sanitizePlainText(p.nameEn),
-        code: sanitizePlainText(p.code).toUpperCase(),
-      }));
-
-      this.products = sanitizedProducts;
-      if (snapshot.companyInfo) this.companyInfo = { ...canonicalCompanyInfo, ...snapshot.companyInfo };
-      if (snapshot.pageContent) this.pageContent = { ...DEFAULT_PAGE_CONTENT, ...snapshot.pageContent };
-      if (snapshot.seoConfig) this.seoConfig = { ...DEFAULT_SEO_CONFIG, ...snapshot.seoConfig };
-
-      this.saveProductsToStorage();
-      this.saveCompanyToStorage();
-      this.saveContentToStorage();
-      this.saveSeoToStorage();
-
-      auditService.record({
-        action: 'BACKUP_IMPORTED',
-        entity: 'system',
-        summary: `بازیابی موفقیت‌آمیز ${this.products.length} قطعه و تنظیمات از فایل پشتیبان.`,
-        performedBy,
-        details: { importedAt: snapshot.exportedAt, version: snapshot.version },
+      const res = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
       });
 
-      return { success: true, productsCount: this.products.length };
-    } catch (e) {
-      return { success: false, error: 'پردازش فایل پشتیبان با خطا مواجه شد.' };
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        return { success: false, error: result.error || 'خطا در ثبت استعلام.' };
+      }
+
+      const newInquiry: InquiryLog = {
+        id: result.id,
+        timestamp: new Date().toISOString(),
+        fullName: data.fullName,
+        phone: data.phone,
+        message: data.message,
+        company: data.company,
+        email: data.email,
+        status: 'new',
+      };
+      this.inquiries.unshift(newInquiry);
+      this.notifyListeners();
+
+      return { success: true, id: result.id };
+    } catch {
+      return { success: false, error: 'خطا در برقراری ارتباط با سرور.' };
     }
   }
 
-  /**
-   * Reset all data back to canonical factory defaults (68 canonical products)
-   */
-  public resetToCanonical(performedBy: string = 'admin'): void {
-    this.products = [...canonicalProducts];
-    this.companyInfo = { ...canonicalCompanyInfo };
-    this.pageContent = { ...DEFAULT_PAGE_CONTENT };
-    this.seoConfig = { ...DEFAULT_SEO_CONFIG };
+  public async updateInquiryStatus(
+    id: string,
+    status: InquiryLog['status']
+  ): Promise<{ success: boolean }> {
+    try {
+      const res = await fetch(`/api/inquiries/${encodeURIComponent(id)}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ status }),
+        credentials: 'include',
+      });
 
-    this.saveProductsToStorage();
-    this.saveCompanyToStorage();
-    this.saveContentToStorage();
-    this.saveSeoToStorage();
+      if (!res.ok) return { success: false };
 
-    auditService.record({
-      action: 'SYSTEM_RESET',
-      entity: 'system',
-      summary: 'بازنشانی پایگاه داده به ۶۸ کالای استاندارد و تنظیمات اولیه کارخانه انجام شد.',
-      performedBy,
-    });
+      const item = this.inquiries.find((i) => i.id === id);
+      if (item) {
+        item.status = status;
+        this.notifyListeners();
+      }
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
+
+  // ==========================================
+  // BACKUP, RESTORE & RESET
+  // ==========================================
+
+  public async exportSnapshot(): Promise<DatasetSnapshot> {
+    const res = await fetch('/api/system/backup', { credentials: 'include' });
+    if (!res.ok) {
+      throw new Error('خطا در دریافت فایل پشتیبان از سرور.');
+    }
+    return await res.json();
+  }
+
+  public async importSnapshot(
+    jsonString: string,
+    user?: AdminUser | string
+  ): Promise<{ success: boolean; errors?: string[] }> {
+    try {
+      const parsed = JSON.parse(jsonString);
+      const res = await fetch('/api/system/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(parsed),
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, errors: [data.error || 'خطا در بازیابی نسخه پشتیبان.'] };
+      }
+
+      await this.refreshFromServer();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, errors: [err.message || 'فایل پشتیبان نامعتبر است.'] };
+    }
+  }
+
+  public async resetToCanonical(user?: AdminUser | string): Promise<{ success: boolean }> {
+    try {
+      const res = await fetch('/api/system/factory-reset', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false };
+      }
+
+      await this.refreshFromServer();
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
   }
 }
 

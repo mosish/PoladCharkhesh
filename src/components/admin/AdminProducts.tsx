@@ -79,11 +79,11 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
     setModalOpen(true);
   };
 
-  const handleSaveProduct = (data: Partial<BearingProduct>): { success: boolean; errors?: string[] } => {
+  const handleSaveProduct = async (data: Partial<BearingProduct>): Promise<{ success: boolean; errors?: string[] }> => {
     if (editingProduct) {
-      return dataService.updateProduct(editingProduct.id, data, 'admin');
+      return await dataService.updateProduct(editingProduct.id, data, 'admin');
     } else {
-      return dataService.addProduct(data, 'admin');
+      return await dataService.addProduct(data, 'admin');
     }
   };
 

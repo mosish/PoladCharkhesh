@@ -44,6 +44,7 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
   const [actionFilter, setActionFilter] = useState('ALL');
 
   useEffect(() => {
+    auditService.refreshFromServer();
     const unsub = auditService.subscribe(setLogs);
     return () => unsub();
   }, []);
@@ -95,15 +96,22 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
     }
   };
 
-  const handleExportBackup = () => {
-    const snapshot = dataService.exportSnapshot();
-    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `poladcharkhesh-master-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExportBackup = async () => {
+    try {
+      const snapshot = await dataService.exportSnapshot();
+      const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `poladcharkhesh-master-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setImportStatus({
+        success: false,
+        message: isFa ? 'خطا در دریافت فایل پشتیبان از سرور.' : 'Failed to export backup from server.',
+      });
+    }
   };
 
   const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,10 +119,10 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
-        const json = JSON.parse(event.target?.result as string);
-        const result = dataService.importSnapshot(json, 'admin');
+        const jsonStr = event.target?.result as string;
+        const result = await dataService.importSnapshot(jsonStr);
         if (result.success) {
           setImportStatus({
             success: true,
@@ -123,26 +131,33 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
         } else {
           setImportStatus({
             success: false,
-            message: result.error || (isFa ? 'فایل پشتیبان نامعتبر است.' : 'Invalid backup file.'),
+            message: result.errors?.join(' ') || (isFa ? 'فایل پشتیبان نامعتبر است.' : 'Invalid backup file.'),
           });
         }
-      } catch (err) {
+      } catch {
         setImportStatus({
           success: false,
-          message: isFa ? 'خطا در خواندن فایل JSON.' : 'Failed to parse JSON file.',
+          message: isFa ? 'خطا در پردازش فایل پشتیبان.' : 'Failed to parse JSON file.',
         });
       }
     };
     reader.readAsText(file);
   };
 
-  const handleFactoryReset = () => {
-    dataService.resetToCanonical('admin');
-    setShowResetModal(false);
-    setImportStatus({
-      success: true,
-      message: isFa ? 'کاتالوگ به ۶۸ محصول رسمی کاتالوگ بازگردانده شد.' : 'Reset to canonical 68 products completed.',
-    });
+  const handleFactoryReset = async () => {
+    try {
+      await dataService.resetToCanonical();
+      setShowResetModal(false);
+      setImportStatus({
+        success: true,
+        message: isFa ? 'کاتالوگ به محصولات رسمی کاتالوگ بازگردانده شد.' : 'Reset to canonical products completed.',
+      });
+    } catch {
+      setImportStatus({
+        success: false,
+        message: isFa ? 'خطا در بازنشانی کاتالوگ.' : 'Failed to reset catalog.',
+      });
+    }
   };
 
   // Filter Logs

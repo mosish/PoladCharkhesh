@@ -41,6 +41,7 @@ export interface ProductIdentity {
   descriptionEn: string;
   inStock: boolean;
   featured?: boolean;
+  isArchived?: boolean;
 }
 
 // 2. Technical Specifications Sub-Contract
