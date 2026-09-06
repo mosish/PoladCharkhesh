@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Language } from '../../types';
-import { CmsContent } from '../../types/admin';
+import { CmsContent, CmsHeroContent, CmsAboutContent, CmsFooterContent } from '../../types/admin';
 import { dataService } from '../../services/dataService';
 import { 
   FileText, 
@@ -28,7 +28,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
     return () => unsub();
   }, []);
 
-  const handleHeroChange = (key: string, value: string) => {
+  const handleHeroChange = (key: keyof CmsHeroContent, value: string) => {
     setContent((prev) => ({
       ...prev,
       hero: {
@@ -38,7 +38,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
     }));
   };
 
-  const handleAboutChange = (key: string, value: any) => {
+  const handleAboutChange = (key: keyof CmsAboutContent, value: CmsAboutContent[keyof CmsAboutContent]) => {
     setContent((prev) => ({
       ...prev,
       about: {
@@ -48,7 +48,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
     }));
   };
 
-  const handleFooterChange = (key: string, value: string) => {
+  const handleFooterChange = (key: keyof CmsFooterContent, value: string) => {
     setContent((prev) => ({
       ...prev,
       footer: {
@@ -153,8 +153,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                 </label>
                 <input
                   type="text"
-                  value={content.hero.titleFa}
-                  onChange={(e) => handleHeroChange('titleFa', e.target.value)}
+                  value={content.hero.titleSuffixFa}
+                  onChange={(e) => handleHeroChange('titleSuffixFa', e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
                   required
                 />
@@ -178,8 +178,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                 {isFa ? 'توضیحات و زیرعنوان هیرو (Subtitle Fa)' : 'Hero Subtitle (Fa)'}
               </label>
               <textarea
-                value={content.hero.subtitleFa}
-                onChange={(e) => handleHeroChange('subtitleFa', e.target.value)}
+                value={content.hero.descriptionFa}
+                onChange={(e) => handleHeroChange('descriptionFa', e.target.value)}
                 rows={2}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:outline-none leading-relaxed"
                 required
@@ -228,8 +228,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                 </label>
                 <input
                   type="text"
-                  value={content.about.badgeFa}
-                  onChange={(e) => handleAboutChange('badgeFa', e.target.value)}
+                  value={content.about.tagFa}
+                  onChange={(e) => handleAboutChange('tagFa', e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
                 />
               </div>
@@ -275,8 +275,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                 {isFa ? 'خلاصه معرفی شرکت در فوتر (Summary Fa)' : 'Footer Summary (Fa)'}
               </label>
               <textarea
-                value={content.footer.summaryFa}
-                onChange={(e) => handleFooterChange('summaryFa', e.target.value)}
+                value={content.footer.descriptionFa}
+                onChange={(e) => handleFooterChange('descriptionFa', e.target.value)}
                 rows={2}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:outline-none leading-relaxed"
               />
@@ -299,8 +299,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                 {isFa ? 'یادداشت انطباق با استاندارد مهندسی ISO 281' : 'ISO 281 Engineering Compliance Note'}
               </label>
               <textarea
-                value={content.footer.isoDisclaimerFa}
-                onChange={(e) => handleFooterChange('isoDisclaimerFa', e.target.value)}
+                value={content.footer.disclaimerFa}
+                onChange={(e) => handleFooterChange('disclaimerFa', e.target.value)}
                 rows={2}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:outline-none leading-relaxed"
               />

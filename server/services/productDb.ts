@@ -32,7 +32,7 @@ export function rowToProduct(r: any): BearingProduct {
     d: Number(r.d_inner),
     D: Number(r.d_outer),
     B: Number(r.b_width),
-    weightKg: r.weight_kg !== null && r.weight_kg !== undefined ? Number(r.weight_kg) : undefined,
+    weightKg: Number(r.weight_kg) || 0,
     crKn: Number(r.cr_kn),
     corKn: Number(r.cor_kn),
     speedGreaseRpm: Number(r.speed_grease_rpm),

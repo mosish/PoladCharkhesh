@@ -221,11 +221,11 @@ export const AdminSeo: React.FC<AdminSeoProps> = ({ language }) => {
               </div>
 
               <h4 className="text-sm font-medium text-[#1a0dab] hover:underline cursor-pointer line-clamp-1 leading-snug">
-                {seo.siteTitleFa}
+                {seo.defaultTitleFa}
               </h4>
 
               <p className="text-xs text-[#4d5156] mt-1 leading-relaxed line-clamp-2">
-                {seo.metaDescriptionFa}
+                {seo.defaultDescriptionFa}
               </p>
             </div>
 

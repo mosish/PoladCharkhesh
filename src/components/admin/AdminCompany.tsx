@@ -34,26 +34,6 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
     setCompany((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleNestedAddressChange = (key: string, value: string) => {
-    setCompany((prev) => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        [key]: value,
-      },
-    }));
-  };
-
-  const handleNestedHoursChange = (key: string, value: string) => {
-    setCompany((prev) => ({
-      ...prev,
-      workingHours: {
-        ...prev.workingHours,
-        [key]: value,
-      },
-    }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dataService.updateCompanyInfo(company, 'admin');
@@ -211,8 +191,8 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
                 {isFa ? 'آدرس کامل (فارسی)' : 'Full Persian Address'}
               </label>
               <textarea
-                value={company.address.fullAddressFa}
-                onChange={(e) => handleNestedAddressChange('fullAddressFa', e.target.value)}
+                value={company.addressFa}
+                onChange={(e) => handleChange('addressFa', e.target.value)}
                 rows={2}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:outline-none leading-relaxed"
                 required
@@ -226,8 +206,8 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
                 </label>
                 <input
                   type="text"
-                  value={company.address.cityFa}
-                  onChange={(e) => handleNestedAddressChange('cityFa', e.target.value)}
+                  value={company.cityFa}
+                  onChange={(e) => handleChange('cityFa', e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
                 />
               </div>
@@ -238,8 +218,8 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
                 </label>
                 <input
                   type="text"
-                  value={company.address.districtFa}
-                  onChange={(e) => handleNestedAddressChange('districtFa', e.target.value)}
+                  value={company.districtFa}
+                  onChange={(e) => handleChange('districtFa', e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
                 />
               </div>
@@ -250,8 +230,8 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
                 </label>
                 <input
                   type="text"
-                  value={company.address.streetFa}
-                  onChange={(e) => handleNestedAddressChange('streetFa', e.target.value)}
+                  value={company.streetFa}
+                  onChange={(e) => handleChange('streetFa', e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
                 />
               </div>
@@ -262,8 +242,8 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
                 </label>
                 <input
                   type="text"
-                  value={company.address.plateFa}
-                  onChange={(e) => handleNestedAddressChange('plateFa', e.target.value)}
+                  value={company.plate}
+                  onChange={(e) => handleChange('plate', e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
                 />
               </div>
@@ -285,8 +265,8 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
               </label>
               <input
                 type="text"
-                value={company.workingHours.weekdaysFa}
-                onChange={(e) => handleNestedHoursChange('weekdaysFa', e.target.value)}
+                value={company.workingHoursFa}
+                onChange={(e) => handleChange('workingHoursFa', e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
                 required
               />
@@ -298,8 +278,8 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
               </label>
               <input
                 type="text"
-                value={company.workingHours.thursdaysFa}
-                onChange={(e) => handleNestedHoursChange('thursdaysFa', e.target.value)}
+                value={company.workingHoursShortFa}
+                onChange={(e) => handleChange('workingHoursShortFa', e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
                 required
               />

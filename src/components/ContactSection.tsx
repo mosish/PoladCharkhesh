@@ -73,7 +73,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         `⚡ Urgency: ${formData.urgency}\n` +
         `⚙️ Inquired Parts/Details:\n${formData.partList || 'General Inquiry'}`;
     
-    return `${company.whatsappUrl}?text=${encodeURIComponent(text)}`;
+    const baseUrl = company.whatsappUrl || 'https://wa.me/989127195313';
+    return `${baseUrl}?text=${encodeURIComponent(text)}`;
   };
 
   return (
@@ -176,10 +177,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
           <div className="lg:col-span-7 glass-card p-6 sm:p-8 rounded-3xl">
             <div className="border-b border-slate-200/60 pb-4 mb-6 text-start">
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                {t.contact.formTitle}
+                {t.contact.form.title}
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                {t.contact.formSub}
+                {t.contact.form.subtitle}
               </p>
             </div>
 
@@ -189,7 +190,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h4 className="text-lg font-bold text-emerald-900">
-                  {t.contact.submittedTitle}
+                  {t.contact.form.successTitle}
                 </h4>
                 <p className="text-xs sm:text-sm text-emerald-800 max-w-md mx-auto leading-relaxed">
                   {t.contact.form.successMsg}
@@ -202,7 +203,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                     className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-500 transition-colors shadow-sm"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    <span>{t.contact.sendWhatsAppCopy}</span>
+                    <span>{t.contact.form.submitWhatsapp}</span>
                   </a>
                   <button
                     onClick={() => {
@@ -211,7 +212,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                     }}
                     className="px-5 py-3 rounded-full glass-btn-secondary text-xs font-semibold text-slate-700"
                   >
-                    {t.contact.newInquiry}
+                    {t.contact.form.sendAnother}
                   </button>
                 </div>
               </div>
@@ -343,7 +344,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                     className="w-full sm:w-auto flex items-center justify-center gap-2 py-3.5 px-5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition-all shadow-sm active:scale-95"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    <span>{t.contact.whatsappBtn}</span>
+                    <span>{t.contact.form.submitWhatsapp}</span>
                   </a>
                 </div>
               </form>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Language } from '../../types';
-import { CompanyInfo, InquiryLog } from '../../types/admin';
+import { CompanyInfo, InquiryLog, InquiryStatus } from '../../types/admin';
 import { dataService } from '../../services/dataService';
 import { 
   Phone, 
@@ -138,13 +138,13 @@ export const AdminContact: React.FC<AdminContactProps> = ({ language }) => {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-white">{inq.fullName || inq.phone}</span>
-                        {inq.bearingCode && (
+                        {inq.company && (
                           <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[10px] font-bold">
-                            {inq.bearingCode}
+                            {inq.company}
                           </span>
                         )}
                         <span className="text-[10px] text-slate-500 font-mono">
-                          {new Date(inq.createdAt).toLocaleDateString(isFa ? 'fa-IR' : 'en-US')}
+                          {new Date(inq.timestamp).toLocaleDateString(isFa ? 'fa-IR' : 'en-US')}
                         </span>
                       </div>
                       {inq.message && (
@@ -155,19 +155,19 @@ export const AdminContact: React.FC<AdminContactProps> = ({ language }) => {
                     <div className="flex items-center gap-2 shrink-0">
                       <select
                         value={inq.status}
-                        onChange={(e) => handleUpdateStatus(inq.id, e.target.value as any)}
+                        onChange={(e) => handleUpdateStatus(inq.id, e.target.value as InquiryStatus)}
                         className={`bg-slate-900 border rounded-lg px-2.5 py-1 text-[11px] font-bold focus:outline-none ${
-                          inq.status === 'responded' 
+                          inq.status === 'closed' 
                             ? 'border-emerald-500/50 text-emerald-300' 
-                            : inq.status === 'in_progress' 
+                            : inq.status === 'contacted' 
                               ? 'border-amber-500/50 text-amber-300' 
                               : 'border-slate-700 text-slate-300'
                         }`}
                       >
                         <option value="new">{isFa ? 'جدید' : 'New'}</option>
-                        <option value="in_progress">{isFa ? 'در حال بررسی' : 'In Progress'}</option>
-                        <option value="responded">{isFa ? 'پاسخ داده شد' : 'Responded'}</option>
-                        <option value="archived">{isFa ? 'بایگانی' : 'Archived'}</option>
+                        <option value="reviewed">{isFa ? 'بررسی شده' : 'Reviewed'}</option>
+                        <option value="contacted">{isFa ? 'تماس گرفته شد' : 'Contacted'}</option>
+                        <option value="closed">{isFa ? 'بسته شد' : 'Closed'}</option>
                       </select>
                     </div>
                   </div>
