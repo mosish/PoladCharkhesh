@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { COMPANY_INFO } from '../data/company';
+import { useCompanyInfo } from '../services/dataService';
 import { Logo } from './Logo';
 
 interface NavbarProps {
@@ -28,6 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onContactClick,
   onNavigateSection,
 }) => {
+  const company = useCompanyInfo();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = translations[language];
@@ -76,27 +77,27 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-4 text-slate-200 text-[11px] font-mono-spec flex-shrink-0 whitespace-nowrap">
             <span className="hidden md:flex items-center gap-1 text-blue-100 whitespace-nowrap">
               <Clock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-              <span className="whitespace-nowrap">{language === 'fa' ? COMPANY_INFO.workingHoursFa.split('|')[0] : COMPANY_INFO.workingHoursShortEn}</span>
+              <span className="whitespace-nowrap">{language === 'fa' ? company.workingHoursFa.split('|')[0] : company.workingHoursShortEn}</span>
             </span>
             <div className="flex items-center gap-2 sm:gap-3 whitespace-nowrap">
               <a 
-                href={COMPANY_INFO.primaryPhoneTel} 
+                href={company.primaryPhoneTel} 
                 className="flex items-center gap-1 text-white hover:text-amber-300 font-bold transition-colors whitespace-nowrap"
                 title={language === 'fa' ? 'تماس مستقیم با مدیریت فروش' : 'Direct Sales Call'}
               >
                 <Phone className="w-3 h-3 text-amber-400 flex-shrink-0" />
-                <span className="whitespace-nowrap">{language === 'fa' ? COMPANY_INFO.primaryPhoneDisplayFa : COMPANY_INFO.primaryPhoneDisplayEn}</span>
+                <span className="whitespace-nowrap">{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
               </a>
               <span className="text-blue-400/70">|</span>
               <a 
-                href={COMPANY_INFO.whatsappUrl} 
+                href={company.whatsappUrl} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="flex items-center gap-1 text-emerald-300 hover:text-emerald-200 font-semibold whitespace-nowrap"
                 title="واتس‌اپ پولاد چرخِش"
               >
                 <MessageCircle className="w-3 h-3 flex-shrink-0" />
-                <span className="hidden sm:inline whitespace-nowrap">{COMPANY_INFO.primaryPhone}</span>
+                <span className="hidden sm:inline whitespace-nowrap">{company.primaryPhone}</span>
                 <span className="sm:hidden whitespace-nowrap">WhatsApp</span>
               </a>
             </div>
@@ -161,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Direct Call & Inquiry CTA Button */}
               <a
                 id="navbar-call-inquiry-btn"
-                href={COMPANY_INFO.primaryPhoneTel}
+                href={company.primaryPhoneTel}
                 className="glass-btn-primary flex items-center gap-2 px-4 py-1.5 rounded-full text-white text-xs font-semibold active:scale-95 transition-all whitespace-nowrap"
               >
                 <Phone className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
@@ -213,22 +214,22 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="pt-3 border-t border-slate-200/60 flex flex-col gap-2">
               <a
-                href={COMPANY_INFO.primaryPhoneTel}
+                href={company.primaryPhoneTel}
                 onClick={() => setMobileMenuOpen(false)}
                 className="glass-btn-primary flex items-center justify-center gap-2 py-3 rounded-2xl text-white font-bold text-sm shadow-md active:scale-98 transition-all whitespace-nowrap"
               >
                 <Phone className="w-4 h-4 text-amber-300" />
-                <span className="whitespace-nowrap">{language === 'fa' ? `تماس مستقیم: ${COMPANY_INFO.primaryPhoneDisplayFa}` : `Call: ${COMPANY_INFO.primaryPhoneDisplayEn}`}</span>
+                <span className="whitespace-nowrap">{language === 'fa' ? `تماس مستقیم: ${company.primaryPhoneDisplayFa}` : `Call: ${company.primaryPhoneDisplayEn}`}</span>
               </a>
 
               <a
-                href={COMPANY_INFO.whatsappUrl}
+                href={company.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-emerald-600/90 backdrop-blur-md text-white font-bold text-sm shadow-sm active:scale-98 transition-all whitespace-nowrap border border-white/20"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span className="whitespace-nowrap">{language === 'fa' ? `استعلام واتس‌اپ: ${COMPANY_INFO.primaryPhone}` : `WhatsApp: ${COMPANY_INFO.primaryPhone}`}</span>
+                <span className="whitespace-nowrap">{language === 'fa' ? `استعلام واتس‌اپ: ${company.primaryPhone}` : `WhatsApp: ${company.primaryPhone}`}</span>
               </a>
             </div>
           </div>

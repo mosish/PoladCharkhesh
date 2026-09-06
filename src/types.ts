@@ -111,6 +111,9 @@ export interface BearingProduct extends
   ProductBrandMetadata, 
   ProductSeoMetadata {
   technicalSources?: TechnicalSource[];
+  createdAt?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface TeamMember {
@@ -137,3 +140,6 @@ export interface IndustryApplication {
   recommendedBearings: string[];
   icon: string;
 }
+
+// Re-export Admin & CMS Domain Contracts
+export * from './types/admin';

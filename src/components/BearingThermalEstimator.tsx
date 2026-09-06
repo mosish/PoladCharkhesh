@@ -14,22 +14,30 @@ import {
   Gauge
 } from 'lucide-react';
 import { Language, BearingProduct } from '../types';
-import { bearingProducts } from '../data/products';
+import { useActiveProducts } from '../services/dataService';
 
 interface BearingThermalEstimatorProps {
   language: Language;
   embedded?: boolean;
+  products?: BearingProduct[];
 }
 
 type LubricationMode = 'grease' | 'oil';
 type LoadLevel = 'light' | 'normal' | 'heavy';
 type CoolingCondition = 'natural' | 'forced';
 
-export const BearingThermalEstimator: React.FC<BearingThermalEstimatorProps> = ({ language, embedded = false }) => {
+export const BearingThermalEstimator: React.FC<BearingThermalEstimatorProps> = ({ 
+  language, 
+  embedded = false,
+  products: propProducts,
+}) => {
+  const liveProducts = useActiveProducts();
+  const sourceProducts = propProducts || liveProducts;
+
   // Filter out seals and lubricants to focus on rolling bearings and units
   const availableBearings = useMemo(() => {
-    return bearingProducts.filter(p => p.category !== 'seal' && p.category !== 'lubricant' && p.speedGreaseRpm > 0);
-  }, []);
+    return sourceProducts.filter(p => p.category !== 'seal' && p.category !== 'lubricant' && p.speedGreaseRpm > 0);
+  }, [sourceProducts]);
 
   const [selectedBearingId, setSelectedBearingId] = useState<string>(
     availableBearings[0]?.id || 'pc-6204-2rs'

@@ -54,8 +54,8 @@ async function runSecurityTestSuite() {
   console.log('2. [DATA] Canonical Products & Precision Bearing Dimensions...');
   const countRow = db.prepare('SELECT COUNT(*) as count FROM products;').get() as any;
   const count = Number(countRow.count);
-  if (count < 68) {
-    throw new Error(`Catalog count unexpected: ${count} (expected >= 68)`);
+  if (count !== 68) {
+    throw new Error(`Catalog count unexpected: ${count} (expected exactly 68 canonical products)`);
   }
 
   const sampleRow = db.prepare("SELECT * FROM products WHERE code LIKE '6204%' LIMIT 1;").get();

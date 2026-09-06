@@ -5,7 +5,8 @@ import {
   verifyPassword, 
   createSession, 
   verifySession, 
-  revokeSession, 
+  revokeSession,
+  revokeAllSessions,
   checkRateLimit, 
   recordFailedLogin, 
   resetFailedLogin 
@@ -259,7 +260,10 @@ authRouter.post('/change-password', requireAuth, async (req: Request, res: Respo
   const newHash = await hashPassword(String(newPassword));
   db.prepare('UPDATE admins SET password_hash = ? WHERE id = ?;').run(newHash, req.admin!.id);
 
-  logAudit('PASSWORD_CHANGED', 'auth', 'رمز عبور مدیریت با موفقیت به‌روزرسانی شد.', req, req.admin!.id);
+  // Invalidate all other active sessions for this admin while preserving current session
+  revokeAllSessions(req.admin!.id, req.session?.id);
+
+  logAudit('PASSWORD_CHANGED', 'auth', 'رمز عبور مدیریت با موفقیت به‌روزرسانی شد و سایر نشست‌های فعال باطل شدند.', req, req.admin!.id);
 
   res.json({ success: true, message: 'رمز عبور با موفقیت به‌روزرسانی شد.' });
 });

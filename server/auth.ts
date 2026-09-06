@@ -278,9 +278,14 @@ export function revokeSession(token: string): void {
 }
 
 /**
- * Invalidate all sessions for an admin (e.g. after password change)
+ * Invalidate all sessions for an admin (e.g. after password change).
+ * If exceptSessionId is provided, all sessions EXCEPT that one are revoked.
  */
-export function revokeAllSessions(adminId: string): void {
+export function revokeAllSessions(adminId: string, exceptSessionId?: string): void {
   const db = getDatabase();
-  db.prepare('UPDATE sessions SET is_revoked = 1 WHERE admin_id = ?;').run(adminId);
+  if (exceptSessionId) {
+    db.prepare('UPDATE sessions SET is_revoked = 1 WHERE admin_id = ? AND id != ?;').run(adminId, exceptSessionId);
+  } else {
+    db.prepare('UPDATE sessions SET is_revoked = 1 WHERE admin_id = ?;').run(adminId);
+  }
 }

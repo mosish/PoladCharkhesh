@@ -36,6 +36,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://poladcharkhesh.ir/product/30206</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://poladcharkhesh.ir/product/30208</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -77,6 +82,11 @@
   </url>
   <url>
     <loc>https://poladcharkhesh.ir/product/nup-310-ecp</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://poladcharkhesh.ir/product/51106</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -337,16 +347,6 @@
   </url>
   <url>
     <loc>https://poladcharkhesh.ir/product/corteco-12012014b</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://poladcharkhesh.ir/product/corteco-12019688b-cassette</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://poladcharkhesh.ir/product/corteco-babsl-45-65-8</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

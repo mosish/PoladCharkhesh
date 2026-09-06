@@ -4,7 +4,8 @@ import {
   Language 
 } from '../types';
 import { translations } from '../data/translations';
-import { COMPANY_INFO, createWhatsAppInquiryUrl } from '../data/company';
+import { createWhatsAppInquiryUrl } from '../data/company';
+import { useCompanyInfo } from '../services/dataService';
 import { PartMediaSlider } from './PartMediaSlider';
 import { exportProductSpecPdf } from '../utils/pdfExport';
 import { Breadcrumbs } from './Breadcrumbs';
@@ -50,6 +51,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({
   onNavigateProduct,
   onNavigateCalculator,
 }) => {
+  const company = useCompanyInfo();
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
 
@@ -82,6 +84,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({
   };
 
   const whatsappInquiryUrl = createWhatsAppInquiryUrl({
+    baseUrl: company.whatsappUrl,
     productCode: product.code,
     productName: isRtl ? product.nameFa : product.nameEn,
     dimensions: `d=${product.d}mm, D=${product.D}mm, B=${product.B}mm`,
@@ -202,19 +205,19 @@ export const ProductPage: React.FC<ProductPageProps> = ({
                 {isRtl ? 'مرکز مشاوره و استعلام مستقیم' : 'Technical Consultation & Inquiry Desk'}
               </span>
               <span className="text-xs text-blue-200 font-mono-spec font-medium">
-                {isRtl ? COMPANY_INFO.workingHoursFa.split('|')[0] : COMPANY_INFO.workingHoursShortEn}
+                {isRtl ? company.workingHoursFa.split('|')[0] : company.workingHoursShortEn}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               {/* Primary Call */}
               <a
-                href={COMPANY_INFO.primaryPhoneTel}
+                href={company.primaryPhoneTel}
                 className="flex items-center justify-center gap-2 py-3.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm rounded-2xl transition-all shadow-md font-mono-spec cursor-pointer"
                 title="تماس مستقیم با واحد فنی"
               >
                 <PhoneCall className="w-4 h-4 text-slate-950" />
-                <span>{isRtl ? `تماس: ${COMPANY_INFO.primaryPhoneDisplayFa}` : `Call: ${COMPANY_INFO.primaryPhoneDisplayEn}`}</span>
+                <span>{isRtl ? `تماس: ${company.primaryPhoneDisplayFa}` : `Call: ${company.primaryPhoneDisplayEn}`}</span>
               </a>
 
               {/* Fast WhatsApp Inquiry */}
@@ -529,18 +532,18 @@ export const ProductPage: React.FC<ProductPageProps> = ({
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <a
-            href={COMPANY_INFO.primaryPhoneTel}
+            href={company.primaryPhoneTel}
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#232c86] hover:bg-[#1a226b] text-white text-sm font-bold rounded-2xl transition-all shadow-md font-mono-spec cursor-pointer"
           >
             <PhoneCall className="w-4 h-4" />
-            <span>{isRtl ? `تماس با کارشناس: ${COMPANY_INFO.primaryPhoneDisplayFa}` : `Direct Call: ${COMPANY_INFO.primaryPhoneDisplayEn}`}</span>
+            <span>{isRtl ? `تماس با کارشناس: ${company.primaryPhoneDisplayFa}` : `Direct Call: ${company.primaryPhoneDisplayEn}`}</span>
           </a>
 
           <a
-            href={COMPANY_INFO.landlinePhoneTel}
+            href={company.landlinePhoneTel}
             className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 text-slate-800 text-sm font-bold rounded-2xl border border-slate-200 transition-all shadow-sm font-mono-spec cursor-pointer"
           >
-            <span>{isRtl ? `دفتر مرکزی: ${COMPANY_INFO.landlinePhoneDisplayFa}` : `Office: ${COMPANY_INFO.landlinePhoneDisplayEn}`}</span>
+            <span>{isRtl ? `دفتر مرکزی: ${company.landlinePhoneDisplayFa}` : `Office: ${company.landlinePhoneDisplayEn}`}</span>
           </a>
 
           <a

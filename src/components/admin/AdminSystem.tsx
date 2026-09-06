@@ -83,7 +83,7 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
       } else {
         setPasswordStatus({
           success: false,
-          message: result.error || (isFa ? 'رمز عبور فعلی نادرست است.' : 'Current password is incorrect.'),
+          message: result.error?.message || (isFa ? 'رمز عبور فعلی نادرست است.' : 'Current password is incorrect.'),
         });
       }
     } catch {

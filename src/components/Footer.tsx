@@ -1,7 +1,7 @@
 import React from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { COMPANY_INFO } from '../data/company';
+import { useCompanyInfo } from '../services/dataService';
 import { 
   RotateCw, 
   Phone, 
@@ -24,6 +24,7 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigateSection,
   onNavigateProduct,
 }) => {
+  const company = useCompanyInfo();
   const t = translations[language];
 
   const scrollToTop = () => {
@@ -111,16 +112,16 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="pt-2 flex flex-col gap-2">
               <div className="flex items-center gap-2 text-slate-300">
                 <MapPin className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>{language === 'fa' ? COMPANY_INFO.addressFa : COMPANY_INFO.addressEn}</span>
+                <span>{language === 'fa' ? company.addressFa : company.addressEn}</span>
               </div>
               <div className="flex items-center gap-4">
-                <a href={COMPANY_INFO.primaryPhoneTel} className="flex items-center gap-1.5 text-slate-300 hover:text-blue-400 font-mono-spec font-semibold">
+                <a href={company.primaryPhoneTel} className="flex items-center gap-1.5 text-slate-300 hover:text-blue-400 font-mono-spec font-semibold">
                   <Phone className="w-3.5 h-3.5 text-blue-400" />
-                  <span>{language === 'fa' ? COMPANY_INFO.primaryPhoneDisplayFa : COMPANY_INFO.primaryPhoneDisplayEn}</span>
+                  <span>{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
                 </a>
-                <a href={COMPANY_INFO.whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-emerald-400 hover:underline font-mono-spec font-semibold">
+                <a href={company.whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-emerald-400 hover:underline font-mono-spec font-semibold">
                   <MessageCircle className="w-3.5 h-3.5" />
-                  <span>{COMPANY_INFO.primaryPhone}</span>
+                  <span>{company.primaryPhone}</span>
                 </a>
               </div>
             </div>

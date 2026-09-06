@@ -24,7 +24,7 @@ import {
   Check
 } from 'lucide-react';
 import { Language, BearingProduct, BearingCategory } from '../types';
-import { bearingProducts } from '../data/products';
+import { useActiveProducts } from '../services/dataService';
 import {
   calculateBearingLife,
   runBearingCalculationBenchmarks,
@@ -36,18 +36,23 @@ import {
 interface BearingLifeCalculatorProps {
   language: Language;
   embedded?: boolean;
+  products?: BearingProduct[];
 }
 
 export const BearingLifeCalculator: React.FC<BearingLifeCalculatorProps> = ({ 
   language, 
-  embedded = false 
+  embedded = false,
+  products: propProducts,
 }) => {
+  const liveProducts = useActiveProducts();
+  const sourceProducts = propProducts || liveProducts;
+
   // Filter rolling bearings for life calculation (exclude seals and lubricants)
   const availableBearings = useMemo(() => {
-    return bearingProducts.filter(
+    return sourceProducts.filter(
       p => p.category !== 'seal' && p.category !== 'lubricant' && p.crKn > 0
     );
-  }, []);
+  }, [sourceProducts]);
 
   // Selection Mode: 'catalog' | 'custom'
   const [selectionMode, setSelectionMode] = useState<'catalog' | 'custom'>('catalog');

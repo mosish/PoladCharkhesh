@@ -171,6 +171,7 @@ export function initSchema(db: DatabaseSync): void {
     );
 
     CREATE INDEX IF NOT EXISTS idx_inquiries_timestamp ON inquiries(timestamp);
+    CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries(status);
 
     -- 9. Media Metadata Table
     CREATE TABLE IF NOT EXISTS media_metadata (

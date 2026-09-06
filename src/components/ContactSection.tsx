@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { COMPANY_INFO } from '../data/company';
-import { dataService } from '../services/dataService';
+import { dataService, useCompanyInfo } from '../services/dataService';
 import { 
   Phone, 
   MessageCircle, 
@@ -20,6 +19,7 @@ interface ContactSectionProps {
 }
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
+  const company = useCompanyInfo();
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -73,7 +73,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         `⚡ Urgency: ${formData.urgency}\n` +
         `⚙️ Inquired Parts/Details:\n${formData.partList || 'General Inquiry'}`;
     
-    return `${COMPANY_INFO.whatsappUrl}?text=${encodeURIComponent(text)}`;
+    return `${company.whatsappUrl}?text=${encodeURIComponent(text)}`;
   };
 
   return (
@@ -115,7 +115,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <div>
                     <span className="text-xs text-slate-500 block font-medium">{t.contact.info.phoneLabel}</span>
                     <a
-                      href={COMPANY_INFO.landlinePhoneTel}
+                      href={company.landlinePhoneTel}
                       className="text-base sm:text-lg font-black font-mono-spec text-slate-900 hover:text-[#232c86] transition-colors"
                     >
                       {t.contact.info.phoneDisplay}
@@ -131,7 +131,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <div>
                     <span className="text-xs text-slate-500 block font-medium">{t.contact.info.mobileLabel}</span>
                     <a
-                      href={COMPANY_INFO.whatsappUrl}
+                      href={company.whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base sm:text-lg font-black font-mono-spec text-emerald-700 hover:underline"

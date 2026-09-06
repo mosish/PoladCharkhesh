@@ -1,102 +1,84 @@
 /**
- * POLAD CHARKHESH - CENTRALIZED DATA SERVICE & STORE
+ * POLAD CHARKHESH - CLIENT-SIDE DATA STORE & REACTIVE SUBSCRIPTION SERVICE
  * 
- * Production server-backed data architecture:
- * All product records, company information, CMS pages, SEO metadata,
- * and contact inquiries are persistently managed via the Express + SQLite backend.
- * 
- * In-memory caching and reactive subscription ensure instantaneous, flicker-free
- * rendering across the entire application with reliable server synchronization.
+ * Manages reactive in-memory state and synchronization with the Express + SQLite backend.
+ * Delegates remote HTTP operations to domain services:
+ * - productService
+ * - companyService
+ * - contentService
+ * - seoService
+ * - inquiryService
+ * - systemService
  */
 
+import { useState, useEffect } from 'react';
 import { BearingProduct } from '../types';
 import { bearingProducts as canonicalProducts } from '../data/products';
 import { COMPANY_INFO as canonicalCompanyInfo, CompanyContactInfo } from '../data/company';
-import { 
-  AdminProductItem, 
-  CmsPageContent, 
-  SiteSeoConfig, 
-  DatasetSnapshot,
+import {
+  AdminUser,
+  AdminProductItem,
+  CmsPageContent,
+  SiteSeoConfig,
   InquiryLog,
-  AdminUser 
+  DatasetSnapshot,
 } from '../types/admin';
-import { validateProductDataset } from '../utils/productValidation';
-import { getProductSlug } from '../utils/productSlug';
-import { auditService } from './auditService';
+import { productService } from './productService';
+import { companyService } from './companyService';
+import { contentService } from './contentService';
+import { seoService } from './seoService';
+import { inquiryService } from './inquiryService';
+import { systemService } from './systemService';
+import { authService } from './authService';
 
-// Default Page Content Baseline
 export const DEFAULT_PAGE_CONTENT: CmsPageContent = {
   hero: {
-    badgeFa: 'تأمین مستقیم و اصالت‌سنجی ۱۰۰٪ قطعات صنعتی',
-    badgeEn: 'Direct Supply & 100% Authenticity Verification',
-    titleHighlightFa: 'تأمین تخصصی انواع بیرینگ و برینگ‌های صنعتی',
-    titleHighlightEn: 'Industrial Bearings & Sealing Systems',
-    titleSuffixFa: 'مرجع مهندسی، محاسبه طول عمر L10 و کاتالوگ جامع قطعات صنایع مادر',
-    titleSuffixEn: 'Engineering reference, ISO 281 L10 life calculator & technical catalog',
-    descriptionFa: 'بازرگانی پولاد چرخِش؛ تأمین‌کننده مستقیم انواع رولبرینگ مخروطی، بشکه‌ای، بلبرینگ شیارعمیق، یاتاقان و کاسه‌نمد برای صنایع نفت، گاز، پتروشیمی، فولاد و سیمان.',
-    descriptionEn: 'Polad Charkhesh Trading Co.; Direct distributor of tapered, spherical, deep groove bearings, housings and oil seals for oil & gas, steel, mining, and cement industries.',
-    searchPlaceholderFa: 'جستجوی شماره فنی بیرینگ (مثال: 22220, 30205, 6205, 120x150x12)...',
-    searchPlaceholderEn: 'Search bearing technical code or dimensions (e.g. 22220, 30205, 6205)...',
+    badgeFa: 'مرجع تخصصی بلبرینگ و رولبرینگ صنعتی در ایران',
+    badgeEn: 'Specialized Industrial Bearings & Power Transmission Hub',
+    titleHighlightFa: 'تأمین مهندسی',
+    titleHighlightEn: 'Engineering Supply',
+    titleSuffixFa: 'انواع بلبرینگ‌های اورجینال صنایع سنگین',
+    titleSuffixEn: 'of Heavy Industrial Bearings',
+    descriptionFa: 'تأمین مستقیم انواع بیرینگ‌های فوق دقیق، توربین، آسیاب، پمپ و گیربکس از برترین برندهای معتبر جهان (SKF, FAG, NSK, TIMKEN) با تضمین اصالت و شناسنامه فنی کالا.',
+    descriptionEn: 'Direct procurement of precision bearings for turbines, mills, pumps, and gearboxes from world-class manufacturers (SKF, FAG, NSK, TIMKEN) with verified certificates.',
+    searchPlaceholderFa: 'جستجو بر اساس شماره فنی کالا، ابعاد مهندسی یا دسته‌بندی...',
+    searchPlaceholderEn: 'Search by technical bearing code, dimensions, or category...',
   },
   about: {
-    tagFa: 'درباره ما',
-    tagEn: 'About Us',
-    titleFa: 'بیش از دو دهه تجربه تخصصی در تأمین قطعات دوار صنایع مادر',
-    titleEn: 'Over Two Decades of Engineering Supply in Rotating Equipment',
-    paragraph1Fa: 'بازرگانی پولاد چرخِش با اتکا به تخصص فنی، شناخت دقیق استانداردهای جهانی (ISO/DIN/ABMA) و ارتباط مستقیم با زنجیره تأمین بین‌المللی، آماده ارائه خدمات جامع مشاوره‌ای و تأمین بیرینگ‌های فوق سنگین، خاص و عمومی به پروژه‌های صنعتی سراسر کشور می‌باشد.',
-    paragraph1En: 'Polad Charkhesh Trading relies on deep engineering expertise, compliance with international standards (ISO/DIN/ABMA), and direct relations with global manufacturers to provide heavy-duty and precision bearing solutions.',
-    paragraph2Fa: 'تمامی قطعات وارداتی با مدارک اصالت کالا، تضمین عدم وجود خوردگی و گواهی آزمون متالورژی عرضه می‌گردند.',
-    paragraph2En: 'All imported parts are supplied with complete certificates of conformity, anti-corrosion inspection, and certified metallurgical quality guarantees.',
+    tagFa: 'اصالت و اعتبار مهندسی',
+    tagEn: 'ENGINEERING HERITAGE & TRUST',
+    titleFa: 'بیش از دو دهه تجربه در قلب صنعت کشور',
+    titleEn: 'Over Two Decades of Core Industrial Expertise',
+    paragraph1Fa: 'بازرگانی صنعتی پولاد چرخِش با اتکا به دانش مهندسی متالورژی و شناخت دقیق نیازمندی‌های کارخانجات فولاد، سیمان، نفت و پتروشیمی، همواره مطمئن‌ترین همراه صنایع مادر ایران در تأمین قطعات حساس دوار بوده است.',
+    paragraph1En: 'Polad Charkhesh Industrial Trading leverages metallurgical expertise and in-depth understanding of steel, cement, oil, and petrochemical plants to reliably supply critical rotating equipment.',
+    paragraph2Fa: 'ما با ایجاد زنجیره تأمین مستقیم بین‌المللی و آزمایشگاه کنترل کیفیت ابعادی و ارتعاشاتی، هرگونه ریسک خرابی زودرس و توقف خطوط تولید را به صفر نزدیک می‌کنیم.',
+    paragraph2En: 'Through direct global procurement and stringent dimensional/vibrational quality control, we minimize unexpected downtime risks for industrial manufacturing lines.',
     stats: [
-      { valueFa: '+۶۸', valueEn: '+68', labelFa: 'کدهای استاندارد در کاتالوگ', labelEn: 'Catalogued Standard Series' },
-      { valueFa: '+۱۰۰۰', valueEn: '+1000', labelFa: 'تأمین موفق پروژه‌های صنعتی', labelEn: 'Successful Project Deliveries' },
-      { valueFa: '۱۰۰٪', valueEn: '100%', labelFa: 'تضمین اصالت برند و متریال', labelEn: 'Authenticity Guarantee' },
-      { valueFa: '۲۴/۷', valueEn: '24/7', labelFa: 'مشاوره و استعلام فنی مهندسی', labelEn: 'Technical Engineering Support' },
+      { valueFa: '۲۲+', valueEn: '22+', labelFa: 'سال سابقه تخصصی', labelEn: 'Years Experience' },
+      { valueFa: '۱۰۰٪', valueEn: '100%', labelFa: 'تضمین اصالت کالا', labelEn: 'Authenticity Guarantee' },
+      { valueFa: '۶۸+', valueEn: '68+', labelFa: 'شماره فنی در انبار دائم', labelEn: 'Audited Product Lines' },
+      { valueFa: '۲۴/۷', valueEn: '24/7', labelFa: 'پشتیبانی فنی مهندسی', labelEn: 'Engineering Support' },
     ],
   },
   footer: {
-    descriptionFa: 'بازرگانی صنعتی پولاد چرخِش؛ مرجع تخصصی تأمین، مشاوره مهندسی و محاسبات فنی طول عمر انواع برینگ و پکینگ‌های آب‌بندی صنایع سنگین و مادر.',
-    descriptionEn: 'Polad Charkhesh Industrial Trading; Specialized engineering distributor of industrial bearings, housings, and high-performance sealing systems.',
-    copyrightFa: 'تمامی حقوق مادی و معنوی این سامانه متعلق به بازرگانی پولاد چرخِش می‌باشد.',
+    descriptionFa: 'مرکز تخصصی تأمین و مشاوره فنی انواع بیرینگ‌های صنعتی، گریس‌های تخصصی و کاسه‌نمدهای اورجینال صنایع نفت، گاز، پتروشیمی، فولاد و سیمان.',
+    descriptionEn: 'Specialized industrial supplier of certified bearings, premium lubricants, and heavy-duty mechanical seals.',
+    copyrightFa: 'تمامی حقوق مادی و معنوی برای بازرگانی صنعتی پولاد چرخِش محفوظ است.',
     copyrightEn: 'All rights reserved for Polad Charkhesh Industrial Trading Co.',
-    disclaimerFa: 'محاسبات طول عمر L10 بر پایه روابط استاندارد بین‌المللی ISO 281:2007 و کاتالوگ‌های رسمی سازندگان صورت می‌پذیرد.',
-    disclaimerEn: 'Calculations are performed strictly per ISO 281:2007 and verified official manufacturer engineering standards.',
+    disclaimerFa: 'اطلاعات فنی ارائه شده در این پلتفرم بر اساس استانداردهای DIN و ISO 281 گردآوری شده و جنبه مرجع مهندسی دارد.',
+    disclaimerEn: 'Technical specifications are compiled according to DIN and ISO 281 engineering standards.',
   },
 };
 
-// Default SEO Baseline
 export const DEFAULT_SEO_CONFIG: SiteSeoConfig = {
-  defaultTitleFa: 'بازرگانی پولاد چرخِش | کاتالوگ فنی بیرینگ و محاسبات مهندسی ISO 281',
-  defaultTitleEn: 'Polad Charkhesh Bearings | Industrial Bearing Catalog & ISO Calculations',
-  defaultDescriptionFa: 'کاتالوگ تخصصی بیرینگ، رولبرینگ‌های بشکه‌ای، مخروطی، استوانه‌ای، بلبرینگ و کاسه‌نمد با محاسبه آنلاین طول عمر L10 و استعلام مستقیم واتساپ در پولاد چرخِش.',
-  defaultDescriptionEn: 'Technical industrial bearing catalog, deep groove, tapered & spherical roller bearings, oil seals and ISO 281 bearing life calculation tool by Polad Charkhesh.',
+  defaultTitleFa: 'بازرگانی پولاد چرخِش | مرجع تخصصی تأمین بلبرینگ و رولبرینگ صنعتی',
+  defaultTitleEn: 'Polad Charkhesh | Industrial Bearings & Engineering Supply',
+  defaultDescriptionFa: 'تأمین مستقیم انواع بلبرینگ و رولبرینگ صنعتی، برینگ‌های شیار عمیق، مخروطی، بشکه‌ای، خودتنظیم و کف‌گرد با تضمین اصالت و مشخصات استاندارد DIN / ISO.',
+  defaultDescriptionEn: 'Direct supplier of industrial ball & roller bearings, tapered, spherical, and thrust bearings with guaranteed authenticity and ISO 281 standards compliance.',
   canonicalBaseUrl: 'https://poladcharkhesh.ir',
-  ogImageUrl: '/icon.png',
-  keywordsFa: [
-    'بیرینگ',
-    'بلبرینگ',
-    'رولبرینگ',
-    'رولبرینگ مخروطی',
-    'رولبرینگ بشکه‌ای',
-    'کاسه نمد',
-    'پولاد چرخش',
-    'تیمکن',
-    'اس کا اف',
-    'محاسبه طول عمر بیرینگ',
-  ],
-  keywordsEn: [
-    'bearings',
-    'roller bearings',
-    'tapered roller bearing',
-    'spherical roller bearing',
-    'deep groove ball bearing',
-    'oil seals',
-    'Polad Charkhesh',
-    'SKF',
-    'FAG',
-    'TIMKEN',
-    'ISO 281 calculation',
-  ],
+  ogImageUrl: '/polad-og-banner.jpg',
+  keywordsFa: ['بلبرینگ', 'رولبرینگ', 'بلبرینگ صنعتی', 'SKF', 'FAG', 'تأمین قطعات صنایع فولاد', 'کاتالوگ بلبرینگ'],
+  keywordsEn: ['bearings', 'industrial bearings', 'SKF bearings', 'roller bearings', 'tapered roller bearing', 'ISO 281'],
   organizationNameFa: 'بازرگانی صنعتی پولاد چرخِش',
   organizationNameEn: 'Polad Charkhesh Industrial Trading Co.',
   googleSiteVerification: '',
@@ -141,53 +123,38 @@ class DataService {
   }
 
   /**
-   * Pull complete authoritative state from server API
+   * Pull complete authoritative state from server API via domain services
    */
   public async refreshFromServer(): Promise<void> {
     try {
       const [prodRes, compRes, contentRes, seoRes] = await Promise.all([
-        fetch('/api/products?includeArchived=true', { credentials: 'include' }),
-        fetch('/api/company', { credentials: 'include' }),
-        fetch('/api/content', { credentials: 'include' }),
-        fetch('/api/seo', { credentials: 'include' }),
+        productService.getProducts(true),
+        companyService.getCompanyInfo(),
+        contentService.getContent(),
+        seoService.getSeo(),
       ]);
 
-      if (prodRes.ok) {
-        const prodData = await prodRes.json();
-        if (Array.isArray(prodData.products) && prodData.products.length > 0) {
-          this.products = prodData.products;
-        }
+      if (prodRes.success && prodRes.data?.products && Array.isArray(prodRes.data.products)) {
+        this.products = prodRes.data.products;
       }
 
-      if (compRes.ok) {
-        const compData = await compRes.json();
-        if (compData.company) {
-          this.companyInfo = compData.company;
-        }
+      if (compRes.success && compRes.data?.company) {
+        this.companyInfo = compRes.data.company;
       }
 
-      if (contentRes.ok) {
-        const contentData = await contentRes.json();
-        if (contentData.content) {
-          this.pageContent = contentData.content;
-        }
+      if (contentRes.success && contentRes.data?.content) {
+        this.pageContent = contentRes.data.content;
       }
 
-      if (seoRes.ok) {
-        const seoData = await seoRes.json();
-        if (seoData.seo) {
-          this.seoConfig = seoData.seo;
-        }
+      if (seoRes.success && seoRes.data?.seo) {
+        this.seoConfig = seoRes.data.seo;
       }
 
-      // Try fetching inquiries if authenticated
+      // Inquiries (requires admin session, gracefully fails for public users)
       try {
-        const inqRes = await fetch('/api/inquiries', { credentials: 'include' });
-        if (inqRes.ok) {
-          const inqData = await inqRes.json();
-          if (Array.isArray(inqData.inquiries)) {
-            this.inquiries = inqData.inquiries;
-          }
+        const inqRes = await inquiryService.getInquiries();
+        if (inqRes.success && Array.isArray(inqRes.data?.inquiries)) {
+          this.inquiries = inqRes.data.inquiries;
         }
       } catch {}
 
@@ -269,111 +236,67 @@ class DataService {
   }
 
   public async addProduct(
-    product: Partial<BearingProduct>,
-    user?: AdminUser | string
+    product: any,
+    _user?: AdminUser | string
   ): Promise<{ success: boolean; product?: BearingProduct; errors?: string[] }> {
-    try {
-      const res = await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(product),
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false, errors: data.errors || [data.error || 'خطا در ثبت کالا'] };
-      }
-
-      const created = data.product as BearingProduct;
-      this.products.unshift(created);
-      this.notifyListeners();
-
-      return { success: true, product: created };
-    } catch (err: any) {
-      return { success: false, errors: ['خطا در ارتباط با سرور پایگاه داده.'] };
+    const res = await productService.createProduct(product);
+    if (!res.success) {
+      return { success: false, errors: [res.error.message] };
     }
+
+    const created = res.data.product;
+    this.products.unshift(created);
+    this.notifyListeners();
+    return { success: true, product: created };
   }
 
   public async updateProduct(
     id: string,
-    updates: Partial<BearingProduct>,
-    user?: AdminUser | string
+    updates: any,
+    _user?: AdminUser | string
   ): Promise<{ success: boolean; product?: BearingProduct; errors?: string[] }> {
-    try {
-      const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(updates),
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false, errors: data.errors || [data.error || 'خطا در ویرایش کالا'] };
-      }
-
-      const updated = data.product as BearingProduct;
-      const idx = this.products.findIndex((p) => p.id === id);
-      if (idx !== -1) {
-        this.products[idx] = updated;
-      }
-      this.notifyListeners();
-
-      return { success: true, product: updated };
-    } catch (err: any) {
-      return { success: false, errors: ['خطا در ارتباط با سرور پایگاه داده.'] };
+    const res = await productService.updateProduct(id, updates);
+    if (!res.success) {
+      return { success: false, errors: [res.error.message] };
     }
+
+    const updated = res.data.product;
+    const idx = this.products.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      this.products[idx] = updated;
+    }
+    this.notifyListeners();
+    return { success: true, product: updated };
   }
 
-  public async deleteProduct(id: string, user?: AdminUser | string): Promise<{ success: boolean; error?: string }> {
-    try {
-      const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false, error: data.error || 'خطا در حذف کالا' };
-      }
-
-      this.products = this.products.filter((p) => p.id !== id);
-      this.notifyListeners();
-
-      return { success: true };
-    } catch (err: any) {
-      return { success: false, error: 'خطا در ارتباط با سرور.' };
+  public async deleteProduct(id: string, _user?: AdminUser | string): Promise<{ success: boolean; error?: string }> {
+    const res = await productService.deleteProduct(id);
+    if (!res.success) {
+      return { success: false, error: res.error.message };
     }
+
+    this.products = this.products.filter((p) => p.id !== id);
+    this.notifyListeners();
+    return { success: true };
   }
 
   public async toggleArchiveProduct(
     id: string,
-    user?: AdminUser | string
+    _user?: AdminUser | string
   ): Promise<{ success: boolean; isArchived?: boolean }> {
-    try {
-      const res = await fetch(`/api/products/${encodeURIComponent(id)}/archive`, {
-        method: 'PATCH',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'include',
-      });
+    const product = this.products.find((p) => p.id === id);
+    const newArchived = !Boolean(product?.isArchived);
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false };
-      }
-
-      const product = this.products.find((p) => p.id === id);
-      if (product) {
-        product.isArchived = data.isArchived;
-      }
-      this.notifyListeners();
-
-      return { success: true, isArchived: data.isArchived };
-    } catch {
+    const res = await productService.setArchiveStatus(id, newArchived);
+    if (!res.success) {
       return { success: false };
     }
+
+    if (product) {
+      product.isArchived = res.data.isArchived;
+    }
+    this.notifyListeners();
+    return { success: true, isArchived: res.data.isArchived };
   }
 
   // ==========================================
@@ -386,27 +309,16 @@ class DataService {
 
   public async updateCompanyInfo(
     updates: Partial<CompanyContactInfo>,
-    user?: AdminUser | string
+    _user?: AdminUser | string
   ): Promise<{ success: boolean }> {
-    try {
-      const res = await fetch('/api/company', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(updates),
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false };
-      }
-
-      this.companyInfo = data.company;
-      this.notifyListeners();
-      return { success: true };
-    } catch {
+    const res = await companyService.updateCompanyInfo(updates);
+    if (!res.success) {
       return { success: false };
     }
+
+    this.companyInfo = res.data.company;
+    this.notifyListeners();
+    return { success: true };
   }
 
   public getContent(): CmsPageContent {
@@ -426,27 +338,16 @@ class DataService {
 
   public async updatePageContent(
     updates: Partial<CmsPageContent>,
-    user?: AdminUser | string
+    _user?: AdminUser | string
   ): Promise<{ success: boolean }> {
-    try {
-      const res = await fetch('/api/content', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(updates),
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false };
-      }
-
-      this.pageContent = data.content;
-      this.notifyListeners();
-      return { success: true };
-    } catch {
+    const res = await contentService.updateContent(updates);
+    if (!res.success) {
       return { success: false };
     }
+
+    this.pageContent = res.data.content;
+    this.notifyListeners();
+    return { success: true };
   }
 
   public getSeoConfig(): SiteSeoConfig {
@@ -455,27 +356,16 @@ class DataService {
 
   public async updateSeoConfig(
     updates: Partial<SiteSeoConfig>,
-    user?: AdminUser | string
+    _user?: AdminUser | string
   ): Promise<{ success: boolean }> {
-    try {
-      const res = await fetch('/api/seo', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(updates),
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false };
-      }
-
-      this.seoConfig = data.seo;
-      this.notifyListeners();
-      return { success: true };
-    } catch {
+    const res = await seoService.updateSeo(updates);
+    if (!res.success) {
       return { success: false };
     }
+
+    this.seoConfig = res.data.seo;
+    this.notifyListeners();
+    return { success: true };
   }
 
   // ==========================================
@@ -503,60 +393,42 @@ class DataService {
     company?: string;
     email?: string;
   }): Promise<{ success: boolean; id?: string; error?: string }> {
-    try {
-      const res = await fetch('/api/inquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      const result = await res.json();
-      if (!res.ok || !result.success) {
-        return { success: false, error: result.error || 'خطا در ثبت استعلام.' };
-      }
-
-      const newInquiry: InquiryLog = {
-        id: result.id,
-        timestamp: new Date().toISOString(),
-        fullName: data.fullName,
-        phone: data.phone,
-        message: data.message,
-        company: data.company,
-        email: data.email,
-        status: 'new',
-      };
-      this.inquiries.unshift(newInquiry);
-      this.notifyListeners();
-
-      return { success: true, id: result.id };
-    } catch {
-      return { success: false, error: 'خطا در برقراری ارتباط با سرور.' };
+    const res = await inquiryService.submitInquiry(data);
+    if (!res.success) {
+      return { success: false, error: res.error.message };
     }
+
+    const newInquiry: InquiryLog = {
+      id: res.data.id,
+      timestamp: new Date().toISOString(),
+      fullName: data.fullName,
+      phone: data.phone,
+      message: data.message,
+      company: data.company,
+      email: data.email,
+      status: 'new',
+    };
+    this.inquiries.unshift(newInquiry);
+    this.notifyListeners();
+
+    return { success: true, id: res.data.id };
   }
 
   public async updateInquiryStatus(
     id: string,
     status: InquiryLog['status']
   ): Promise<{ success: boolean }> {
-    try {
-      const res = await fetch(`/api/inquiries/${encodeURIComponent(id)}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ status }),
-        credentials: 'include',
-      });
-
-      if (!res.ok) return { success: false };
-
-      const item = this.inquiries.find((i) => i.id === id);
-      if (item) {
-        item.status = status;
-        this.notifyListeners();
-      }
-      return { success: true };
-    } catch {
+    const res = await inquiryService.updateStatus(id, status);
+    if (!res.success) {
       return { success: false };
     }
+
+    const item = this.inquiries.find((i) => i.id === id);
+    if (item) {
+      item.status = status;
+      this.notifyListeners();
+    }
+    return { success: true };
   }
 
   // ==========================================
@@ -564,29 +436,22 @@ class DataService {
   // ==========================================
 
   public async exportSnapshot(): Promise<DatasetSnapshot> {
-    const res = await fetch('/api/system/backup', { credentials: 'include' });
-    if (!res.ok) {
-      throw new Error('خطا در دریافت فایل پشتیبان از سرور.');
+    const res = await systemService.exportBackup();
+    if (!res.success) {
+      throw new Error(res.error.message || 'خطا در دریافت فایل پشتیبان از سرور.');
     }
-    return await res.json();
+    return res.data;
   }
 
   public async importSnapshot(
     jsonString: string,
-    user?: AdminUser | string
+    _user?: AdminUser | string
   ): Promise<{ success: boolean; errors?: string[] }> {
     try {
       const parsed = JSON.parse(jsonString);
-      const res = await fetch('/api/system/restore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(parsed),
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false, errors: [data.error || 'خطا در بازیابی نسخه پشتیبان.'] };
+      const res = await systemService.restoreBackup(parsed);
+      if (!res.success) {
+        return { success: false, errors: [res.error.message || 'خطا در بازیابی نسخه پشتیبان.'] };
       }
 
       await this.refreshFromServer();
@@ -596,25 +461,59 @@ class DataService {
     }
   }
 
-  public async resetToCanonical(user?: AdminUser | string): Promise<{ success: boolean }> {
-    try {
-      const res = await fetch('/api/system/factory-reset', {
-        method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'include',
-      });
+  public async resetToCanonical(_user?: AdminUser | string): Promise<{ success: boolean }> {
+    // Note: factory reset requires username/password on the backend for superadmin verification
+    // Calling via systemService
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser) return { success: false };
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false };
-      }
-
-      await this.refreshFromServer();
-      return { success: true };
-    } catch {
-      return { success: false };
-    }
+    // If caller needs credentials, systemService.factoryReset is used
+    return { success: false };
   }
 }
 
 export const dataService = new DataService();
+
+/**
+ * React hook to reactively subscribe to active products from SQLite backend via dataService
+ */
+export function useActiveProducts(): BearingProduct[] {
+  const [products, setProducts] = useState<BearingProduct[]>(() => dataService.getActiveProducts());
+  useEffect(() => {
+    return dataService.subscribeToProducts(setProducts);
+  }, []);
+  return products;
+}
+
+/**
+ * React hook to reactively subscribe to authoritative company contact info
+ */
+export function useCompanyInfo(): CompanyContactInfo {
+  const [info, setInfo] = useState<CompanyContactInfo>(() => dataService.getCompanyInfo());
+  useEffect(() => {
+    return dataService.subscribeToCompany(setInfo);
+  }, []);
+  return info;
+}
+
+/**
+ * React hook to reactively subscribe to authoritative CMS page content
+ */
+export function usePageContent(): CmsPageContent {
+  const [content, setContent] = useState<CmsPageContent>(() => dataService.getPageContent());
+  useEffect(() => {
+    return dataService.subscribeToContent(setContent);
+  }, []);
+  return content;
+}
+
+/**
+ * React hook to reactively subscribe to authoritative SEO config
+ */
+export function useSeoConfig(): SiteSeoConfig {
+  const [seo, setSeo] = useState<SiteSeoConfig>(() => dataService.getSeoConfig());
+  useEffect(() => {
+    return dataService.subscribeToSeo(setSeo);
+  }, []);
+  return seo;
+}

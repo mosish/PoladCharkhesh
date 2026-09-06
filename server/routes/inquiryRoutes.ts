@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { getDatabase } from '../db';
 import { requireAuth, createRateLimiter, logAudit } from '../middleware';
+import { inquiryDb } from '../services/inquiryDb';
+import { validateInquiryPayload } from '../validation';
 
 export const inquiryRouter = Router();
 
@@ -15,34 +16,13 @@ const inquiryLimiter = createRateLimiter({
  * Public customer inquiry submission
  */
 inquiryRouter.post('/', inquiryLimiter, (req: Request, res: Response): void => {
-  const { fullName, phone, message, company, email } = req.body || {};
-
-  const cleanName = String(fullName || '').trim();
-  const cleanPhone = String(phone || '').trim();
-  const cleanMessage = String(message || '').trim();
-
-  if (!cleanName || !cleanPhone) {
-    res.status(400).json({ error: 'نام و شماره تماس الزامی می‌باشند.' });
+  const validation = validateInquiryPayload(req.body);
+  if (!validation.isValid) {
+    res.status(400).json({ error: validation.errors[0], errors: validation.errors });
     return;
   }
 
-  const id = `inq_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  const nowIso = new Date().toISOString();
-  const db = getDatabase();
-
-  db.prepare(`
-    INSERT INTO inquiries (id, timestamp, full_name, phone, message, company, email, status, ip_address)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?);
-  `).run(
-    id,
-    nowIso,
-    cleanName,
-    cleanPhone,
-    cleanMessage,
-    company ? String(company).trim() : null,
-    email ? String(email).trim() : null,
-    req.ip || null
-  );
+  const id = inquiryDb.createInquiry(validation.sanitized!, req.ip);
 
   res.status(201).json({
     success: true,
@@ -56,20 +36,7 @@ inquiryRouter.post('/', inquiryLimiter, (req: Request, res: Response): void => {
  * Protected list of inquiries for Admin panel
  */
 inquiryRouter.get('/', requireAuth, (req: Request, res: Response) => {
-  const db = getDatabase();
-  const rows = db.prepare('SELECT * FROM inquiries ORDER BY timestamp DESC;').all() as any[];
-
-  const inquiries = rows.map((r) => ({
-    id: r.id,
-    timestamp: r.timestamp,
-    fullName: r.full_name,
-    phone: r.phone,
-    message: r.message,
-    company: r.company || undefined,
-    email: r.email || undefined,
-    status: r.status,
-  }));
-
+  const inquiries = inquiryDb.getInquiries();
   res.json({ inquiries });
 });
 
@@ -87,8 +54,13 @@ inquiryRouter.patch('/:id/status', requireAuth, (req: Request, res: Response): v
     return;
   }
 
-  const db = getDatabase();
-  db.prepare('UPDATE inquiries SET status = ? WHERE id = ?;').run(status, id);
+  const success = inquiryDb.updateInquiryStatus(id, status);
+  if (!success) {
+    res.status(404).json({ error: 'استعلام مورد نظر یافت نشد.' });
+    return;
+  }
+
+  logAudit('INQUIRY_STATUS_UPDATED', 'inquiry', `وضعیت استعلام به ${status} تغییر یافت.`, req, id, { status });
 
   res.json({ success: true, id, status });
 });

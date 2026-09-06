@@ -10,7 +10,8 @@ import {
   HelpCircle 
 } from 'lucide-react';
 import { Language } from '../types';
-import { COMPANY_INFO, createWhatsAppInquiryUrl } from '../data/company';
+import { createWhatsAppInquiryUrl } from '../data/company';
+import { useCompanyInfo } from '../services/dataService';
 
 interface ProductNotFoundProps {
   language: Language;
@@ -23,6 +24,7 @@ export const ProductNotFound: React.FC<ProductNotFoundProps> = ({
   searchedSlug = '',
   onReturnToCatalog,
 }) => {
+  const company = useCompanyInfo();
   const [searchInput, setSearchInput] = useState(searchedSlug.replace(/-/g, ' '));
   const isRtl = language === 'fa';
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
@@ -33,6 +35,7 @@ export const ProductNotFound: React.FC<ProductNotFoundProps> = ({
   };
 
   const whatsappInquiryUrl = createWhatsAppInquiryUrl({
+    baseUrl: company.whatsappUrl,
     customMessage: isRtl
       ? `سلام، در خصوص استعلام و بررسی امکان تأمین بیرینگ/کاسه نمد با کد «${searchedSlug}» راهنمایی می‌خواستم.`
       : `Hello, I would like to inquire about the technical availability and specification for component code: "${searchedSlug}".`,
@@ -93,11 +96,11 @@ export const ProductNotFound: React.FC<ProductNotFoundProps> = ({
           </button>
 
           <a
-            href={COMPANY_INFO.primaryPhoneTel}
+            href={company.primaryPhoneTel}
             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 hover:bg-blue-100 text-[#232c86] text-sm font-bold rounded-2xl border border-blue-200/80 transition-all cursor-pointer"
           >
             <PhoneCall className="w-4 h-4" />
-            <span>{isRtl ? `استعلام تلفنی: ${COMPANY_INFO.primaryPhoneDisplayFa}` : `Call: ${COMPANY_INFO.primaryPhoneDisplayEn}`}</span>
+            <span>{isRtl ? `استعلام تلفنی: ${company.primaryPhoneDisplayFa}` : `Call: ${company.primaryPhoneDisplayEn}`}</span>
           </a>
 
           <a

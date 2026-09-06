@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BearingProduct, Language } from '../types';
 import { translations } from '../data/translations';
-import { COMPANY_INFO, createWhatsAppInquiryUrl } from '../data/company';
+import { createWhatsAppInquiryUrl } from '../data/company';
+import { useCompanyInfo } from '../services/dataService';
 import { PartMediaSlider } from './PartMediaSlider';
 import { exportProductSpecPdf } from '../utils/pdfExport';
 import { BearingSpecModalSkeleton } from './Skeletons';
@@ -28,6 +29,7 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
   language,
   onClose,
 }) => {
+  const company = useCompanyInfo();
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
@@ -77,6 +79,7 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
   };
 
   const whatsappUrl = createWhatsAppInquiryUrl({
+    baseUrl: company.whatsappUrl,
     productCode: product.code,
     productName: language === 'fa' ? product.nameFa : product.nameEn,
     dimensions: `d=${product.d}mm, D=${product.D}mm, B=${product.B}mm`,
@@ -334,12 +337,12 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
 
             <a
               id="spec-modal-phone-link"
-              href={COMPANY_INFO.primaryPhoneTel}
+              href={company.primaryPhoneTel}
               className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-slate-200/90 hover:bg-slate-300 text-slate-800 font-bold text-xs sm:text-sm transition-all"
               title={t.specModal.directPhone}
             >
               <PhoneCall className="w-4 h-4 text-[#232c86]" />
-              <span className="hidden md:inline font-mono-spec">{language === 'fa' ? COMPANY_INFO.primaryPhoneDisplayFa : COMPANY_INFO.primaryPhoneDisplayEn}</span>
+              <span className="hidden md:inline font-mono-spec">{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
             </a>
           </div>
         </div>

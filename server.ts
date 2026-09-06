@@ -14,6 +14,7 @@ import { contentRouter } from './server/routes/contentRoutes';
 import { seoRouter } from './server/routes/seoRoutes';
 import { inquiryRouter } from './server/routes/inquiryRoutes';
 import { systemRouter } from './server/routes/systemRoutes';
+import { mediaRouter } from './server/routes/mediaRoutes';
 
 async function startServer() {
   const app = express();
@@ -57,6 +58,7 @@ async function startServer() {
   app.use('/api/seo', seoRouter);
   app.use('/api/inquiries', inquiryRouter);
   app.use('/api/system', systemRouter);
+  app.use('/api/media', mediaRouter);
 
   // 5. Frontend Delivery: Vite middleware in Dev vs Static bundle in Production
   if (process.env.NODE_ENV !== 'production') {

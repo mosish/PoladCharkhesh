@@ -111,6 +111,7 @@ export const COMPANY_INFO: CompanyContactInfo = {
  * Generate a prefilled WhatsApp inquiry URL
  */
 export function createWhatsAppInquiryUrl(params?: {
+  baseUrl?: string;
   productCode?: string;
   productName?: string;
   dimensions?: string;
@@ -118,14 +119,15 @@ export function createWhatsAppInquiryUrl(params?: {
   customMessage?: string;
   language?: 'fa' | 'en';
 }): string {
+  const base = params?.baseUrl || COMPANY_INFO.whatsappUrl;
   if (!params) {
-    return COMPANY_INFO.whatsappUrl;
+    return base;
   }
 
   const isFa = params.language !== 'en';
 
   if (params.customMessage) {
-    return `${COMPANY_INFO.whatsappUrl}?text=${encodeURIComponent(params.customMessage)}`;
+    return `${base}?text=${encodeURIComponent(params.customMessage)}`;
   }
 
   let text = '';

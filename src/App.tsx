@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Language, BearingProduct } from './types';
-import { bearingProducts as canonicalProducts } from './data/products';
 import { dataService } from './services/dataService';
 import { authService } from './services/authService';
 import { AdminTab, AdminLayout } from './components/admin/AdminLayout';
@@ -76,9 +75,25 @@ function parseCurrentRoute(): RouteState {
   return { type: 'home' };
 }
 
+function getInitialLanguage(): Language {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname.toLowerCase();
+    // poladcharkhesh.com or English subdomains default to English
+    if (hostname.endsWith('.com') || hostname.startsWith('en.')) {
+      return 'en';
+    }
+    const saved = localStorage.getItem('polad_preferred_language');
+    if (saved === 'fa' || saved === 'en') {
+      return saved as Language;
+    }
+  }
+  // poladcharkhesh.ir & standard default is Persian
+  return 'fa';
+}
+
 export default function App() {
-  // Default language is Persian ('fa')
-  const [language, setLanguage] = useState<Language>('fa');
+  // Domain-aware default language with persistent preference
+  const [language, setLanguage] = useState<Language>(getInitialLanguage);
   
   // Routing state
   const [route, setRoute] = useState<RouteState>(parseCurrentRoute);
@@ -103,8 +118,8 @@ export default function App() {
     const unsubProducts = dataService.subscribeToProducts((updated) => {
       setAllProducts(updated.filter((p) => !p.isArchived));
     });
-    const unsubAuth = authService.subscribe((session) => {
-      setIsAuthenticated(!!session && Date.now() < session.expiresAt);
+    const unsubAuth = authService.subscribe((state) => {
+      setIsAuthenticated(state.isAuthenticated);
     });
 
     return () => {
@@ -160,7 +175,13 @@ export default function App() {
   }, [language, route, allProducts]);
 
   const toggleLanguage = () => {
-    setLanguage((prev) => (prev === 'fa' ? 'en' : 'fa'));
+    setLanguage((prev) => {
+      const next = prev === 'fa' ? 'en' : 'fa';
+      try {
+        localStorage.setItem('polad_preferred_language', next);
+      } catch {}
+      return next;
+    });
   };
 
   // --- NAVIGATION HANDLERS ---

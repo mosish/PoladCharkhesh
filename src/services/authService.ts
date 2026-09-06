@@ -6,19 +6,29 @@
  * constant-time PBKDF2-HMAC-SHA512 verification, server-managed sessions,
  * and rate-limiting lockout protection.
  * 
- * Zero passwords or password hashes are ever stored on the client.
+ * CRITICAL SECURITY INVARIANT:
+ * Zero passwords, password hashes, or session tokens are stored on the client.
  */
 
-import { AdminUser, AuthSession } from '../types/admin';
+import { AdminUser, AuthSession, AdminUserState, ApiResponse } from '../types/admin';
+import { apiClient, registerSessionExpiredHandler } from './apiClient';
 
 class AuthService {
+  private userState: AdminUserState = {
+    isAuthenticated: false,
+    user: null,
+    isLoading: true,
+    isSessionExpired: false,
+  };
+
   private currentSession: AuthSession | null = null;
-  private sessionListeners: Set<(session: AuthSession | null) => void> = new Set();
+  private listeners: Set<(state: AdminUserState) => void> = new Set();
+  private legacySessionListeners: Set<(session: AuthSession | null) => void> = new Set();
   private _isConfigured: boolean = true;
-  private isInitializing: boolean = false;
 
   constructor() {
     this.cleanLegacyLocalStorage();
+    registerSessionExpiredHandler(() => this.handleSessionExpired());
     this.init();
   }
 
@@ -37,60 +47,89 @@ class AuthService {
 
   private async init(): Promise<void> {
     if (typeof window === 'undefined') return;
-    this.isInitializing = true;
     try {
       await this.checkStatus();
     } catch (err) {
       console.warn('Auth status check network delay:', err);
     } finally {
-      this.isInitializing = false;
+      this.userState.isLoading = false;
+      this.notifyListeners();
+    }
+  }
+
+  public handleSessionExpired(): void {
+    if (this.userState.isAuthenticated) {
+      this.userState = {
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+        isSessionExpired: true,
+      };
+      this.currentSession = null;
+      this.notifyListeners();
     }
   }
 
   /**
    * Check backend server authentication and provisioning status
    */
-  public async checkStatus(): Promise<{ isConfigured: boolean; isAuthenticated: boolean; user?: AdminUser }> {
-    try {
-      const res = await fetch('/api/auth/status', {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'include',
-      });
+  public async checkStatus(): Promise<AdminUserState> {
+    const res = await apiClient.get<{ isConfigured: boolean; isAuthenticated: boolean; user?: AdminUser }>('/api/auth/status');
 
-      if (!res.ok) {
-        return { isConfigured: this._isConfigured, isAuthenticated: false };
-      }
+    if (res.success && res.data) {
+      this._isConfigured = Boolean(res.data.isConfigured);
 
-      const data = await res.json();
-      this._isConfigured = Boolean(data.isConfigured);
-
-      if (data.isAuthenticated && data.user) {
+      if (res.data.isAuthenticated && res.data.user) {
+        this.userState = {
+          isAuthenticated: true,
+          user: res.data.user,
+          isLoading: false,
+          isSessionExpired: false,
+        };
         this.currentSession = {
-          token: 'server-session-httponly',
-          user: data.user,
+          user: res.data.user,
           expiresAt: Date.now() + 12 * 60 * 60 * 1000,
           issuedAt: Date.now(),
         };
-        this.notifyListeners();
-        return { isConfigured: this._isConfigured, isAuthenticated: true, user: data.user };
       } else {
-        if (this.currentSession) {
-          this.currentSession = null;
-          this.notifyListeners();
-        }
-        return { isConfigured: this._isConfigured, isAuthenticated: false };
+        this.userState = {
+          isAuthenticated: false,
+          user: null,
+          isLoading: false,
+          isSessionExpired: false,
+        };
+        this.currentSession = null;
       }
-    } catch {
-      return { isConfigured: this._isConfigured, isAuthenticated: this.isAuthenticated() };
+    } else {
+      this.userState.isLoading = false;
     }
+
+    this.notifyListeners();
+    return { ...this.userState };
   }
 
-  /**
-   * Checks whether the master administrator account has been provisioned on the server.
-   */
   public isConfigured(): boolean {
     return this._isConfigured;
+  }
+
+  public getState(): AdminUserState {
+    return { ...this.userState };
+  }
+
+  public isAuthenticated(): boolean {
+    return this.userState.isAuthenticated;
+  }
+
+  public getCurrentUser(): AdminUser | null {
+    return this.userState.user;
+  }
+
+  public getSession(): AuthSession | null {
+    return this.currentSession;
+  }
+
+  public isSessionExpired(): boolean {
+    return this.userState.isSessionExpired;
   }
 
   /**
@@ -101,59 +140,30 @@ class AuthService {
     password: string;
     name?: string;
     email?: string;
-  }): Promise<{ success: boolean; error?: string }> {
-    try {
-      const res = await fetch('/api/auth/setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(params),
-        credentials: 'include',
-      });
+  }): Promise<ApiResponse<{ user: AdminUser }>> {
+    const res = await apiClient.post<{ success: boolean; user: AdminUser }>('/api/auth/setup', params);
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false, error: data.error || 'خطا در ایجاد حساب کاربری ارشد' };
-      }
-
+    if (res.success && res.data?.user) {
       this._isConfigured = true;
+      this.userState = {
+        isAuthenticated: true,
+        user: res.data.user,
+        isLoading: false,
+        isSessionExpired: false,
+      };
       this.currentSession = {
-        token: 'server-session-httponly',
-        user: data.user,
+        user: res.data.user,
         expiresAt: Date.now() + 12 * 60 * 60 * 1000,
         issuedAt: Date.now(),
       };
       this.notifyListeners();
-
-      return { success: true };
-    } catch (err: any) {
-      return { success: false, error: 'عدم برقراری ارتباط با سرور پایگاه داده.' };
+      return { success: true, data: { user: res.data.user } };
     }
-  }
 
-  private notifyListeners(): void {
-    const sessionCopy = this.currentSession ? { ...this.currentSession } : null;
-    this.sessionListeners.forEach((listener) => listener(sessionCopy));
-  }
-
-  public subscribe(listener: (session: AuthSession | null) => void): () => void {
-    this.sessionListeners.add(listener);
-    listener(this.currentSession);
-    return () => {
-      this.sessionListeners.delete(listener);
+    return {
+      success: false,
+      error: !res.success ? res.error : { code: 'SETUP_FAILED', message: 'خطا در ایجاد حساب کاربری ارشد' },
     };
-  }
-
-  public getSession(): AuthSession | null {
-    return this.currentSession;
-  }
-
-  public isAuthenticated(): boolean {
-    if (!this.currentSession) return false;
-    return Date.now() < this.currentSession.expiresAt;
-  }
-
-  public getCurrentUser(): AdminUser | null {
-    return this.currentSession ? this.currentSession.user : null;
   }
 
   /**
@@ -163,58 +173,47 @@ class AuthService {
     username: string;
     password: string;
     rememberMe?: boolean;
-  }): Promise<{ success: boolean; error?: string; remainingLockoutSeconds?: number }> {
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(params),
-        credentials: 'include',
-      });
+  }): Promise<ApiResponse<{ user: AdminUser }>> {
+    const res = await apiClient.post<{ success: boolean; user: AdminUser; remainingLockoutSeconds?: number }>('/api/auth/login', params);
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        return {
-          success: false,
-          error: data.error || 'نام کاربری یا رمز عبور اشتباه است.',
-          remainingLockoutSeconds: data.remainingLockoutSeconds,
-        };
-      }
-
+    if (res.success && res.data?.user) {
+      this.userState = {
+        isAuthenticated: true,
+        user: res.data.user,
+        isLoading: false,
+        isSessionExpired: false,
+      };
       this.currentSession = {
-        token: 'server-session-httponly',
-        user: data.user,
+        user: res.data.user,
         expiresAt: Date.now() + 12 * 60 * 60 * 1000,
         issuedAt: Date.now(),
       };
-
       this.notifyListeners();
-      return { success: true };
-    } catch (err) {
-      return {
-        success: false,
-        error: 'خطا در ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی نمایید.',
-      };
+      return { success: true, data: { user: res.data.user } };
     }
+
+    return {
+      success: false,
+      error: !res.success ? res.error : { code: 'AUTH_FAILED', message: 'نام کاربری یا رمز عبور اشتباه است.' },
+    };
   }
 
   /**
    * Log out and invalidate session on server
    */
-  public async logout(reason?: string): Promise<void> {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'include',
-      });
-    } catch (e) {
-      console.warn('Logout server notification warning:', e);
-    } finally {
-      this.currentSession = null;
-      this.notifyListeners();
-    }
+  public async logout(reason?: string): Promise<ApiResponse<{ success: boolean }>> {
+    const res = await apiClient.post<{ success: boolean }>('/api/auth/logout', { reason });
+
+    this.userState = {
+      isAuthenticated: false,
+      user: null,
+      isLoading: false,
+      isSessionExpired: false,
+    };
+    this.currentSession = null;
+    this.notifyListeners();
+
+    return res;
   }
 
   /**
@@ -223,24 +222,34 @@ class AuthService {
   public async changePassword(params: {
     currentPassword: string;
     newPassword: string;
-  }): Promise<{ success: boolean; error?: string }> {
-    try {
-      const res = await fetch('/api/auth/change-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(params),
-        credentials: 'include',
-      });
+  }): Promise<ApiResponse<{ success: boolean }>> {
+    return apiClient.post<{ success: boolean }>('/api/auth/change-password', params);
+  }
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false, error: data.error || 'خطا در تغییر رمز عبور' };
-      }
+  private notifyListeners(): void {
+    const stateCopy = { ...this.userState };
+    const sessionCopy = this.currentSession ? { ...this.currentSession } : null;
+    this.listeners.forEach((listener) => listener(stateCopy));
+    this.legacySessionListeners.forEach((listener) => listener(sessionCopy));
+  }
 
-      return { success: true };
-    } catch {
-      return { success: false, error: 'خطا در ارتباط با سرور.' };
-    }
+  public subscribe(listener: (state: AdminUserState) => void): () => void {
+    this.listeners.add(listener);
+    listener({ ...this.userState });
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  /**
+   * Backward-compatible subscription for components expecting AuthSession | null
+   */
+  public subscribeLegacy(listener: (session: AuthSession | null) => void): () => void {
+    this.legacySessionListeners.add(listener);
+    listener(this.currentSession ? { ...this.currentSession } : null);
+    return () => {
+      this.legacySessionListeners.delete(listener);
+    };
   }
 }
 

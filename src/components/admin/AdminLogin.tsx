@@ -51,7 +51,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
 
   useEffect(() => {
     authService.checkStatus().then((status) => {
-      setIsConfigured(status.isConfigured);
+      setIsConfigured(Boolean(status.isConfigured));
       if (status.isAuthenticated) {
         onSuccess();
       }
@@ -99,9 +99,10 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
       if (result.success) {
         onSuccess();
       } else {
-        setErrorMessage(result.error || (isFa ? 'خطا در ورود' : 'Login failed'));
-        if (result.remainingLockoutSeconds) {
-          setLockoutCountdown(result.remainingLockoutSeconds);
+        setErrorMessage(result.error?.message || (isFa ? 'خطا در ورود' : 'Login failed'));
+        const lockout = (result.error?.details as any)?.remainingLockoutSeconds;
+        if (lockout) {
+          setLockoutCountdown(lockout);
         }
       }
     } catch (err) {
@@ -148,7 +149,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
           onSuccess();
         }, 800);
       } else {
-        setErrorMessage(result.error || (isFa ? 'خطا در راه‌اندازی اولیه' : 'Setup failed'));
+        setErrorMessage(result.error?.message || (isFa ? 'خطا در راه‌اندازی اولیه' : 'Setup failed'));
       }
     } catch (err) {
       setErrorMessage(isFa ? 'خطای فنی در راه‌اندازی' : 'Technical error during initialization');

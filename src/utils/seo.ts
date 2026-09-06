@@ -1,5 +1,5 @@
 import { BearingProduct, Language } from '../types';
-import { COMPANY_INFO } from '../data/company';
+import { dataService } from '../services/dataService';
 import { getProductSlug } from './productSlug';
 
 export interface SeoUpdateOptions {
@@ -254,18 +254,19 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
   }
 
   // --- ORGANIZATION / LOCAL BUSINESS SCHEMA (Always Active) ---
+  const company = dataService.getCompanyInfo();
   const orgSchema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     '@id': `${SITE_URL}/#organization`,
-    'name': isPersian ? COMPANY_INFO.nameFa : COMPANY_INFO.nameEn,
-    'legalName': isPersian ? COMPANY_INFO.legalNameFa : COMPANY_INFO.legalNameEn,
+    'name': isPersian ? company.nameFa : company.nameEn,
+    'legalName': isPersian ? company.legalNameFa : company.legalNameEn,
     'alternateName': 'Polad Charkhesh Bearing Trading',
     'url': SITE_URL,
-    'telephone': COMPANY_INFO.landlinePhone,
+    'telephone': company.landlinePhone,
     'address': {
       '@type': 'PostalAddress',
-      'streetAddress': isPersian ? COMPANY_INFO.addressFa : COMPANY_INFO.addressEn,
+      'streetAddress': isPersian ? company.addressFa : company.addressEn,
       'addressLocality': 'Tehran',
       'addressCountry': 'IR',
     },
