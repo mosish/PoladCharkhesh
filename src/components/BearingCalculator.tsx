@@ -34,6 +34,10 @@ interface BearingCalculatorProps {
   language: Language;
 }
 
+const BORE_MIN = 10;
+const BORE_MAX = 180;
+const BORE_STEP = 5;
+
 export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }) => {
   const [bearingFamily, setBearingFamily] = useState<BearingFamily>('deep-groove-ball');
   const [selectedBoreSize, setSelectedBoreSize] = useState<number>(45);
@@ -85,7 +89,10 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
 
   // Sync bore diameter from Metric/Imperial converter into the clearance tool
   const handleApplyBoreFromConverter = (boreMm: number) => {
-    const clamped = Math.min(200, Math.max(10, Math.round(boreMm)));
+    const clamped = Math.min(
+      BORE_MAX,
+      Math.max(BORE_MIN, Math.round(boreMm / BORE_STEP) * BORE_STEP)
+    );
     setSelectedBoreSize(clamped);
   };
 
@@ -458,9 +465,9 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                   </div>
                   <input
                     type="range"
-                    min="10"
-                    max="180"
-                    step="5"
+                    min={BORE_MIN}
+                    max={BORE_MAX}
+                    step={BORE_STEP}
                     value={selectedBoreSize}
                     onChange={(e) => setSelectedBoreSize(Number(e.target.value))}
                     className="w-full h-2 bg-slate-300/80 rounded-lg appearance-none cursor-pointer accent-[#232c86]"

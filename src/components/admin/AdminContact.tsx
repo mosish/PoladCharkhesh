@@ -36,7 +36,7 @@ export const AdminContact: React.FC<AdminContactProps> = ({ language }) => {
     };
   }, []);
 
-  const handleUpdateStatus = (id: string, status: 'new' | 'reviewed' | 'contacted' | 'closed') => {
+  const handleUpdateStatus = (id: string, status: InquiryStatus) => {
     dataService.updateInquiryStatus(id, status);
   };
 

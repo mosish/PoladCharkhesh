@@ -45,6 +45,15 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  // Body scroll lock while modal is open
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   useEffect(() => {
     if (product) {
       setIsLoading(true);
