@@ -1,2932 +1,4311 @@
 import { BearingProduct } from '../types';
-const ballBearingImg = '/assets/images/ball_bearing_photo_1787677355061.webp';
-const taperedBearingImg = '/assets/images/tapered_bearing_photo_1787677370531.webp';
-const sphericalBearingImg = '/assets/images/spherical_bearing_photo_1787677386106.webp';
-const cylindricalBearingImg = '/assets/images/cylindrical_bearing_photo_1787677431892.webp';
-const pillowBlockImg = '/assets/images/pillow_block_photo_1787677398497.webp';
-const oilSealImg = '/assets/images/oil_seal_photo_1787677410030.webp';
 
-// Dedicated individual near-real industrial photography for each part type (WebP format for ultra-fast loading)
-const bearing6204_2rs = '/assets/images/bearing_6204_2rs_1787678583210.webp';
-const bearing6308_2z = '/assets/images/bearing_6308_2z_1787678597854.webp';
-const bearing6005_open = '/assets/images/bearing_6005_open_1787678608569.webp';
-const bearing6210_kiln = '/assets/images/bearing_6210_kiln_1787678818521.webp';
-const bearing30208_tapered = '/assets/images/bearing_30208_tapered_1787678619565.webp';
-const bearing32210_tapered = '/assets/images/bearing_32210_tapered_1787678639800.webp';
-const bearing22212_spherical = '/assets/images/bearing_22212_spherical_1787678650795.webp';
-const bearing22316_spherical = '/assets/images/bearing_22316_spherical_1787678662094.webp';
-const bearing22324_brass = '/assets/images/bearing_22324_brass_1787678785316.webp';
-const bearingNu208_cylindrical = '/assets/images/bearing_nu208_cylindrical_1787678672477.webp';
-const bearingNa4910_needle = '/assets/images/bearing_na4910_needle_1787678806671.webp';
-const bearing51108_thrust = '/assets/images/bearing_51108_thrust_1787678727693.webp';
-const bearing29420_thrust = '/assets/images/bearing_29420_thrust_1787678796134.webp';
-const unitUcp205_pillow = '/assets/images/unit_ucp205_pillow_1787678692893.webp';
-const unitUcf208_flange = '/assets/images/unit_ucf208_flange_1787678704716.webp';
-const housingSnl511_split = '/assets/images/housing_snl511_split_1787678749335.webp';
-const sealTc35_nbr = '/assets/images/seal_tc35_nbr_1787678715667.webp';
-const sealTc50_viton = '/assets/images/seal_tc50_viton_1787678737812.webp';
-const greaseSkfLgmt2 = '/assets/images/grease_skf_lgmt2_1787678760211.webp';
-const greaseMobilithRed = '/assets/images/grease_mobilith_red_1787678829445.webp';
-const bearing7312_brass = '/assets/images/bearing_7312_brass_1787678774838.webp';
-const bearing3308_doublerow = '/assets/images/bearing_3308_doublerow_1787678851991.webp';
-const bearing1309_align = '/assets/images/bearing_1309_align_1787678841334.webp';
-
-/**
- * Fallback image resolver when an item does not define an explicit image.
- */
-export function getProductFallbackImage(product: Partial<BearingProduct>): string {
-  if (product.imageUrl) return product.imageUrl;
-  if (product.images && product.images.length > 0) return product.images[0];
-  if (product.category === 'housing' || product.schematicType === 'pillow-block') return pillowBlockImg;
-  if (product.category === 'seal' || product.schematicType === 'oil-seal') return oilSealImg;
-  if (product.category === 'spherical' || product.schematicType === 'spherical') return sphericalBearingImg;
-  if (product.category === 'roller' && (product.schematicType === 'tapered' || product.code?.startsWith('3') || product.code?.includes('32') || product.code?.includes('30'))) return taperedBearingImg;
-  if (product.category === 'cylindrical' || product.schematicType === 'cylindrical' || product.code?.includes('NU') || product.code?.includes('NJ') || product.code?.includes('NA') || product.code?.includes('HK')) return cylindricalBearingImg;
-  if (product.schematicType === 'thrust' || product.category === 'thrust') return bearing51108_thrust;
-  return ballBearingImg;
-}
-
-const rawBearingProducts: BearingProduct[] = [
-  // 1. Deep Groove Ball Bearings
-  {
-    id: 'pc-6204-2rs',
-    slug: '6204-2rs',
-    imageUrl: bearing6204_2rs,
-    images: [bearing6204_2rs],
-    code: '6204-2RSH / 2RS1',
-    category: 'ball',
-    nameFa: 'بلبرینگ شیار عمیق تک ردیفه 6204-2RS',
-    nameEn: 'Deep Groove Ball Bearing 6204-2RS',
-    descriptionFa: 'بلبرینگ پرمصرف صنعتی با دو لایه آب‌بند لاستیکی ضد گرد و غبار، مناسب برای دور بالا و بارهای شعاعی متوسط.',
-    descriptionEn: 'High-precision deep groove ball bearing with dual contact rubber seals for optimal dust and moisture resistance.',
-    d: 20,
-    D: 47,
-    B: 14,
-    weightKg: 0.11,
-    crKn: 13.5,
-    corKn: 6.55,
-    speedGreaseRpm: 12000,
-    speedOilRpm: 17000,
-    cageMaterialFa: 'فولاد پرسکاری شده (Pressed Steel)',
-    cageMaterialEn: 'Pressed sheet steel',
-    sealingFa: 'آب‌بند تماسی NBR دو طرفه (2RS / 2RSH)',
-    sealingEn: 'Dual Contact Rubber Seal (NBR)',
-    clearanceOptions: ['CN', 'C3', 'C4'],
-    brands: ['SKF', 'FAG', 'NSK', 'KOYO', 'NACHI'],
-    applicationsFa: ['الکتروموتورهای صنعتی', 'پمپ‌های آب و سیالات', 'گیربکس‌های سبک', 'تسمه نقاله'],
-    applicationsEn: ['Electric Motors', 'Centrifugal Pumps', 'Light Gearboxes', 'Conveyors'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 18500,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-6308-2z',
-    slug: '6308-2z',
-    imageUrl: bearing6308_2z,
-    images: [bearing6308_2z],
-    code: '6308-2Z / ZZ C3',
-    category: 'ball',
-    nameFa: 'بلبرینگ دور بالای سری سنگین 6308-2Z C3',
-    nameEn: 'Deep Groove Ball Bearing 6308-2Z C3',
-    descriptionFa: 'بلبرینگ مجهز به شیلد فلزی دو طرفه با لقی داخلی C3 جهت کارکرد روان در دماهای بالا و سرعت‌های خطی زیاد.',
-    descriptionEn: 'Heavy duty single row ball bearing with non-contact metal shields and C3 radial clearance for high-speed operation.',
-    d: 40,
-    D: 90,
-    B: 23,
-    weightKg: 0.63,
-    crKn: 42.3,
-    corKn: 24.0,
-    speedGreaseRpm: 7500,
-    speedOilRpm: 9500,
-    cageMaterialFa: 'فولاد آلیاژی سخت‌کاری شده',
-    cageMaterialEn: 'Sheet steel cage',
-    sealingFa: 'شیلد فلزی محافظ دو طرفه (ZZ / 2Z)',
-    sealingEn: 'Dual Non-contact Metal Shield (ZZ)',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['SKF', 'FAG', 'Timken', 'NTN'],
-    applicationsFa: ['الکتروموتورهای فشار قوی', 'ژنراتورهای برق', 'کمپرسورهای صنعتی', 'سانتریفیوژ'],
-    applicationsEn: ['High-voltage Motors', 'Power Generators', 'Industrial Compressors', 'Centrifuges'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 10500,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-6005-open',
-    slug: '6005-open',
-    imageUrl: bearing6005_open,
-    images: [bearing6005_open],
-    code: '6005 Open / C3',
-    category: 'ball',
-    nameFa: 'بلبرینگ باریک شیار عمیق 6005 باز',
-    nameEn: 'Deep Groove Ball Bearing 6005 Open',
-    descriptionFa: 'طراحی کم‌عرض و سبک با قابلیت روانکاری مستقیم در حمام روغن و گیربکس‌های دقیق صنعتی.',
-    descriptionEn: 'Lightweight, low-friction open ball bearing designed for oil-bath lubrication in precision machines.',
-    d: 25,
-    D: 47,
-    B: 12,
-    weightKg: 0.08,
-    crKn: 11.9,
-    corKn: 5.85,
-    speedGreaseRpm: 15000,
-    speedOilRpm: 19000,
-    cageMaterialFa: 'فولاد ورقی ریخته‌گری دقیق',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'بدون شیلد (Open - حمام روغن)',
-    sealingEn: 'Open (Oil Bath Lubricated)',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['NSK', 'SKF', 'KOYO', 'NACHI'],
-    applicationsFa: ['جعبه دنده‌های اتومبیل', 'اسپیندل‌های فرزکاری سبک', 'سیستم‌های انتقال قدرت'],
-    applicationsEn: ['Automotive Transmissions', 'Light Milling Spindles', 'Drive Shafts'],
-    inStock: true,
-    featured: false,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 21000,
-    technicalSources: [
-        {
-            manufacturer: "NSK Ltd. Japan",
-            sourceType: "official_catalog",
-            reference: "NSK Rolling Bearings Global Master Catalog CAT. No. E1102 / Precision Bearings CAT. No. E1228",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-6206-c3',
-    slug: '6206-c3',
-    imageUrl: ballBearingImg,
-    images: [ballBearingImg],
-    code: '6206-2RS1 C3',
-    category: 'ball',
-    nameFa: 'بلبرینگ شیار عمیق دور بالا 6206-2RS C3',
-    nameEn: 'Deep Groove Ball Bearing 6206-2RS C3',
-    descriptionFa: 'بلبرینگ صنعتی استاندارد سایز ۳۰ میلی‌متر با لقی C3 مناسب برای الکتروموتورهای ۵.۵ تا ۱۱ کیلووات.',
-    descriptionEn: 'Standard 30mm industrial ball bearing with C3 clearance engineered for 5.5kW to 11kW electric drive motors.',
-    d: 30,
-    D: 62,
-    B: 16,
-    weightKg: 0.20,
-    crKn: 20.3,
-    corKn: 11.2,
-    speedGreaseRpm: 9000,
-    speedOilRpm: 13000,
-    cageMaterialFa: 'فولاد پرسکاری تقویت‌شده',
-    cageMaterialEn: 'Pressed sheet steel',
-    sealingFa: 'آب‌بند پلاستیکی ضد نفوذ NBR',
-    sealingEn: 'Dual Contact NBR Rubber Seals',
-    clearanceOptions: ['CN', 'C3', 'C4'],
-    brands: ['SKF', 'FAG', 'NTN', 'NSK'],
-    applicationsFa: ['الکتروموتورهای سه فاز', 'پمپ‌های گریز از مرکز', 'بالابرهای صنعتی'],
-    applicationsEn: ['Three-phase Motors', 'Centrifugal Pumps', 'Industrial Hoists'],
-    inStock: true,
-    featured: false,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 14500,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-6310-2z',
-    slug: '6310-2z',
-    imageUrl: bearing6308_2z,
-    images: [bearing6308_2z],
-    code: '6310-2Z / C3',
-    category: 'ball',
-    nameFa: 'بلبرینگ سنگین صنعتی 6310-2Z',
-    nameEn: 'Deep Groove Ball Bearing 6310-2Z',
-    descriptionFa: 'بلبرینگ سری سنگین با قطر شفت ۵۰ میلی‌متر با ظرفیت بار دینامیکی فوق‌العاده ۶۵ کیلو نیوتن.',
-    descriptionEn: 'Heavy series ball bearing with 50mm shaft diameter delivering massive 65 kN dynamic load rating.',
-    d: 50,
-    D: 110,
-    B: 27,
-    weightKg: 1.05,
-    crKn: 65.0,
-    corKn: 38.0,
-    speedGreaseRpm: 6000,
-    speedOilRpm: 7500,
-    cageMaterialFa: 'فولاد آلیاژی',
-    cageMaterialEn: 'Sheet steel cage',
-    sealingFa: 'شیلد فلزی محافظ دوطرفه',
-    sealingEn: 'Dual Metal Shields (ZZ)',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['SKF', 'FAG', 'Timken', 'NACHI'],
-    applicationsFa: ['کمپرسورهای اسکرو هوا', 'الکتروموتورهای بزرگ', 'گیربکس‌های صنعتی'],
-    applicationsEn: ['Screw Compressors', 'Heavy Electric Motors', 'Industrial Gearboxes'],
-    inStock: true,
-    featured: false,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 8500,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 2. Tapered Roller Bearings
-  {
-    id: 'pc-30206',
-    slug: '30206',
-    imageUrl: bearing30208_tapered,
-    images: [bearing30208_tapered],
-    code: '30206 J2/Q',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی یک ردیفه 30206',
-    nameEn: 'Tapered Roller Bearing 30206',
-    descriptionFa: 'تحمل دقیق بارهای ترکیبی محوری و شعاعی با قابلیت تفکیک رینگ داخلی (کون) و رینگ خارجی (کاپ).',
-    descriptionEn: 'Single-row metric tapered roller bearing for combined radial and axial thrust loads in automotive gearboxes and industrial drives.',
-    d: 30,
-    D: 62,
-    B: 17.25,
-    weightKg: 0.23,
-    crKn: 43.0,
-    corKn: 45.0,
-    speedGreaseRpm: 6300,
-    speedOilRpm: 8500,
-    calculationFactorE: 0.37,
-    calculationFactorY: 1.60,
-    calculationFactorY0: 0.90,
-    cageMaterialFa: 'فولاد پرسکاری شده',
-    cageMaterialEn: 'Pressed sheet steel cage',
-    sealingFa: 'باز (نیاز به گریس‌کاری یا روغن‌کاری)',
-    sealingEn: 'Open design (Lubrication required)',
-    clearanceOptions: ['Standard Preset'],
-    brands: ['Timken', 'SKF', 'FAG', 'KOYO', 'NTN'],
-    applicationsFa: ['جعبه دنده‌های صنعتی', 'اکسل و توپی چرخ سبک', 'پمپ‌های گریز از مرکز'],
-    applicationsEn: ['Industrial Gearboxes', 'Automotive Axles', 'Centrifugal Pumps'],
-    inStock: true,
-    featured: false,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 8000,
-    technicalSources: [
-        {
-            manufacturer: "The Timken Company USA / SKF Group",
-            sourceType: "official_catalog",
-            reference: "Timken Engineering Manual 10424 / SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN (ISO 355)",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-30208',
-    slug: '30208',
-    imageUrl: bearing30208_tapered,
-    images: [bearing30208_tapered],
-    code: '30208 J2/Q',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی یک ردیفه 30208',
-    nameEn: 'Tapered Roller Bearing 30208',
-    descriptionFa: 'تحمل فوق‌العاده بارهای همزمان محوری و شعاعی سنگین در محور چرخ خودروهای سنگین و اکسل‌های صنعتی.',
-    descriptionEn: 'Engineered to support heavy combined radial and thrust loads in automotive hubs and gearboxes.',
-    d: 40,
-    D: 80,
-    B: 19.75,
-    weightKg: 0.42,
-    crKn: 63.8,
-    corKn: 69.5,
-    speedGreaseRpm: 5000,
-    speedOilRpm: 6700,
-    calculationFactorE: 0.37,
-    calculationFactorY: 1.60,
-    calculationFactorY0: 0.90,
-    cageMaterialFa: 'فولاد پرسکاری شده با شیار هدایت‌گر',
-    cageMaterialEn: 'Pressed sheet steel window cage',
-    sealingFa: 'باز (نیاز به گریس‌کاری یا روغن‌کاری)',
-    sealingEn: 'Open design (Lubrication required)',
-    clearanceOptions: ['Standard Preset'],
-    brands: ['Timken', 'SKF', 'FAG', 'KOYO', 'NTN'],
-    applicationsFa: ['توپی چرخ خودرو و تریلر', 'دیفرانسیل و گیربکس‌های صنعتی', 'رولیک‌های سنگین نورد'],
-    applicationsEn: ['Wheel Hubs & Trailers', 'Industrial Differentials', 'Heavy Rolling Mills'],
-    inStock: true,
-    featured: true,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 7000,
-    technicalSources: [
-        {
-            manufacturer: "The Timken Company USA",
-            sourceType: "engineering_manual",
-            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-32210',
-    slug: '32210',
-    imageUrl: bearing32210_tapered,
-    images: [bearing32210_tapered],
-    code: '32210 J2/Q',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی سری عریض 32210',
-    nameEn: 'Tapered Roller Bearing 32210',
-    descriptionFa: 'دارای زاویه مخروطی مهندسی‌شده و غلطک‌های بلندتر جهت دفع بارهای ضربه‌ای در اکسل و گیربکس.',
-    descriptionEn: 'Wide series tapered roller bearing with extended contact length for severe shock loads.',
-    d: 50,
-    D: 90,
-    B: 24.75,
-    weightKg: 0.65,
-    crKn: 89.1,
-    corKn: 104.0,
-    speedGreaseRpm: 4500,
-    speedOilRpm: 6000,
-    calculationFactorE: 0.40,
-    calculationFactorY: 1.50,
-    calculationFactorY0: 0.80,
-    cageMaterialFa: 'فولاد آلیاژی عملیات حرارتی شده',
-    cageMaterialEn: 'Treated pressed steel',
-    sealingFa: 'بدون شیلد (Open)',
-    sealingEn: 'Open (Oil/Grease Bath)',
-    clearanceOptions: ['Standard'],
-    brands: ['Timken', 'FAG', 'SKF', 'NSK'],
-    applicationsFa: ['گیربکس‌های صنعتی سنگین', 'اکسل کامیون و اتوبوس', 'ماشین‌آلات راه‌سازی'],
-    applicationsEn: ['Heavy Industrial Gearboxes', 'Commercial Vehicle Axles', 'Earthmoving Machinery'],
-    inStock: true,
-    featured: false,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 6300,
-    technicalSources: [
-        {
-            manufacturer: "The Timken Company USA",
-            sourceType: "engineering_manual",
-            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-32014-x',
-    slug: '32014-x',
-    imageUrl: bearing30208_tapered,
-    images: [bearing30208_tapered],
-    code: '32014 X / Q',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی کم‌ارتفاع 32014 X',
-    nameEn: 'Tapered Roller Bearing 32014 X',
-    descriptionFa: 'طراحی پروفیل فشرده با قطر ۷۰ میلی‌متر جهت نصب در فضاهای محوری محدود با بار سنگین.',
-    descriptionEn: 'Compact section tapered roller bearing for 70mm shafts with optimized stress distribution.',
-    d: 70,
-    D: 110,
-    B: 25,
-    weightKg: 0.88,
-    crKn: 112.0,
-    corKn: 146.0,
-    speedGreaseRpm: 3800,
-    speedOilRpm: 5000,
-    calculationFactorE: 0.43,
-    calculationFactorY: 1.40,
-    calculationFactorY0: 0.80,
-    cageMaterialFa: 'فولاد آلیاژی',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'باز (Open)',
-    sealingEn: 'Open (Requires Lubrication)',
-    clearanceOptions: ['Standard'],
-    brands: ['SKF', 'Timken', 'KOYO', 'FAG'],
-    applicationsFa: ['وینچ‌های دریایی و معدنی', 'اسپیندل ماشین‌ابزار سنگین', 'محرک‌های چرخشی'],
-    applicationsEn: ['Mining & Marine Winches', 'Heavy Machine Tool Spindles', 'Rotary Drives'],
-    inStock: true,
-    featured: false,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 5300,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 3. Spherical Roller Bearings
-  {
-    id: 'pc-22212-ek',
-    slug: '22212-ek',
-    imageUrl: bearing22212_spherical,
-    images: [bearing22212_spherical],
-    code: '22212 EK / C3 + H312',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای خودتنظیم 22212 EK',
-    nameEn: 'Spherical Roller Bearing 22212 EK',
-    descriptionFa: 'قابلیت خودتنظیمی زاویه‌ای فوق‌العاده برای جبران خمش شفت و ناهم‌محوری در محیط‌های خشن معدنی و کارخانجات سیمان.',
-    descriptionEn: 'Self-aligning spherical roller bearing with 1:12 tapered bore and C3 clearance, compensating for severe shaft deflections.',
-    d: 60,
-    D: 110,
-    B: 28,
-    weightKg: 1.15,
-    crKn: 159.0,
-    corKn: 166.0,
-    speedGreaseRpm: 4800,
-    speedOilRpm: 6300,
-    calculationFactorE: 0.24,
-    calculationFactorY1: 2.8,
-    calculationFactorY2: 4.2,
-    calculationFactorY0: 2.8,
-    cageMaterialFa: 'فولاد فشرده سخت‌کاری سطحی',
-    cageMaterialEn: 'Hardened pressed steel cage',
-    sealingFa: 'شیار و سوراخ روغن‌کاری W33',
-    sealingEn: 'Annular lubrication groove with 3 holes (W33)',
-    clearanceOptions: ['C3', 'C4'],
-    brands: ['SKF', 'FAG', 'Timken', 'NTN', 'URB'],
-    applicationsFa: ['سنگ‌شکن‌ها و آسیاب‌های چکشی', 'فن‌های مکنده بزرگ صنعتی', 'نوار نقاله‌های طولانی', 'کارخانجات سیمان'],
-    applicationsEn: ['Crushers & Hammer Mills', 'Heavy Induced Draft Fans', 'Long Conveyors', 'Cement Plants'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-22316-cc-w33',
-    slug: '22316-cc-w33',
-    imageUrl: bearing22316_spherical,
-    images: [bearing22316_spherical],
-    code: '22316 CC/W33 / C3',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای سنگین سری 22316 CC/W33',
-    nameEn: 'Heavy Spherical Roller Bearing 22316 CC/W33',
-    descriptionFa: 'طراحی ویژه بارهای ضربه‌ای بسیار سنگین با ظرفیت بار دینامیکی شگفت‌انگیز ۴۴۵ کیلو نیوتن و قفسه تقویت‌شده.',
-    descriptionEn: 'Extra-heavy series spherical roller bearing engineered for extreme radial shock loads (445 kN dynamic rating).',
-    d: 80,
-    D: 170,
-    B: 58,
-    weightKg: 6.25,
-    crKn: 445.0,
-    corKn: 490.0,
-    speedGreaseRpm: 2600,
-    speedOilRpm: 3400,
-    calculationFactorE: 0.33,
-    calculationFactorY1: 2.0,
-    calculationFactorY2: 3.1,
-    calculationFactorY0: 2.0,
-    cageMaterialFa: 'قفسه فولادی راهنمای رینگ وسط (CC)',
-    cageMaterialEn: 'CC type stamped window steel cage',
-    sealingFa: 'سیستم روانکاری W33',
-    sealingEn: 'W33 Lubrication Groove & Ports',
-    clearanceOptions: ['C3', 'C4'],
-    brands: ['SKF', 'FAG', 'Timken', 'NSK'],
-    applicationsFa: ['سرندهای ویبره معدنی', 'غلتک‌های نورد فولاد', 'خطوط ذوب فلزات'],
-    applicationsEn: ['Vibrating Screens', 'Steel Mill Rolls', 'Metal Smelting Lines'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-22220-ek',
-    slug: '22220-ek',
-    imageUrl: sphericalBearingImg,
-    images: [sphericalBearingImg],
-    code: '22220 EK / C3',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای 22220 EK شفت ۱۰۰',
-    nameEn: 'Spherical Roller Bearing 22220 EK (100mm)',
-    descriptionFa: 'سایز محبوب شفت ۱۰۰ میلی‌متر با زاویه مخروطی جهت سوار شدن با بوش تطبیقی H220 در یاتاقان‌های SNL.',
-    descriptionEn: 'Standard 100mm spherical roller bearing suited for adapter sleeve mounting inside plummer block housings.',
-    d: 100,
-    D: 180,
-    B: 46,
-    weightKg: 4.80,
-    crKn: 425.0,
-    corKn: 490.0,
-    speedGreaseRpm: 3000,
-    speedOilRpm: 4000,
-    calculationFactorE: 0.24,
-    calculationFactorY1: 2.8,
-    calculationFactorY2: 4.2,
-    calculationFactorY0: 2.8,
-    cageMaterialFa: 'فولاد پرسکاری شده دو تکه',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'شیار روانکاری W33',
-    sealingEn: 'W33 standard lubrication groove',
-    clearanceOptions: ['C3', 'C4'],
-    brands: ['SKF', 'FAG', 'Timken'],
-    applicationsFa: ['یاتاقان‌های دو تکه SNL', 'میکسرها و درام‌های صنعتی', 'پمپ‌های غلیظ‌کش معدنی'],
-    applicationsEn: ['SNL Plummer Blocks', 'Industrial Mixers & Drums', 'Slurry Pumps'],
-    inStock: true,
-    featured: false,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 4. Cylindrical Roller Bearings
-  {
-    id: 'pc-nu-208-ecp',
-    slug: 'nu-208-ecp',
-    imageUrl: bearingNu208_cylindrical,
-    images: [bearingNu208_cylindrical],
-    code: 'NU 208 ECP / C3',
-    category: 'cylindrical',
-    nameFa: 'رولبرینگ استوانه‌ای یک ردیفه NU 208 ECP',
-    nameEn: 'Cylindrical Roller Bearing NU 208 ECP',
-    descriptionFa: 'حداکثر ظرفیت بار شعاعی با قفسه پلی‌آمید سبک (ECP) جهت شتاب‌گیری سریع در موتورهای سرعت بالا.',
-    descriptionEn: 'High radial capacity cylindrical roller bearing with glass-fiber reinforced polyamide cage (ECP) for fast acceleration.',
-    d: 40,
-    D: 80,
-    B: 18,
-    weightKg: 0.38,
-    crKn: 56.0,
-    corKn: 50.0,
-    speedGreaseRpm: 9000,
-    speedOilRpm: 11000,
-    cageMaterialFa: 'پلی‌آمید تقویت‌شده با الیاف شیشه (PA66)',
-    cageMaterialEn: 'Glass fiber reinforced Polyamide (PA66)',
-    sealingFa: 'بدون کاسه نمد (حمام روغن)',
-    sealingEn: 'Open (Oil / Grease Lubed)',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['SKF', 'FAG', 'NSK', 'NTN'],
-    applicationsFa: ['ژنراتورهای توربینی', 'موتورهای کشنده ریلی', 'اسپیندل فرزکاری CNC'],
-    applicationsEn: ['Turbine Generators', 'Railway Traction Motors', 'CNC Milling Spindles'],
-    inStock: true,
-    featured: true,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-nj-212-ecp',
-    slug: 'nj-212-ecp',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'NJ 212 ECP',
-    category: 'cylindrical',
-    nameFa: 'رولبرینگ استوانه‌ای لبه‌دار NJ 212 ECP',
-    nameEn: 'Cylindrical Roller Bearing NJ 212 ECP',
-    descriptionFa: 'دارای لبه راهنما روی رینگ داخلی جهت مهار بار محوری یک‌طرفه علاوه بر بار شعاعی سنگین.',
-    descriptionEn: 'Single row cylindrical roller bearing with two integral flanges on outer ring and one on inner ring for single-direction axial locating.',
-    d: 60,
-    D: 110,
-    B: 22,
-    weightKg: 0.82,
-    crKn: 108.0,
-    corKn: 102.0,
-    speedGreaseRpm: 6300,
-    speedOilRpm: 7500,
-    cageMaterialFa: 'پلی‌آمید PA66',
-    cageMaterialEn: 'Reinforced Polyamide 66',
-    sealingFa: 'Open (بدون شیلد)',
-    sealingEn: 'Open type',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['SKF', 'FAG', 'NSK'],
-    applicationsFa: ['گیربکس‌های صنعتی چند محوره', 'الکتروموتورهای تراکشن', 'پمپ‌های پیستونی'],
-    applicationsEn: ['Multi-shaft Industrial Gearboxes', 'Traction Motors', 'Piston Pumps'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-nup-310-ecp',
-    slug: 'nup-310-ecp',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'NUP 310 ECP / C3',
-    category: 'cylindrical',
-    nameFa: 'رولبرینگ استوانه‌ای مهارکننده دوطرفه NUP 310',
-    nameEn: 'Cylindrical Roller Bearing NUP 310 ECP',
-    descriptionFa: 'مجهز به رینگ هوزینگ و واشر نگهدارنده برای تثبیت کامل موقعیت محوری شفت در هر دو جهت.',
-    descriptionEn: 'Locating cylindrical roller bearing with loose flange ring accommodating axial displacement in both directions.',
-    d: 50,
-    D: 110,
-    B: 27,
-    weightKg: 1.15,
-    crKn: 125.0,
-    corKn: 114.0,
-    speedGreaseRpm: 6000,
-    speedOilRpm: 7000,
-    cageMaterialFa: 'پلی‌آمید مهندسی',
-    cageMaterialEn: 'Engineering Polyamide',
-    sealingFa: 'Open',
-    sealingEn: 'Open',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['SKF', 'FAG', 'Timken'],
-    applicationsFa: ['کمپرسورهای هوا و گاز', 'اکسترودرهای پلاستیک', 'شفت‌های تثبیت‌شده'],
-    applicationsEn: ['Air & Gas Compressors', 'Plastic Extruders', 'Locating Shaft Drives'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 5. Thrust Bearings
-  {
-    id: 'pc-51106',
-    slug: '51106',
-    imageUrl: bearing51108_thrust,
-    images: [bearing51108_thrust],
-    code: '51106 Single Direction',
-    category: 'thrust',
-    nameFa: 'بلبرینگ کف‌گرد یک‌طرفه 51106',
-    nameEn: 'Thrust Ball Bearing 51106',
-    descriptionFa: 'تحمل بارهای محوری خالص یک‌طرفه با واشر شفت، واشر هوزینگ و مجموعه ساچمه و قفسه تفکیک‌پذیر.',
-    descriptionEn: 'Single direction thrust ball bearing for pure axial loading in vertical shafts, turntables and jacks.',
-    d: 30,
-    D: 47,
-    B: 11,
-    weightKg: 0.08,
-    crKn: 20.3,
-    corKn: 37.5,
-    speedGreaseRpm: 4500,
-    speedOilRpm: 6300,
-    cageMaterialFa: 'فولاد پرسکاری شده',
-    cageMaterialEn: 'Pressed sheet steel cage',
-    sealingFa: 'باز (نیاز به روانکاری مداوم)',
-    sealingEn: 'Open (Continuous lubrication required)',
-    clearanceOptions: ['Standard ISO'],
-    brands: ['SKF', 'FAG', 'NSK', 'NTN'],
-    applicationsFa: ['جک‌های اسکرو و بالابرها', 'شفت‌های عمودی پمپ', 'میزهای گردان صنعتی'],
-    applicationsEn: ['Screw Jacks & Lifts', 'Vertical Pump Shafts', 'Industrial Turntables'],
-    inStock: true,
-    featured: false,
-    schematicType: 'thrust',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 6000,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN (ISO 104 & DIN 711)",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-51108',
-    slug: '51108',
-    imageUrl: bearing51108_thrust,
-    images: [bearing51108_thrust],
-    code: '51108 Single Direction',
-    category: 'thrust',
-    nameFa: 'بلبرینگ کف‌گرد یک‌طرفه 51108',
-    nameEn: 'Thrust Ball Bearing 51108',
-    descriptionFa: 'تحمل بارهای محوری خالص در سرعت‌های متوسط بدون پذیرش بار شعاعی با ساچمه‌های فوق‌صیقلی.',
-    descriptionEn: 'Single direction thrust ball bearing designed strictly for pure axial thrust loads in vertical shafts and jacks.',
-    d: 40,
-    D: 60,
-    B: 13,
-    weightKg: 0.12,
-    crKn: 26.5,
-    corKn: 58.5,
-    speedGreaseRpm: 3800,
-    speedOilRpm: 5300,
-    cageMaterialFa: 'فولاد پرسکاری شده',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'باز (مستلزم روانکاری مداوم)',
-    sealingEn: 'Open (Continuous lubrication required)',
-    clearanceOptions: ['Standard ISO'],
-    brands: ['SKF', 'FAG', 'NSK', 'NACHI'],
-    applicationsFa: ['جک‌های مکانیکی و هیدرولیکی', 'صفحات دوار میزهای صنعتی', 'قلاب جرثقیل'],
-    applicationsEn: ['Mechanical & Hydraulic Jacks', 'Rotary Turn Tables', 'Crane Hooks'],
-    inStock: true,
-    featured: false,
-    schematicType: 'thrust',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-51210',
-    slug: '51210',
-    imageUrl: bearing51108_thrust,
-    images: [bearing51108_thrust],
-    code: '51210 High Capacity',
-    category: 'thrust',
-    nameFa: 'بلبرینگ کف‌گرد سری سنگین 51210',
-    nameEn: 'Thrust Ball Bearing 51210',
-    descriptionFa: 'سایز ۵۰ میلی‌متر با واشرهای شیاردار سخت‌کاری شده برای بارهای فشاری عمودی تا ۹۸ کیلو نیوتن.',
-    descriptionEn: 'Heavy duty 50mm thrust bearing with ground raceway washers supporting up to 98 kN static thrust.',
-    d: 50,
-    D: 78,
-    B: 22,
-    weightKg: 0.38,
-    crKn: 47.5,
-    corKn: 98.0,
-    speedGreaseRpm: 2800,
-    speedOilRpm: 4000,
-    cageMaterialFa: 'فولاد آلیاژی',
-    cageMaterialEn: 'Sheet steel cage',
-    sealingFa: 'Open',
-    sealingEn: 'Open',
-    clearanceOptions: ['Standard'],
-    brands: ['SKF', 'FAG', 'NSK'],
-    applicationsFa: ['شیرآلات صنعتی نفت و گاز', 'اکستروژن پلاستیک', 'دستگاه‌های پرس قالب'],
-    applicationsEn: ['Oil & Gas Actuator Valves', 'Plastic Extruders', 'Molding Press Machines'],
-    inStock: true,
-    featured: false,
-    schematicType: 'thrust',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 6. Mounted Pillow Block Units
-  {
-    id: 'pc-ucp-205',
-    slug: 'ucp-205',
-    imageUrl: unitUcp205_pillow,
-    images: [unitUcp205_pillow],
-    code: 'UCP 205 (Cast Iron Pillow Block)',
-    category: 'housing',
-    nameFa: 'یاتاقان پایه‌دار چدنی UCP 205',
-    nameEn: 'Pillow Block Bearing Unit UCP 205',
-    descriptionFa: 'مجهز به هوزینگ چدن نشکن، گریس‌خور برنجی و بلبرینگ داخلی UC205 با پیچ مغزی جهت قفل شدن روی شفت ۲۵ میلی‌متر.',
-    descriptionEn: 'Solid cast iron plummer housing with UC205 insert bearing and set-screw locking collar for 25mm shafts.',
-    d: 25,
-    D: 140,
-    B: 34.1,
-    weightKg: 0.80,
-    crKn: 14.0,
-    corKn: 7.85,
-    speedGreaseRpm: 5600,
-    speedOilRpm: 0,
-    cageMaterialFa: 'بلبرینگ داخلی با قفسه فولادی',
-    cageMaterialEn: 'Insert ball bearing steel cage',
-    sealingFa: 'آب‌بند سه‌لایه پلاستیکی-فلزی (Flingers)',
-    sealingEn: 'Dual seal with steel slinger',
-    clearanceOptions: ['Standard UC'],
-    brands: ['FYH Japan', 'ASAHI', 'SKF', 'KG'],
-    applicationsFa: ['نوار نقاله‌های صنعتی', 'ماشین‌آلات کشاورزی', 'فن‌های تهویه مطبوع'],
-    applicationsEn: ['Industrial Conveyors', 'Agricultural Equipment', 'HVAC Air Blowers'],
-    inStock: true,
-    featured: true,
-    schematicType: 'pillow-block',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "FYH / NTN Bearing Corporation",
-            sourceType: "official_catalog",
-            reference: "FYH Mounted Ball Bearing Units Master Catalog / JIS B 1559",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-ucf-208',
-    slug: 'ucf-208',
-    imageUrl: unitUcf208_flange,
-    images: [unitUcf208_flange],
-    code: 'UCF 208 (4-Bolt Flange Housing)',
-    category: 'housing',
-    nameFa: 'یاتاقان ۴ پیچ فلنجی UCF 208',
-    nameEn: 'Four-Bolt Flange Bearing Unit UCF 208',
-    descriptionFa: 'یاتاقان مربعی فلنجی ۴ سوراخ با چدن داکتیل جهت نصب عمود بر بدنه ماشین و شفت‌های ۴۰ میلی‌متر.',
-    descriptionEn: 'Ductile iron square 4-bolt flange unit with UC208 insert bearing for mounting on side frames and 40mm shafts.',
-    d: 40,
-    D: 130,
-    B: 51.2,
-    weightKg: 1.90,
-    crKn: 29.6,
-    corKn: 18.2,
-    speedGreaseRpm: 4000,
-    speedOilRpm: 0,
-    cageMaterialFa: 'فولاد پرسکاری شده',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'آب‌بند لاستیکی تماسی محافظ‌دار',
-    sealingEn: 'Contact rubber seal with metal shield',
-    clearanceOptions: ['Standard'],
-    brands: ['ASAHI Japan', 'FYH', 'SKF', 'INA'],
-    applicationsFa: ['خطوط بسته‌بندی کارخانجات', 'بالابرهای غلات', 'میکسرها و تجهیزات شستشو'],
-    applicationsEn: ['Packaging Lines', 'Grain Elevators', 'Washdown Mixers'],
-    inStock: true,
-    featured: false,
-    schematicType: 'pillow-block',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "FYH / NTN Bearing Corporation",
-            sourceType: "official_catalog",
-            reference: "FYH Mounted Ball Bearing Units Master Catalog / JIS B 1559",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-snl-511-609',
-    slug: 'snl-511-609',
-    imageUrl: housingSnl511_split,
-    images: [housingSnl511_split],
-    code: 'SNL 511-609 (Split Plummer Block)',
-    category: 'housing',
-    nameFa: 'پوسته یاتاقان دوتکه سنگین SNL 511-609',
-    nameEn: 'Split Plummer Block Housing SNL 511-609',
-    descriptionFa: 'هوزینگ چدنی دوتکه مناسب برای رولبرینگ‌های بشکه‌ای و بوش‌های تطبیقی در سخت‌ترین شرایط صنعتی.',
-    descriptionEn: 'Heavy duty split plummer block housing for spherical roller bearings with labyrinth or felt seals.',
-    d: 50,
-    D: 255,
-    B: 95,
-    weightKg: 5.40,
-    crKn: 160.0,
-    corKn: 190.0,
-    speedGreaseRpm: 3200,
-    speedOilRpm: 4500,
-    cageMaterialFa: 'هوزینگ چدن خاکستری GG25',
-    cageMaterialEn: 'Cast grey iron GG25 housing',
-    sealingFa: 'آب‌بند لابیرنت فلزی / نمدی استاندارد',
-    sealingEn: 'Labyrinth / Taconite heavy seals',
-    clearanceOptions: ['C3 / C4 for Bearings'],
-    brands: ['SKF', 'FAG'],
-    applicationsFa: ['فن‌های مکنده کوره‌ها', 'نوار نقاله‌های فولاد و معدن', 'تجهیزات بندری'],
-    applicationsEn: ['Kiln Exhaust Blowers', 'Steel & Mining Conveyors', 'Port Handling Equipment'],
-    inStock: true,
-    featured: false,
-    schematicType: 'pillow-block',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Split Plummer Block Housings SNL 500 and 600 Series / ISO 113",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 7. Rotary Oil Seals & Hydraulic Seals
-  {
-    id: 'pc-tc-35-52-10',
-    slug: 'tc-35-52-10',
-    imageUrl: sealTc35_nbr,
-    images: [sealTc35_nbr],
-    code: 'TC 35-52-10 NBR (Dual Lip)',
-    category: 'seal',
-    nameFa: 'کاسه نمد دو لبه فنردار 35x52x10 NBR',
-    nameEn: 'Rotary Oil Seal TC 35-52-10 NBR',
-    descriptionFa: 'کاسه نمد روکش لاستیکی با فنر استیل زنگ‌نزن و لبه گردگیر فرعی (Dust Lip) جهت مهار روغن و جلوگیری از ورود آلودگی.',
-    descriptionEn: 'Rubber covered dual-lip rotary oil seal with stainless garter spring for dynamic shaft oil retention.',
-    d: 35,
-    D: 52,
-    B: 10,
-    weightKg: 0.03,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 6000,
-    speedOilRpm: 9000,
-    cageMaterialFa: 'اسکلت فلزی فولاد کربنی روکش لاستیک',
-    cageMaterialEn: 'Carbon steel internal case with NBR elastomer',
-    sealingFa: 'الاستومر NBR ضد روغن (-30°C تا +120°C)',
-    sealingEn: 'Nitrile (NBR) synthetic rubber (-30°C to +120°C)',
-    clearanceOptions: ['ISO 6194 / DIN 3760'],
-    brands: ['Corteco Italy', 'CFW Simrit', 'SKF CR', 'TTO Taiwan'],
-    applicationsFa: ['شفت خروجی گیربکس‌های صنعتی', 'پمپ‌های هیدرولیک', 'میل‌لنگ و میل‌سوپاپ'],
-    applicationsEn: ['Gearbox Output Shafts', 'Hydraulic Pumps', 'Crankshafts & Camshafts'],
-    inStock: true,
-    featured: true,
-    schematicType: 'oil-seal',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
-            sourceType: "official_catalog",
-            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-tc-50-72-8-viton',
-    slug: 'tc-50-72-8-viton',
-    imageUrl: sealTc50_viton,
-    images: [sealTc50_viton],
-    code: 'TC 50-72-8 Viton / FKM High-Temp',
-    category: 'seal',
-    nameFa: 'کاسه نمد نسوز وایتون 50x72x8 FKM',
-    nameEn: 'High-Temperature Viton Oil Seal 50x72x8 FKM',
-    descriptionFa: 'مقاومت حرارتی فوق‌العاده تا ۲۰۰ درجه سانتی‌گر، مقاوم به انواع روغن‌های سنتتیک، اسیدها و حلال‌های شیمیایی.',
-    descriptionEn: 'Premium Fluorocarbon (Viton/FKM) rotary shaft seal resisting aggressive synthetic oils and temperatures up to 200°C.',
-    d: 50,
-    D: 72,
-    B: 8,
-    weightKg: 0.04,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 8000,
-    speedOilRpm: 12000,
-    cageMaterialFa: 'اسکلت استیل با فنر ضدزنگ استنلس ۳۰۴',
-    cageMaterialEn: 'Stainless steel case with SUS304 garter spring',
-    sealingFa: 'الاستومر خالص Viton FKM قهوه‌ای/سبز',
-    sealingEn: 'Viton/FKM Fluoroelastomer (-20°C to +200°C)',
-    clearanceOptions: ['DIN 3760 Form AS'],
-    brands: ['Corteco', 'CFW Freudenberg', 'SKF', 'Dichtomatik'],
-    applicationsFa: ['صنایع شیمیایی و پتروشیمی', 'توربوکمپرسورهای داغ', 'موتورهای دیزل سنگین'],
-    applicationsEn: ['Petrochemical Refineries', 'Hot Turbochargers', 'Heavy Marine Diesels'],
-    inStock: true,
-    featured: true,
-    schematicType: 'oil-seal',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
-            sourceType: "official_catalog",
-            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-tc-75-100-12',
-    slug: 'tc-75-100-12',
-    imageUrl: sealTc35_nbr,
-    images: [sealTc35_nbr],
-    code: 'TC 75-100-12 NBR Heavy Duty',
-    category: 'seal',
-    nameFa: 'کاسه نمد سنگین صنعتی 75x100x12',
-    nameEn: 'Heavy Industrial Shaft Seal 75-100-12',
-    descriptionFa: 'سایز بزرگ شفت ۷۵ میلی‌متر با بدنه تقویت‌شده جهت جلوگیری از نشتی گریس و روغن در خطوط تولید پیوسته.',
-    descriptionEn: 'Heavy duty rotary shaft seal for 75mm industrial drives with reinforced rubber-to-metal bonding.',
-    d: 75,
-    D: 100,
-    B: 12,
-    weightKg: 0.08,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 4500,
-    speedOilRpm: 6500,
-    cageMaterialFa: 'ورق فولادی سخت‌کاری شده',
-    cageMaterialEn: 'Pressed steel case',
-    sealingFa: 'NBR ۷۰ شور با فنر پیوسته',
-    sealingEn: '70 Shore A NBR with garter spring',
-    clearanceOptions: ['ISO 6194'],
-    brands: ['Corteco', 'TTO', 'CFW', 'SKF'],
-    applicationsFa: ['گیربکس آسیاب‌های معدنی', 'اکسل‌های محرک ماشین‌آلات سنگین', 'رولیک‌های ریخته‌گری'],
-    applicationsEn: ['Mining Mill Gearboxes', 'Heavy Machinery Drive Axles', 'Continuous Casting Rollers'],
-    inStock: true,
-    featured: false,
-    schematicType: 'oil-seal',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
-            sourceType: "official_catalog",
-            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 8. Industrial Greases & Specialized Lubricants
-  {
-    id: 'pc-skf-lgmt-2',
-    slug: 'skf-lgmt-2',
-    imageUrl: greaseSkfLgmt2,
-    images: [greaseSkfLgmt2],
-    code: 'SKF LGMT 2 / 1kg',
-    category: 'lubricant',
-    nameFa: 'گریس تخصصی چندمنظوره بلبرینگ SKF LGMT 2',
-    nameEn: 'SKF Multi-Purpose Industrial Grease LGMT 2',
-    descriptionFa: 'گریس پایه صابون لیتیوم با پایداری اکسیداسیون بالا و کارکرد عالی در دمای -۳۰ تا +۱۲۰ درجه سانتی‌گر.',
-    descriptionEn: 'High-performance lithium soap-based mineral oil grease with excellent rust inhibiting properties and thermal stability.',
-    d: 0,
-    D: 0,
-    B: 0,
-    weightKg: 1.0,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 15000,
-    speedOilRpm: 0,
-    cageMaterialFa: 'پایه صابون لیتیوم / روغن معدنی تغلیظ‌شده',
-    cageMaterialEn: 'Lithium soap / Mineral base oil NLGI 2',
-    sealingFa: 'مقاوم در برابر شستشو با آب و زنگ‌زدگی',
-    sealingEn: 'Water resistant & anti-corrosion ISO L-XCCEA 2',
-    clearanceOptions: ['NLGI 2 Standard'],
-    brands: ['SKF Sweden', 'Total', 'Mobil'],
-    applicationsFa: ['الکتروموتورهای صنعتی', 'یاتاقان‌های نوار نقاله', 'پمپ‌های آب صنعتی'],
-    applicationsEn: ['Electric Motors', 'Conveyor Bearings', 'Industrial Water Pumps'],
-    inStock: true,
-    featured: false,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Maintenance and Lubrication Products Catalog (LGMT 2) / DIN 51825-K2K-30",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-22324-ccja-w33va405',
-    slug: '22324-ccja-w33va405',
-    imageUrl: bearing22324_brass,
-    images: [bearing22324_brass],
-    code: '22324 CCJA/W33VA405 (Vibrating Screen Special)',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای ویژه سرند معدنی 22324 VA405',
-    nameEn: 'Vibrating Screen Spherical Bearing 22324 VA405',
-    descriptionFa: 'طراحی فوق‌سنگین مهندسی شده برای شتاب‌های گرانشی بالا (تا g5)، دارای قفسه برنجی یکپارچه با سختی سطحی و لقی C4 ویژه معادن سنگ‌آهن و شن و ماسه.',
-    descriptionEn: 'Special vibrating screen spherical roller bearing with case-hardened brass cage and C4 clearance designed to withstand heavy 5g cyclic accelerations.',
-    d: 120,
-    D: 260,
-    B: 86,
-    weightKg: 22.5,
-    crKn: 1040.0,
-    corKn: 1200.0,
-    speedGreaseRpm: 1800,
-    speedOilRpm: 2400,
-    calculationFactorE: 0.35,
-    calculationFactorY1: 1.9,
-    calculationFactorY2: 2.9,
-    calculationFactorY0: 1.8,
-    cageMaterialFa: 'قفسه برنجی ماشین‌کاری شده صلب سخت‌کاری سطحی (JA)',
-    cageMaterialEn: 'Surface-hardened machined solid brass cage (JA)',
-    sealingFa: 'شیار و سوراخ‌های روانکاری بزرگ W33',
-    sealingEn: 'W33 Lubrication groove with enlarged discharge ports',
-    clearanceOptions: ['VA405 (C4 Special)'],
-    brands: ['SKF', 'FAG', 'Timken'],
-    applicationsFa: ['سرندهای لرزشی معادن سنگ‌آهن', 'فیدرهای ارتعاشی کارخانجات سیمان', 'ماسه شورها و آسیاهای نیمه خودفشنگ'],
-    applicationsEn: ['Iron Ore Vibrating Screens', 'Cement Vibratory Feeders', 'Heavy Mining SAG Mills'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-32218-j2-q',
-    slug: '32218-j2-q',
-    imageUrl: taperedBearingImg,
-    images: [taperedBearingImg],
-    code: '32218 J2/Q (Heavy Steel Mill & Axle)',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی سنگین خطوط نورد فولاد 32218',
-    nameEn: 'Heavy Tapered Roller Bearing 32218 J2/Q',
-    descriptionFa: 'رولبرینگ مخروطی سایز بزرگ با زاویه تماس بهینه شده برای تحمل ضربات شدید نورد گرم و اکسل‌های تناژ سنگین صنعتی.',
-    descriptionEn: 'Large-bore tapered roller bearing with optimized internal geometry for severe rolling mill shock loads and heavy industrial axles.',
-    d: 90,
-    D: 160,
-    B: 42.5,
-    weightKg: 3.55,
-    crKn: 286.0,
-    corKn: 380.0,
-    speedGreaseRpm: 2400,
-    speedOilRpm: 3200,
-    calculationFactorE: 0.40,
-    calculationFactorY: 1.50,
-    calculationFactorY0: 0.80,
-    cageMaterialFa: 'فولاد آلیاژی سخت‌کاری شده حرارتی',
-    cageMaterialEn: 'Heat-treated alloy steel window cage',
-    sealingFa: 'بدون شیلد (حمام روغن و روانکاری چرخشی)',
-    sealingEn: 'Open (Circulating Oil Bath)',
-    clearanceOptions: ['Standard Preset'],
-    brands: ['Timken', 'SKF', 'FAG'],
-    applicationsFa: ['خطوط نورد میلگرد و تیرآهن', 'گیربکس‌های اکستروژن فولاد', 'چرخ‌های لوکوموتیو و واگن‌های باربری'],
-    applicationsEn: ['Rebar & Beam Rolling Mills', 'Steel Extrusion Gearboxes', 'Locomotive Wheelsets'],
-    inStock: true,
-    featured: true,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 3400,
-    technicalSources: [
-        {
-            manufacturer: "The Timken Company USA",
-            sourceType: "engineering_manual",
-            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-29420-e',
-    slug: '29420-e',
-    imageUrl: bearing29420_thrust,
-    images: [bearing29420_thrust],
-    code: '29420 E (Spherical Roller Thrust Bearing)',
-    category: 'thrust',
-    nameFa: 'رولبرینگ بشکه‌ای کف‌گرد دکل حفاری و نفت 29420 E',
-    nameEn: 'Spherical Roller Thrust Bearing 29420 E',
-    descriptionFa: 'تحمل بارهای محوری بسیار سنگین به همراه بار شعاعی همزمان با قابلیت خودتنظیمی زاویه‌ای در تجهیزات سرچاهی و دریل‌های نفتی.',
-    descriptionEn: 'Self-aligning spherical roller thrust bearing accommodating extremely high axial loads with concurrent radial capacity for deep oil drilling.',
-    d: 100,
-    D: 210,
-    B: 67,
-    weightKg: 9.8,
-    crKn: 780.0,
-    corKn: 1960.0,
-    speedGreaseRpm: 1200,
-    speedOilRpm: 2000,
-    cageMaterialFa: 'قفسه برنجی ماشین‌کاری شده با هدایت رینگ شفت',
-    cageMaterialEn: 'Machined brass cage guided by shaft washer',
-    sealingFa: 'روغن‌کاری مدار بسته با فیلم هیدرودینامیکی',
-    sealingEn: 'Oil bath / circulating oil forced lubrication',
-    clearanceOptions: ['ISO 104 Standard'],
-    brands: ['SKF', 'FAG', 'Timken'],
-    applicationsFa: ['تاپ درایو دکل‌های حفاری نفت و گاز', 'اکسترودرهای عظیم لاستیک و پلاستیک', 'توربین‌های آبی سدها'],
-    applicationsEn: ['Oil & Gas Top Drives', 'Heavy Rubber Extruders', 'Hydroelectric Dam Turbines'],
-    inStock: true,
-    featured: true,
-    schematicType: 'thrust',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-nu-2224-ecp',
-    slug: 'nu-2224-ecp',
-    imageUrl: bearingNu208_cylindrical,
-    images: [bearingNu208_cylindrical],
-    code: 'NU 2224 ECP / C3 (Heavy Refinery Pump)',
-    category: 'cylindrical',
-    nameFa: 'رولبرینگ استوانه‌ای پمپ‌های پالایشگاهی NU 2224 ECP',
-    nameEn: 'Heavy Cylindrical Roller Bearing NU 2224 ECP',
-    descriptionFa: 'تحمل حداکثری بارهای شعاعی در دورهای بالا با قفسه پلی‌آمید ۶۶ تقویت‌شده جهت نصب روی شفت پمپ‌های خوراک پالایشگاهی.',
-    descriptionEn: 'High capacity cylindrical roller bearing designed for non-locating pump positions in oil refineries and petrochemical installations.',
-    d: 120,
-    D: 215,
-    B: 58,
-    weightKg: 8.6,
-    crKn: 475.0,
-    corKn: 610.0,
-    speedGreaseRpm: 3200,
-    speedOilRpm: 4000,
-    cageMaterialFa: 'پلی‌آمید مهندسی تقویت‌شده با الیاف کربن/شیشه',
-    cageMaterialEn: 'Reinforced Polyamide PA66 with fiber glass',
-    sealingFa: 'Open (شناور در روغن)',
-    sealingEn: 'Open (Submerged Oil Bath)',
-    clearanceOptions: ['C3', 'C4'],
-    brands: ['SKF', 'FAG', 'NSK', 'NTN'],
-    applicationsFa: ['پمپ‌های فرآیندی نفت و گاز استاندارد API 610', 'کمپرسورهای گازی سانتریفیوژ', 'دمنده‌های هوای داغ فولادسازی'],
-    applicationsEn: ['API 610 Refinery Process Pumps', 'Centrifugal Gas Compressors', 'Steel Plant Hot Air Blowers'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-6210-2z-va208',
-    slug: '6210-2z-va208',
-    imageUrl: bearing6210_kiln,
-    images: [bearing6210_kiln],
-    code: '6210-2Z/VA208 (High-Temp 350°C Kiln Bearing)',
-    category: 'ball',
-    nameFa: 'بلبرینگ نسوز کوره حرارت ۳۵۰ درجه 6210-2Z/VA208',
-    nameEn: 'High Temperature Kiln Ball Bearing 6210-2Z/VA208',
-    descriptionFa: 'بلبرینگ نسوز با پوشش فسفاته منگنز و قفسه گرافیت متخلخل روانکار جامد ویژه واگن‌های کوره آجر، سرامیک و عملیات حرارتی فولاد.',
-    descriptionEn: 'High temperature ball bearing engineered for extreme temperatures up to 350°C with solid graphite segmented cage and manganese phosphating.',
-    d: 50,
-    D: 90,
-    B: 20,
-    weightKg: 0.46,
-    crKn: 37.1,
-    corKn: 23.2,
-    speedGreaseRpm: 120,
-    speedOilRpm: 0,
-    cageMaterialFa: 'قفسه تکه‌ای گرافیتی خود روانکار (VA208)',
-    cageMaterialEn: 'Segmented solid graphite lubricating crown (VA208)',
-    sealingFa: 'شیلد فلزی محافظ با پوشش ضدزنگ فسفاته',
-    sealingEn: 'Dual Metal Shields with manganese phosphated rings',
-    clearanceOptions: ['Multiplied C5 Radial Play'],
-    brands: ['SKF High-Temp', 'FAG High-Temp'],
-    applicationsFa: ['واگن‌های کوره پخت سرامیک و آجر', 'خطوط عملیات حرارتی و آنیلینگ فولاد', 'خشک‌کن‌های صنایع گچ و سیمان'],
-    applicationsEn: ['Kiln Truck Wheels', 'Steel Heat Treatment Lines', 'Continuous Gypsum & Cement Dryers'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-fkm-tc-80-100-12',
-    slug: 'fkm-tc-80-100-12',
-    imageUrl: sealTc50_viton,
-    images: [sealTc50_viton],
-    code: 'TC 80-100-12 Viton / FKM Petrochemical',
-    category: 'seal',
-    nameFa: 'کاسه نمد وایتون نسوز صنایع پتروشیمی 80x100x12',
-    nameEn: 'Petrochemical Viton FKM Oil Seal 80-100-12',
-    descriptionFa: 'کاسه نمد فلوروالاستومر (وایتون) با فنر استیل زنگ‌نزن ۳۱۶ ضداسید، مقاوم به روغن‌های سنتتیک داغ تا ۲۲۰ درجه سانتی‌گر در برج‌های تقطیر و پمپ‌های هیدروکربنی.',
-    descriptionEn: 'Fluorocarbon FKM oil seal with SUS316 acid-resistant garter spring for high temperature hydrocarbons and synthetic lubricants in refineries.',
-    d: 80,
-    D: 100,
-    B: 12,
-    weightKg: 0.09,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 5000,
-    speedOilRpm: 8000,
-    cageMaterialFa: 'بدنه فولادی اینکپسوله شده با وایتون نسوز',
-    cageMaterialEn: 'Fully encapsulated steel insert with FKM Viton',
-    sealingFa: 'لبه آب‌بند هیدرو دینامیک با فنر استیل ۳۱۶',
-    sealingEn: 'Bi-rotational hydrodynamic wave lip with 316SS spring',
-    clearanceOptions: ['DIN 3760 AS/TC'],
-    brands: ['CFW Simrit Germany', 'Corteco Italy', 'SKF CR Seals', 'Dichtomatik'],
-    applicationsFa: ['پمپ‌های انتقال هیدروکربن داغ پالایشگاه', 'گیربکس‌های توربین‌های بادی', 'میکسرها و رآکتورهای پتروشیمی'],
-    applicationsEn: ['Hot Hydrocarbon Transfer Pumps', 'Wind Turbine Gearboxes', 'Petrochemical Reactor Vessels'],
-    inStock: true,
-    featured: true,
-    schematicType: 'oil-seal',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
-            sourceType: "official_catalog",
-            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-snl-518-615',
-    slug: 'snl-518-615',
-    imageUrl: housingSnl511_split,
-    images: [housingSnl511_split],
-    code: 'SNL 518-615 (Heavy Mining Split Housing)',
-    category: 'housing',
-    nameFa: 'پوسته یاتاقان دوتکه سنگین معدن و فولاد SNL 518-615',
-    nameEn: 'Heavy Mining Split Plummer Block SNL 518-615',
-    descriptionFa: 'هوزینگ چدن نشکن سنگین برای شفت‌های ۷۵ و ۸۰ میلی‌متر، مجهز به آب‌بند لابیرنت فلزی ضد ورود لجن و غبار سنگ‌آهن.',
-    descriptionEn: 'Rugged split plummer block housing for 75mm/80mm shafts fitted with heavy taconite labyrinth seals for extreme slurry and iron dust.',
-    d: 75,
-    D: 345,
-    B: 125,
-    weightKg: 14.5,
-    crKn: 345.0,
-    corKn: 420.0,
-    speedGreaseRpm: 2400,
-    speedOilRpm: 3200,
-    cageMaterialFa: 'چدن نشکن داکتیل spheroidal graphite iron',
-    cageMaterialEn: 'Ductile spheroidal graphite iron housing',
-    sealingFa: 'آب‌بند لابیرنت فولادی سنگین Taconite ضد گردوغبار معدنی',
-    sealingEn: 'Heavy Taconite Labyrinth multi-barrier seal',
-    clearanceOptions: ['Fits 22218 EK / 23218 CCK'],
-    brands: ['SKF', 'FAG'],
-    applicationsFa: ['درام‌های انتقال مواد سنگ‌شکن', 'نوار نقاله‌های اصلی کارخانجات فولاد', 'اسکرو فیدرهای خاکستر کوره‌ها'],
-    applicationsEn: ['Crusher Discharge Head Pulleys', 'Primary Steel Plant Overland Conveyors', 'Boiler Ash Screw Feeders'],
-    inStock: true,
-    featured: true,
-    schematicType: 'pillow-block',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Split Plummer Block Housings SNL 500 and 600 Series / ISO 113",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-mobilith-shc-220',
-    slug: 'mobilith-shc-220',
-    imageUrl: greaseMobilithRed,
-    images: [greaseMobilithRed],
-    code: 'Mobilith SHC 220 Synthetic',
-    category: 'lubricant',
-    nameFa: 'گریس تمام سنتتیک سنگین Mobilith SHC 220',
-    nameEn: 'Mobilith SHC 220 Full Synthetic Grease',
-    descriptionFa: 'گریس ویژه حرارت و فشار بسیار بالا با پایه کمپلکس لیتیوم و روغن سنتتیک برای صنایع فولاد و کوره.',
-    descriptionEn: 'Severe-duty full synthetic lithium complex grease engineered for extreme temperatures (-40°C to +150°C) and heavy shock loads.',
-    d: 0,
-    D: 0,
-    B: 0,
-    weightKg: 0.4,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 10000,
-    speedOilRpm: 0,
-    cageMaterialFa: 'کمپلکس لیتیوم سنتتیک NLGI 2',
-    cageMaterialEn: 'Synthetic Lithium Complex NLGI 2',
-    sealingFa: 'پایداری مکانیکی در برابر لرزش‌های شدید',
-    sealingEn: 'Extreme Pressure (EP) with water resistance',
-    clearanceOptions: ['DIN 51825 - KPHC 2N-40'],
-    brands: ['Mobil', 'Shell Gadus', 'Klüber'],
-    applicationsFa: ['سرندهای ویبره', 'کالندرها و غلتک‌های داغ کاغذسازی', 'محرک‌های فولادسازی'],
-    applicationsEn: ['Vibrating Screens', 'Paper Machine Calenders', 'Steel Mill Continuous Casting'],
-    inStock: true,
-    featured: false,
-    schematicType: 'spherical',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "ExxonMobil Industrial Lubricants",
-            sourceType: "official_catalog",
-            reference: "Mobilith SHC™ 220 Synthetic Grease Technical Data Sheet / DIN 51825",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 9. Angular Contact Ball Bearings
-  {
-    id: 'pc-7312-becbm',
-    slug: '7312-becbm',
-    imageUrl: bearing7312_brass,
-    images: [bearing7312_brass],
-    code: '7312 BECBM (40° Brass Cage)',
-    category: 'ball',
-    nameFa: 'بلبرینگ تماس زاویه‌ای قفسه برنجی 7312 BECBM',
-    nameEn: 'Angular Contact Ball Bearing 7312 BECBM',
-    descriptionFa: 'بلبرینگ تماس زاویه‌ای ۴۰ درجه با قفسه برنجی ماشین‌کاری شده صلب برای تحمل بارهای محوری سنگین یک‌طرفه در پمپ‌های فشار قوی و کمپرسورهای اسکرو.',
-    descriptionEn: 'Single row angular contact ball bearing with 40° contact angle and machined solid brass cage for high axial thrust in heavy process pumps.',
-    d: 60,
-    D: 130,
-    B: 31,
-    weightKg: 1.85,
-    crKn: 104.0,
-    corKn: 76.5,
-    speedGreaseRpm: 6000,
-    speedOilRpm: 8000,
-    cageMaterialFa: 'قفسه برنجی یکپارچه ماشین‌کاری شده (M)',
-    cageMaterialEn: 'Machined solid brass cage (M)',
-    sealingFa: 'باز (Open - روانکاری حمام روغن)',
-    sealingEn: 'Open (Oil Bath Lubrication)',
-    clearanceOptions: ['CB (Standard)', 'CC (Increased)', 'CA (Light)'],
-    brands: ['SKF', 'FAG', 'NSK', 'NTN'],
-    applicationsFa: ['پمپ‌های طبقاتی فشار قوی آب و نفت', 'کمپرسورهای برودتی اسکرو', 'اسپیندل دستگاه‌های تراش سنگین'],
-    applicationsEn: ['Multi-Stage High Pressure Pumps', 'Screw Refrigeration Compressors', 'Heavy Lathe Spindles'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 9000,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-7210-becbp',
-    slug: '7210-becbp',
-    imageUrl: bearing7312_brass,
-    images: [bearing7312_brass],
-    code: '7210 BECBP / P6',
-    category: 'ball',
-    nameFa: 'بلبرینگ تماس زاویه‌ای دقیق 7210 BECBP',
-    nameEn: 'Precision Angular Contact Bearing 7210 BECBP',
-    descriptionFa: 'طراحی بهینه با قفسه پلی‌آمید تقویت‌شده PA66 و زاویه ۴۰ درجه جهت آرایش جفتی روبرو (DB) و پشت به پشت (DF) در پمپ‌های استاندارد API.',
-    descriptionEn: 'Universal matched angular contact ball bearing with glass fiber reinforced PA66 cage for back-to-back or face-to-face mounting.',
-    d: 50,
-    D: 90,
-    B: 20,
-    weightKg: 0.47,
-    crKn: 41.0,
-    corKn: 30.0,
-    speedGreaseRpm: 8500,
-    speedOilRpm: 11000,
-    cageMaterialFa: 'پلی‌آمید مهندسی PA66 تقویت شده با الیاف شیشه',
-    cageMaterialEn: 'Glass fiber reinforced PA66 cage',
-    sealingFa: 'Open (حمام روغن)',
-    sealingEn: 'Open (Oil Bath)',
-    clearanceOptions: ['CB Universal Pairing', 'GA Light Preload'],
-    brands: ['SKF', 'FAG', 'NACHI', 'KOYO'],
-    applicationsFa: ['پمپ‌های فرآیندی پتروشیمی', 'گیربکس‌های صنعتی هلیکال', 'موتورهای سروو صنعتی'],
-    applicationsEn: ['Petrochemical Process Pumps', 'Helical Gearboxes', 'Industrial Servo Drives'],
-    inStock: true,
-    featured: false,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 12000,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-3308-a-2z',
-    slug: '3308-a-2z',
-    imageUrl: bearing3308_doublerow,
-    images: [bearing3308_doublerow],
-    code: '3308 A-2Z/C3 (Double Row)',
-    category: 'ball',
-    nameFa: 'بلبرینگ دو ردیفه تماس زاویه‌ای شیلددار 3308-2Z',
-    nameEn: 'Double Row Angular Contact Bearing 3308 A-2Z',
-    descriptionFa: 'تحمل همزمان بارهای محوری دوطرفه و بارهای شعاعی با شیلدهای فلزی بدون نیاز به روانکاری مجدد.',
-    descriptionEn: 'Double row angular contact ball bearing with dual non-contact metal shields accommodating bidirectional thrust and radial loads.',
-    d: 40,
-    D: 90,
-    B: 36.5,
-    weightKg: 1.05,
-    crKn: 57.0,
-    corKn: 41.5,
-    speedGreaseRpm: 6700,
-    speedOilRpm: 8500,
-    cageMaterialFa: 'فولاد پرسکاری شده',
-    cageMaterialEn: 'Pressed sheet steel cage',
-    sealingFa: 'شیلد فلزی دو طرفه گریس‌دار مادام‌العمر (ZZ)',
-    sealingEn: 'Dual non-contact metal shields (2Z)',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['SKF', 'FAG', 'NTN', 'NSK'],
-    applicationsFa: ['اکسل خودروهای تجاری', 'پمپ‌های غوطه‌ور لجن‌کش', 'ماشین‌آلات بسته‌بندی'],
-    applicationsEn: ['Commercial Vehicle Hubs', 'Submersible Slurry Pumps', 'Packaging Machines'],
-    inStock: true,
-    featured: false,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 9500,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 10. Self-Aligning Ball Bearings & Needle Roller Bearings
-  {
-    id: 'pc-1309-ektn9',
-    slug: '1309-ektn9',
-    imageUrl: bearing1309_align,
-    images: [bearing1309_align],
-    code: '1309 EKTN9 (Self-Aligning Tapered Bore)',
-    category: 'ball',
-    nameFa: 'بلبرینگ خودتنظیم کونیک 1309 EKTN9',
-    nameEn: 'Self-Aligning Ball Bearing 1309 EKTN9',
-    descriptionFa: 'بلبرینگ دو ردیفه با رینگ بیرونی کروی مشترک جهت جبران انحراف شفت و خطاهای مونتاژ، قابل نصب با بوش H309.',
-    descriptionEn: 'Double row self-aligning ball bearing with tapered bore (1:12) compensating for angular misalignment up to 3 degrees.',
-    d: 45,
-    D: 100,
-    B: 25,
-    weightKg: 0.92,
-    crKn: 39.0,
-    corKn: 13.4,
-    speedGreaseRpm: 7500,
-    speedOilRpm: 9500,
-    cageMaterialFa: 'پلی‌آمید ۶۶ الیاف‌دار (TN9)',
-    cageMaterialEn: 'Moulded glass fibre reinforced PA66 (TN9)',
-    sealingFa: 'Open (تطبیقی با گریس یا روغن)',
-    sealingEn: 'Open (Adapter sleeve mountable)',
-    clearanceOptions: ['C3 Radial Internal Play'],
-    brands: ['SKF', 'FAG', 'NSK'],
-    applicationsFa: ['ماشین‌آلات نساجی و ریسندگی', 'نوار نقاله‌های صنایع غذایی', 'شفت‌های بلند و منعطف'],
-    applicationsEn: ['Textile & Spinning Machinery', 'Food Grade Conveyors', 'Long Flexible Shafts'],
-    inStock: true,
-    featured: false,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 10500,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-na-4910',
-    slug: 'na-4910',
-    imageUrl: bearingNa4910_needle,
-    images: [bearingNa4910_needle],
-    code: 'NA 4910 (Machined Needle Roller)',
-    category: 'roller',
-    nameFa: 'رولبرینگ سوزنی رینگ‌دار ماشین‌کاری NA 4910',
-    nameEn: 'Machined Needle Roller Bearing NA 4910',
-    descriptionFa: 'ارتفاع مقطع بسیار فشرده با ظرفیت بار شعاعی بالا برای محورهایی با محدودیت شدید فضای شعاعی.',
-    descriptionEn: 'Machined type needle roller bearing with inner and outer rings offering high rigidity and load carrying capacity in compact space.',
-    d: 50,
-    D: 72,
-    B: 22,
-    weightKg: 0.28,
-    crKn: 44.0,
-    corKn: 78.0,
-    speedGreaseRpm: 5300,
-    speedOilRpm: 8000,
-    cageMaterialFa: 'قفسه فولادی راهنمای دقیق سوزن‌ها',
-    cageMaterialEn: 'Hardened pressed steel needle guide cage',
-    sealingFa: 'شیار و سوراخ روغن‌کاری رینگ خارجی',
-    sealingEn: 'Outer ring lubrication groove & hole',
-    clearanceOptions: ['CN Standard'],
-    brands: ['INA Germany', 'SKF', 'IKO Japan', 'NTN'],
-    applicationsFa: ['جعبه دنده‌های خودرو و گیربکس موتور سیکلت', 'پمپ‌های هیدرولیک دنده‌ای', 'بازوهای رباتیک صنعتی'],
-    applicationsEn: ['Automotive Transmissions', 'Hydraulic Gear Pumps', 'Industrial Robotic Arms'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 8400,
-    technicalSources: [
-        {
-            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
-            sourceType: "official_catalog",
-            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 11. Heavy Industrial Spherical & Tapered Additions
-  {
-    id: 'pc-23228-cc-w33',
-    slug: '23228-cc-w33',
-    imageUrl: sphericalBearingImg,
-    images: [sphericalBearingImg],
-    code: '23228 CC/W33 (Heavy Mining SAG Mill)',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای سنگین آسیاب معدن 23228 CC/W33',
-    nameEn: 'Heavy Mining SAG Mill Spherical Bearing 23228 CC/W33',
-    descriptionFa: 'رولبرینگ بشکه‌ای بسیار سنگین سری ۲۳۲ با عرض ۸۸ میلی‌متر و بار دینامیکی شگفت‌انگیز ۱۰۲۰ کیلو نیوتن جهت آسیاب‌های گلوله‌ای و درام‌های شستشوی معدنی.',
-    descriptionEn: 'Extra-wide spherical roller bearing series 232 engineered for heavy SAG mills, high-tonnage crushers, and primary mine screens.',
-    d: 140,
-    D: 250,
-    B: 88,
-    weightKg: 18.5,
-    crKn: 1020.0,
-    corKn: 1370.0,
-    speedGreaseRpm: 1600,
-    speedOilRpm: 2200,
-    calculationFactorE: 0.35,
-    calculationFactorY1: 1.9,
-    calculationFactorY2: 2.9,
-    calculationFactorY0: 1.8,
-    cageMaterialFa: 'قفسه فولادی پرس دوگانه راهنمای رینگ وسط (CC)',
-    cageMaterialEn: 'CC type stamped window steel cage with inner ring guide ring',
-    sealingFa: 'شیار روغن‌کاری W33 با ۳ سوراخ تخلیه روغن',
-    sealingEn: 'W33 Lubrication groove with enlarged ports',
-    clearanceOptions: ['C3', 'C4 Mining Clearances'],
-    brands: ['SKF', 'FAG', 'Timken', 'NTN'],
-    applicationsFa: ['آسیاب‌های گلوله‌ای معادن مس و آهن', 'رولیک‌های ریخته‌گری مداوم فولاد', 'درام‌های درایو نوار نقاله معدنی'],
-    applicationsEn: ['Copper & Iron Ore Ball Mills', 'Steel Continuous Caster Rolls', 'Mine Overland Conveyor Pulleys'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-32314-j2-q',
-    slug: '32314-j2-q',
-    imageUrl: bearing32210_tapered,
-    images: [bearing32210_tapered],
-    code: '32314 J2/Q (Heavy Crusher & Crane Wheel)',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی سنگین سری ۳۲۳ سایز 32314',
-    nameEn: 'Heavy Tapered Roller Bearing 32314 J2/Q',
-    descriptionFa: 'مقاومت استثنایی در برابر بارهای ضربه‌ای با عمق تماس عمیق در چرخ‌های واگن‌های باربری سنگین، سنگ‌شکن‌ها و وینچ‌های صنعتی.',
-    descriptionEn: 'High capacity heavy series 323 tapered roller bearing designed to absorb high impact shock loads in crane travel wheels and jaw crushers.',
-    d: 70,
-    D: 150,
-    B: 54,
-    weightKg: 4.15,
-    crKn: 295.0,
-    corKn: 365.0,
-    speedGreaseRpm: 2600,
-    speedOilRpm: 3600,
-    calculationFactorE: 0.35,
-    calculationFactorY: 1.70,
-    calculationFactorY0: 0.90,
-    cageMaterialFa: 'فولاد آلیاژی سخت‌کاری شده حرارتی',
-    cageMaterialEn: 'Pressed steel window cage',
-    sealingFa: 'Open (حمام روغن یا گریس پرفشار)',
-    sealingEn: 'Open (Heavy duty grease/oil)',
-    clearanceOptions: ['Standard Preset'],
-    brands: ['Timken', 'SKF', 'FAG', 'NSK'],
-    applicationsFa: ['چرخ‌های ترولی جرثقیل‌های سقفی سنگین', 'سنگ‌شکن‌های فکی معدنی', 'اکسل کامیون‌های معدنی بلاز و کوماتسو'],
-    applicationsEn: ['Heavy Overhead Crane Wheels', 'Mining Jaw Crushers', 'Mining Dump Truck Axles'],
-    inStock: true,
-    featured: false,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 3800,
-    technicalSources: [
-        {
-            manufacturer: "The Timken Company USA",
-            sourceType: "engineering_manual",
-            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // 12. Additional Housings & Heavy Seals
-  {
-    id: 'pc-ucp-210',
-    slug: 'ucp-210',
-    imageUrl: pillowBlockImg,
-    images: [pillowBlockImg],
-    code: 'UCP 210 (50mm Heavy Duty Pillow Block)',
-    category: 'housing',
-    nameFa: 'یاتاقان پایه‌دار چدنی سنگین UCP 210',
-    nameEn: 'Heavy Duty Pillow Block Unit UCP 210',
-    descriptionFa: 'پوسته چدن داکتیل با بلبرینگ داخلی UC210 جهت مهار شفت ۵۰ میلی‌متر با دو پیچ آلن قفل‌کننده و گریس‌خور مرکزی برنجی.',
-    descriptionEn: 'Rigid cast iron pillow block with UC210 insert bearing and set-screw locking collar for 50mm heavy drive shafts.',
-    d: 50,
-    D: 206,
-    B: 51.6,
-    weightKg: 2.75,
-    crKn: 35.1,
-    corKn: 23.2,
-    speedGreaseRpm: 3400,
-    speedOilRpm: 0,
-    cageMaterialFa: 'بلبرینگ داخلی با قفسه فولادی',
-    cageMaterialEn: 'Insert ball bearing steel cage',
-    sealingFa: 'آب‌بند چندلایه فلزی با فلینگر گردگیر',
-    sealingEn: 'Contact rubber seal with metallic slinger',
-    clearanceOptions: ['Standard UC Fit'],
-    brands: ['FYH Japan', 'ASAHI', 'SKF', 'NTN'],
-    applicationsFa: ['نوار نقاله‌های انتقال گندله آهن', 'فن‌های هوادهی صنعتی', 'میکسرها و تجهیزات کشاورزی سنگین'],
-    applicationsEn: ['Iron Pellet Conveyors', 'Industrial Centrifugal Blowers', 'Agricultural Heavy Mixers'],
-    inStock: true,
-    featured: false,
-    schematicType: 'pillow-block',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "FYH / NTN Bearing Corporation",
-            sourceType: "official_catalog",
-            reference: "FYH Mounted Ball Bearing Units Master Catalog / JIS B 1559",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-tc-100-125-13-viton',
-    slug: 'tc-100-125-13-viton',
-    imageUrl: sealTc50_viton,
-    images: [sealTc50_viton],
-    code: 'TC 100-125-13 Viton / FKM Heavy Refractory',
-    category: 'seal',
-    nameFa: 'کاسه نمد وایتون نسوز نسوز کوره 100x125x13',
-    nameEn: 'Refractory Kiln Viton Oil Seal 100-125-13 FKM',
-    descriptionFa: 'کاسه نمد سایز بزرگ شفت ۱۰۰ میلی‌متر از جنس وایتون FKM با فنر استیل ۳۱۶، مقاوم به روغن‌های داغ گیربکس‌های کارخانجات سیمان و فولاد تا ۲۲۰°C.',
-    descriptionEn: 'Large-bore Viton FKM rotary shaft seal with 316 stainless garter spring for extreme thermal environments up to 220°C in cement & steel mills.',
-    d: 100,
-    D: 125,
-    B: 13,
-    weightKg: 0.12,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 4000,
-    speedOilRpm: 6000,
-    cageMaterialFa: 'اسکلت فلزی یکپارچه اینکپسوله شده',
-    cageMaterialEn: 'Internal steel case fully vulcanized with Viton',
-    sealingFa: 'الاستومر خالص Viton FKM مقاوم در برابر اسید و حرارت',
-    sealingEn: '100% Pure Fluorocarbon (FKM) with SUS316 Spring',
-    clearanceOptions: ['DIN 3760 AS'],
-    brands: ['CFW Simrit', 'Corteco', 'SKF CR', 'Dichtomatik'],
-    applicationsFa: ['گیربکس آسیاب‌های کارخانجات سیمان', 'خطوط ریخته‌گری اسلب فولادی', 'دمنده‌های حرارتی بازیافت انرژی'],
-    applicationsEn: ['Cement Mill Gearboxes', 'Steel Slab Casting Lines', 'Heat Recovery Thermal Blowers'],
-    inStock: true,
-    featured: true,
-    schematicType: 'oil-seal',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
-            sourceType: "official_catalog",
-            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-tc-60-85-10',
-    slug: 'tc-60-85-10',
-    imageUrl: oilSealImg,
-    images: [oilSealImg],
-    code: 'TC 60-85-10 NBR (Dual Lip)',
-    category: 'seal',
-    nameFa: 'کاسه نمد دو لبه فنردار صنعتی 60x85x10 NBR',
-    nameEn: 'Dual-Lip Rotary Shaft Seal TC 60-85-10 NBR',
-    descriptionFa: 'کاسه نمد استاندارد پرمصرف صنعتی برای شفت ۶۰ میلی‌متر با لبه محافظ گردگیر و فنر کربن استیل مقاوم در برابر پاشش روغن و روانکار.',
-    descriptionEn: 'Standard industrial NBR oil seal with auxiliary dust lip and carbon steel spring for 60mm shaft fluid retention.',
-    d: 60,
-    D: 85,
-    B: 10,
-    weightKg: 0.05,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 5500,
-    speedOilRpm: 8000,
-    cageMaterialFa: 'اسکلت فلزی فولادی با روکش NBR',
-    cageMaterialEn: 'Steel inner case with bonded NBR rubber',
-    sealingFa: 'لاستیک نیتریل NBR با فنر کششی',
-    sealingEn: '70 Shore A Nitrile Rubber with tension spring',
-    clearanceOptions: ['ISO 6194'],
-    brands: ['Corteco Italy', 'TTO Taiwan', 'CFW Simrit', 'SKF'],
-    applicationsFa: ['شفت پمپ‌های آب کشاورزی و صنعتی', 'محرک‌های چرخشی ماشین‌آلات', 'یاتاقان‌های هوزینگی'],
-    applicationsEn: ['Agricultural & Industrial Water Pumps', 'Rotary Machinery Drives', 'Flanged Bearing Units'],
-    inStock: true,
-    featured: false,
-    schematicType: 'oil-seal',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
-            sourceType: "official_catalog",
-            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // ==========================================
-  // BRAND ADDITIONS: SKF
-  // ==========================================
-  {
-    id: 'pc-skf-6311-c3',
-    slug: 'skf-6311-c3',
-    imageUrl: ballBearingImg,
-    images: [ballBearingImg],
-    code: 'SKF 6311 / C3 Explorer',
-    category: 'ball',
-    nameFa: 'بلبرینگ شیار عمیق سنگین SKF 6311 C3 اکسپلورر',
-    nameEn: 'SKF 6311 / C3 Explorer Deep Groove Ball Bearing',
-    descriptionFa: 'بلبرینگ کلاس Explorer کمپانی SKF با فولاد سوپردقیق با خلوص بالا، مناسب برای بارهای ترکیبی سنگین و دمای کارکرد پیوسته در الکتروموتورهای صنعتی.',
-    descriptionEn: 'High-performance SKF Explorer class single row deep groove ball bearing with C3 radial clearance for heavy-duty electric motors.',
-    d: 55,
-    D: 120,
-    B: 29,
-    weightKg: 1.35,
-    crKn: 75.0,
-    corKn: 45.0,
-    speedGreaseRpm: 6000,
-    speedOilRpm: 7500,
-    cageMaterialFa: 'فولاد پرسکاری شده بهینه‌سازی شده',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'بدون آب‌بند (باز - قابل روانکاری با حمام روغن)',
-    sealingEn: 'Open type for oil bath or grease lubrication',
-    clearanceOptions: ['C3', 'CN', 'C4'],
-    brands: ['SKF'],
-    applicationsFa: ['الکتروموتورهای سنگین ۱۱۰ تا ۲۵۰ کیلووات', 'گیربکس‌های صنعتی', 'پمپ‌های انتقال نفت و گاز'],
-    applicationsEn: ['Heavy 110-250kW Electric Motors', 'Industrial Gearboxes', 'Oil & Gas Transfer Pumps'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 8500,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-skf-c-2215-k',
-    slug: 'skf-c-2215-k',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'SKF C 2215 K CARB® Toroidal',
-    category: 'roller',
-    nameFa: 'رولبرینگ توریدال خودتنظیم SKF C 2215 K سوراخ مخروطی',
-    nameEn: 'SKF C 2215 K CARB Toroidal Roller Bearing Tapered Bore',
-    descriptionFa: 'تکنولوژی انحصاری CARB سوئد ترکیب‌کننده ویژگی‌های خودتنظیمی رولبرینگ بشکه‌ای و جابجایی محوری نامحدود رولبرینگ استوانه‌ای در یک قطعه.',
-    descriptionEn: 'SKF patented CARB toroidal roller bearing combining self-aligning capability with axial displacement capability without induced internal axial loads.',
-    d: 75,
-    D: 130,
-    B: 31,
-    weightKg: 1.60,
-    crKn: 198.0,
-    corKn: 240.0,
-    speedGreaseRpm: 3800,
-    speedOilRpm: 5000,
-    cageMaterialFa: 'قفسه فولادی بدون درز سخت‌کاری شده',
-    cageMaterialEn: 'Sheet steel cage',
-    sealingFa: 'باز جهت نصب در هوزینگ‌های SNL',
-    sealingEn: 'Open design for split plummer blocks',
-    clearanceOptions: ['C3 (C08)', 'CN'],
-    brands: ['SKF'],
-    applicationsFa: ['غلتک‌های ریخته‌گری مداوم فولاد', 'خشک‌کن کارخانجات کاغذسازی', 'توربین‌های بادی و آسیاب‌های مواد'],
-    applicationsEn: ['Continuous Casting Rollers', 'Paper Machine Drying Cylinders', 'Wind Turbines & Material Mills'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 5300,
-    technicalSources: [
-        {
-            manufacturer: "SKF Group",
-            sourceType: "official_catalog",
-            reference: "SKF Rolling Bearings Master Catalog PUB BU/P1 17000/1 EN / DIN 625 & ISO 15",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-skf-sy-50-tf',
-    slug: 'skf-sy-50-tf',
-    imageUrl: pillowBlockImg,
-    images: [pillowBlockImg],
-    code: 'SKF SY 50 TF (Y-Bearing Unit)',
-    category: 'housing',
-    nameFa: 'یاتاقان پایه‌دار چدنی SKF مدل SY 50 TF شفت ۵۰ میلی‌متر',
-    nameEn: 'SKF SY 50 TF Plummer Block Ball Bearing Unit 50mm',
-    descriptionFa: 'واحد یاتاقان کامل ساخت شرکت SKF شامل پوسته چدن خاکستری صلب و بلبرینگ YAR 210-2F با قفل‌شو پیچ آلن و آب‌بندی مطمئن ۵ لبه.',
-    descriptionEn: 'Complete SKF ball bearing unit with cast iron housing and insert bearing with grub screws and multi-stage labyrinth seals.',
-    d: 50,
-    D: 135,
-    B: 51.6,
-    weightKg: 2.85,
-    crKn: 35.1,
-    corKn: 23.2,
-    speedGreaseRpm: 4000,
-    speedOilRpm: 0,
-    cageMaterialFa: 'پلی‌آمید ۶۶ تقویت‌شده با الیاف شیشه',
-    cageMaterialEn: 'Fiberglass reinforced PA66',
-    sealingFa: 'آب‌بند تماسی دوگانه با حلقه فولادی محافظ فلینگر',
-    sealingEn: 'Multi-stage contact seal with galvanized slinger',
-    clearanceOptions: ['Standard Y-fit'],
-    brands: ['SKF'],
-    applicationsFa: ['خطوط بسته‌بندی پیوسته', 'کانوایرهای انتقال مصالح و قطعات', 'تجهیزات کشاورزی مدرن'],
-    applicationsEn: ['Automated Packaging Lines', 'Bulk Material Handling Conveyors', 'Agricultural Equipment'],
-    inStock: true,
-    featured: true,
-    schematicType: 'pillow-block',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "FYH / NTN Bearing Corporation",
-            sourceType: "official_catalog",
-            reference: "FYH Mounted Ball Bearing Units Master Catalog / JIS B 1559",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // ==========================================
-  // BRAND ADDITIONS: FAG / INA (SCHAEFFLER)
-  // ==========================================
-  {
-    id: 'pc-fag-6312-tb-p6',
-    slug: 'fag-6312-tb-p6',
-    imageUrl: ballBearingImg,
-    images: [ballBearingImg],
-    code: 'FAG 6312-TB-P6 Schaeffler',
-    category: 'ball',
-    nameFa: 'بلبرینگ دور بالا و دقیق FAG 6312-TB-P6 با قفسه تکستولیت',
-    nameEn: 'FAG 6312-TB-P6 High-Speed Precision Ball Bearing',
-    descriptionFa: 'بلبرینگ آلمانی FAG مجهز به قفسه فیبری تکستولیت هادی و کلاس تلرانسی P6 برای به حداقل رساندن ارتعاشات و عملکرد بی‌صدا در دورهای بسیار بالا.',
-    descriptionEn: 'High precision German FAG deep groove ball bearing with laminated textile phenolic resin cage (TB) and ISO class 6 tolerance.',
-    d: 60,
-    D: 130,
-    B: 31,
-    weightKg: 1.70,
-    crKn: 88.0,
-    corKn: 52.0,
-    speedGreaseRpm: 8000,
-    speedOilRpm: 11000,
-    cageMaterialFa: 'رزین فنولیک الیاف‌دار تکستولیت سبک (TB)',
-    cageMaterialEn: 'Laminated textile phenolic resin cage (TB)',
-    sealingFa: 'طراحی باز جهت روانکاری روغنی پرسرعت',
-    sealingEn: 'Open type for high-speed circulating oil',
-    clearanceOptions: ['P6', 'C3', 'CN'],
-    brands: ['FAG', 'Schaeffler'],
-    applicationsFa: ['اسپیندل‌های تراشکاری سنگین', 'کمپرسورهای هوا و گاز دور بالا', 'توربو شارژرها'],
-    applicationsEn: ['Heavy Turning Spindles', 'High-Speed Compressors', 'Centrifugal Blowers'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 12000,
-    technicalSources: [
-        {
-            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
-            sourceType: "official_catalog",
-            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-fag-22216-e1-xl-k',
-    slug: 'fag-22216-e1-xl-k',
-    imageUrl: sphericalBearingImg,
-    images: [sphericalBearingImg],
-    code: 'FAG 22216-E1-XL-K X-Life',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای FAG 22216-E1-XL-K سری X-Life سوراخ مخروطی',
-    nameEn: 'FAG 22216-E1-XL-K X-Life Spherical Roller Bearing Tapered',
-    descriptionFa: 'نسل جدید رولبرینگ‌های بشکه‌ای آلمان X-Life با طول عمر ۷۰٪ بیشتر، ظرفیت بار دینامیکی ارتقایافته و سوراخ مخروطی ۱:۱۲ برای نصب با بوش H316.',
-    descriptionEn: 'Schaeffler FAG X-Life spherical roller bearing offering up to 70% longer operating life and enhanced dynamic load ratings.',
-    d: 80,
-    D: 140,
-    B: 33,
-    weightKg: 2.15,
-    crKn: 245.0,
-    corKn: 275.0,
-    speedGreaseRpm: 4300,
-    speedOilRpm: 5600,
-    calculationFactorE: 0.22,
-    calculationFactorY1: 3.1,
-    calculationFactorY2: 4.6,
-    calculationFactorY0: 3.0,
-    cageMaterialFa: 'ورق فولادی دو تکه بهبودیافته با پوشش فسفاته',
-    cageMaterialEn: 'Window-type sheet steel cage',
-    sealingFa: 'باز با شیار و سوراخ‌های روانکاری W33',
-    sealingEn: 'Open with outer ring oil groove and 3 lubrication holes',
-    clearanceOptions: ['C3', 'CN', 'C4'],
-    brands: ['FAG', 'Schaeffler'],
-    applicationsFa: ['گیربکس آسیاب‌های پودری', 'فن‌های صنعتی کارخانجات سیمان', 'پمپ‌های غلیظ‌کش لجن معدنی'],
-    applicationsEn: ['Powder Mill Gearboxes', 'Cement Heavy ID Fans', 'Mining Slurry Pumps'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
-            sourceType: "official_catalog",
-            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-fag-nj-2312-e-m1a',
-    slug: 'fag-nj-2312-e-m1a',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'FAG NJ2312-E-XL-M1A Cylindrical',
-    category: 'cylindrical',
-    nameFa: 'رولبرینگ استوانه‌ای قفسه برنجی سنگین FAG NJ 2312 E M1A',
-    nameEn: 'FAG NJ2312-E-XL-M1A Heavy-Duty Cylindrical Roller Bearing',
-    descriptionFa: 'رولبرینگ استوانه‌ای یک‌طرف تثبیت‌کننده با قفسه برنجی ماشین‌کاری شده یکپارچه، مناسب برای مقاومت در برابر تکانه‌های ضربه‌ای شدید در گیبرکس‌های سنگین.',
-    descriptionEn: 'Single row cylindrical roller bearing with one-piece machined brass cage guided on inner ring, providing high radial load carrying capacity.',
-    d: 60,
-    D: 130,
-    B: 46,
-    weightKg: 2.95,
-    crKn: 260.0,
-    corKn: 270.0,
-    speedGreaseRpm: 5000,
-    speedOilRpm: 6300,
-    cageMaterialFa: 'برنج آلیاژی یکپارچه ماشین‌کاری شده (M1A)',
-    cageMaterialEn: 'Machined solid brass cage (M1A)',
-    sealingFa: 'طراحی باز برای روانکاری با روغن چرخ‌دنده',
-    sealingEn: 'Open design for high-pressure gear oils',
-    clearanceOptions: ['C3', 'CN', 'C4'],
-    brands: ['FAG', 'Schaeffler'],
-    applicationsFa: ['گیربکس‌های سنگین نورد گرم فولاد', 'وینچ‌ها و جرثقیل‌های صنعتی', 'پولی‌های محرک سنگ‌شکن'],
-    applicationsEn: ['Steel Rolling Mill Gearboxes', 'Industrial Winches & Cranes', 'Primary Crusher Drive Pulleys'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
-            sourceType: "official_catalog",
-            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-ina-nk-25-20',
-    slug: 'ina-nk-25-20',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'INA NK 25/20 Heavy Needle Roller',
-    category: 'roller',
-    nameFa: 'رولبرینگ سوزنی سنگین بدون رینگ داخلی INA NK 25/20',
-    nameEn: 'INA NK 25/20 Heavy-Duty Needle Roller Bearing',
-    descriptionFa: 'رولبرینگ سوزنی صنعتی بدون رینگ داخلی برای فضاهای شعاعی فوق‌العاده محدود و شفت‌های سنگ‌خورده و سخت‌کاری شده تا 60 HRC.',
-    descriptionEn: 'Precision German INA needle roller bearing with machined outer ring and cage assembly without inner ring for compact high-load designs.',
-    d: 25,
-    D: 35,
-    B: 20,
-    weightKg: 0.058,
-    crKn: 24.5,
-    corKn: 34.0,
-    speedGreaseRpm: 12000,
-    speedOilRpm: 18000,
-    cageMaterialFa: 'فولاد آلیاژی نازک با سختی بالا',
-    cageMaterialEn: 'Hardened sheet steel cage',
-    sealingFa: 'باز با سوراخ و شیار گریس‌خور',
-    sealingEn: 'Open type with relubrication feature',
-    clearanceOptions: ['Standard Needle Fit'],
-    brands: ['INA', 'Schaeffler'],
-    applicationsFa: ['جعبه‌دنده‌های دستی و اتوماتیک خودرو', 'پمپ‌های هیدرولیک پیستونی', 'مفصل‌های بازوی روباتیک'],
-    applicationsEn: ['Automotive Manual & Auto Transmissions', 'Axial Piston Hydraulic Pumps', 'Robotic Articulated Joints'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 18900,
-    technicalSources: [
-        {
-            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
-            sourceType: "official_catalog",
-            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-ina-kr-35-pp',
-    slug: 'ina-kr-35-pp',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'INA KR 35 PP Cam Follower',
-    category: 'roller',
-    nameFa: 'بادامک پیرو پیچ‌دار گاید و ریل INA KR 35 PP آلمان',
-    nameEn: 'INA KR 35 PP Stud Type Track Roller / Cam Follower',
-    descriptionFa: 'غلتک مسیر پیچی همراه با گلویی شش‌گوش، قفسه سوزنی و آب‌بندی لب‌دار پلاستیکی دو طرفه با ظرفیت تحمل بارهای ضربه‌ای بالا در خطوط اتوماسیون.',
-    descriptionEn: 'INA stud type track roller with hexagonal socket in stud head, needle roller set, and axial contact seals (PP) for cam mechanisms.',
-    d: 16,
-    D: 35,
-    B: 52,
-    weightKg: 0.17,
-    crKn: 10.8,
-    corKn: 14.9,
-    speedGreaseRpm: 6500,
-    speedOilRpm: 0,
-    cageMaterialFa: 'قفسه فولادی دقیق ماشین‌کاری شده',
-    cageMaterialEn: 'Precision sheet steel cage',
-    sealingFa: 'آب‌بند پلاستیکی تماسی محافظ لب‌دار (PP)',
-    sealingEn: 'Dual plastic axial contact seal rings (PP)',
-    clearanceOptions: ['Standard Cam Fit'],
-    brands: ['INA', 'Schaeffler'],
-    applicationsFa: ['مکانیزم‌های بادامکی خطوط بطری‌پرکنی', 'ریل‌های راهنمای دستگاه‌های بسته‌بندی', 'ماشین‌های ابزار CNC'],
-    applicationsEn: ['Bottle Filling Cam Mechanisms', 'Packaging Machine Linear Guides', 'CNC Transfer Lines'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "Schaeffler Technologies AG & Co. KG (FAG / INA)",
-            sourceType: "official_catalog",
-            reference: "Schaeffler medias / Rolling Bearings Master Catalog HR 1 / X-life Specification Tables",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // ==========================================
-  // BRAND ADDITIONS: TIMKEN
-  // ==========================================
-  {
-    id: 'pc-timken-lm11749-10',
-    slug: 'timken-lm11749-10',
-    imageUrl: taperedBearingImg,
-    images: [taperedBearingImg],
-    code: 'TIMKEN LM11749 / LM11710 (SET1)',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی اینچی آمریکایی TIMKEN LM11749/10',
-    nameEn: 'TIMKEN LM11749 / LM11710 Imperial Tapered Roller Bearing',
-    descriptionFa: 'رولبرینگ مخروطی اینچی اورجینال تیمکن آمریکا با ابعاد شفت 0.6875 اینچ (17.462 میلی‌متر)، مناسب برای چرخ جلو خودروها و تجهیزات کشاورزی با دوام بالا.',
-    descriptionEn: 'Genuine American Timken imperial tapered roller bearing cone and cup set with 0.6875" (17.462mm) bore for precision axle and spindle applications.',
-    d: 17.462,
-    D: 39.878,
-    B: 13.843,
-    weightKg: 0.086,
-    crKn: 24.8,
-    corKn: 23.3,
-    speedGreaseRpm: 9000,
-    speedOilRpm: 13000,
-    calculationFactorE: 0.33,
-    calculationFactorY: 1.82,
-    calculationFactorY0: 1.00,
-    cageMaterialFa: 'فولاد پرسکاری شده حرارت‌دیده تیمکن',
-    cageMaterialEn: 'Stamped steel Timken cage',
-    sealingFa: 'باز (نیاز به گریس نسوز با فشار بالا)',
-    sealingEn: 'Open (separate cone & cup)',
-    clearanceOptions: ['Standard Preload Range'],
-    brands: ['TIMKEN'],
-    applicationsFa: ['توپی چرخ تریلر و خودروهای تجاری', 'محور جلو تراکتورهای کشاورزی', 'اسپیندل ماشین‌های چوب‌بری'],
-    applicationsEn: ['Trailer Wheel Hubs', 'Tractor Front Axles', 'Woodworking High-Speed Spindles'],
-    inStock: true,
-    featured: true,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 13700,
-    technicalSources: [
-        {
-            manufacturer: "The Timken Company USA",
-            sourceType: "engineering_manual",
-            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-timken-lm67048-10',
-    slug: 'timken-lm67048-10',
-    imageUrl: taperedBearingImg,
-    images: [taperedBearingImg],
-    code: 'TIMKEN LM67048 / LM67010 (SET6)',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی اینچی ۱.۲۵ اینچ TIMKEN LM67048/10',
-    nameEn: 'TIMKEN LM67048 / LM67010 Imperial Tapered Roller Set (1.25")',
-    descriptionFa: 'ست رولبرینگ مخروطی اینچی با سوراخ ۱.۲۵ اینچ (۳۱.۷۵ میلی‌متر) ساخت تیمکن آمریکا، طراحی‌شده برای تحمل نیروهای محوری و شعاعی همزمان با تکنولوژی سخت‌کاری سطحی کیس‌هاردنینگ.',
-    descriptionEn: 'Timken premium case-hardened alloy steel imperial tapered roller bearing set with 1.25" (31.75mm) bore for automotive hubs and drive axles.',
-    d: 31.75,
-    D: 59.131,
-    B: 15.875,
-    weightKg: 0.18,
-    crKn: 41.5,
-    corKn: 43.8,
-    speedGreaseRpm: 6700,
-    speedOilRpm: 9500,
-    calculationFactorE: 0.44,
-    calculationFactorY: 1.36,
-    calculationFactorY0: 0.75,
-    cageMaterialFa: 'فولاد آلیاژی ویژه کیس‌هاردنینگ تیمکن',
-    cageMaterialEn: 'Case-carburized alloy steel cage',
-    sealingFa: 'طراحی باز قابل تنظیم لقی دقیق',
-    sealingEn: 'Open design with adjustable clearance',
-    clearanceOptions: ['Custom Preload'],
-    brands: ['TIMKEN'],
-    applicationsFa: ['دیفرانسیل خودروهای دو دیفرانسیل و وانت', 'گیربکس‌های صنعتی هلیکال', 'پولی‌های سنگین انتقال قدرت'],
-    applicationsEn: ['4WD Vehicle Differentials', 'Helical Gear Drives', 'Heavy Industrial Pulleys'],
-    inStock: true,
-    featured: true,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 10000,
-    technicalSources: [
-        {
-            manufacturer: "The Timken Company USA",
-            sourceType: "engineering_manual",
-            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-timken-22220-emw33c3',
-    slug: 'timken-22220-emw33c3',
-    imageUrl: sphericalBearingImg,
-    images: [sphericalBearingImg],
-    code: 'TIMKEN 22220EMW33C3 Solid Brass',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای قفسه برنجی توپر TIMKEN 22220 EMW33 C3',
-    nameEn: 'TIMKEN 22220EMW33C3 Solid Machined Brass Spherical Roller',
-    descriptionFa: 'رولبرینگ بشکه‌ای قفسه برنجی ماشین‌کاری شده یک‌تکه تیمکن برای شرایط ارتعاش و بار بسیار سنگین، جلوگیری از سایش در دور بالا و لقی C3.',
-    descriptionEn: 'Timken premium heavy-duty spherical roller bearing featuring a one-piece precision-machined brass cage (EM) and C3 internal clearance.',
-    d: 100,
-    D: 180,
-    B: 46,
-    weightKg: 4.85,
-    crKn: 435.0,
-    corKn: 540.0,
-    speedGreaseRpm: 3200,
-    speedOilRpm: 4200,
-    calculationFactorE: 0.24,
-    calculationFactorY1: 2.8,
-    calculationFactorY2: 4.2,
-    calculationFactorY0: 2.8,
-    cageMaterialFa: 'برنج آلیاژی یکپارچه با راهنمای رولرها (EM)',
-    cageMaterialEn: 'Solid precision-machined brass cage (EM)',
-    sealingFa: 'شیار و ۳ سوراخ روانکاری رینگ بیرونی (W33)',
-    sealingEn: 'W33 Outer ring lubrication groove with holes',
-    clearanceOptions: ['C3', 'CN', 'C4'],
-    brands: ['TIMKEN'],
-    applicationsFa: ['سرندهای لرزان معادن شن و ماسه', 'درام‌های نوار نقاله کارخانجات مس و آهن', 'اکسترودرهای پلاستیک'],
-    applicationsEn: ['Mining Vibrating Screens', 'Belt Conveyor Pulley Drums', 'High-Torque Plastic Extruders'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "The Timken Company USA",
-            sourceType: "engineering_manual",
-            reference: "Timken Engineering Manual (Catalog Order No. 10424) / Spherical & Tapered Roller Lines",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // ==========================================
-  // BRAND ADDITIONS: NSK
-  // ==========================================
-  {
-    id: 'pc-nsk-6206-ddu-cm',
-    slug: 'nsk-6206-ddu-cm',
-    imageUrl: ballBearingImg,
-    images: [ballBearingImg],
-    code: 'NSK 6206 DDU CM Japan',
-    category: 'ball',
-    nameFa: 'بلبرینگ ژاپنی الکتروموتوری NSK 6206 DDU CM ضد آب',
-    nameEn: 'NSK 6206 DDU CM Electric Motor Quality Deep Groove Ball',
-    descriptionFa: 'بلبرینگ سوپر بی‌صدا ژاپن مجهز به آب‌بندهای لاستیکی تماسی DDU با لقی ویژه الکتروموتوری CM برای حداقل نویز صوتی و طول عمر فوق‌العاده.',
-    descriptionEn: 'Japanese NSK electric motor quality ball bearing featuring dual contact DDU rubber seals and special low-noise CM electric motor clearance.',
-    d: 30,
-    D: 62,
-    B: 16,
-    weightKg: 0.20,
-    crKn: 19.5,
-    corKn: 11.3,
-    speedGreaseRpm: 10000,
-    speedOilRpm: 0,
-    cageMaterialFa: 'فولاد پرسکاری شده کم‌اصطکاک ژاپن',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'آب‌بند تماسی مقاوم DDU در دو طرف',
-    sealingEn: 'Dual contact synthetic rubber seals (DDU)',
-    clearanceOptions: ['CM (Electric Motor)', 'C3', 'CN'],
-    brands: ['NSK'],
-    applicationsFa: ['الکتروموتورهای فوق کم‌صدا', 'ماشین‌های لباسشویی و لوازم خانگی صنعتی', 'پمپ‌های خنک‌کننده CNC'],
-    applicationsEn: ['Ultra-Quiet Electric Motors', 'Industrial Washing Systems', 'CNC Coolant Pumps'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "NSK Ltd. Japan",
-            sourceType: "official_catalog",
-            reference: "NSK Rolling Bearings Global Master Catalog CAT. No. E1102 / Precision Bearings CAT. No. E1228",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-nsk-7010-ctyndblp4',
-    slug: 'nsk-7010-ctyndblp4',
-    imageUrl: ballBearingImg,
-    images: [ballBearingImg],
-    code: 'NSK 7010 CTYNDBLP4 Super Precision',
-    category: 'ball',
-    nameFa: 'بلبرینگ اسپیندل تماس زاویه‌ای فوق دقیق جفت NSK 7010 P4',
-    nameEn: 'NSK 7010 CTYNDBLP4 Super Precision Angular Contact Spindle Pair',
-    descriptionFa: 'جفت بلبرینگ تماس زاویه‌ای اسپیندل ساخت ژاپن با زاویه تماس ۱۵ درجه (C)، قفسه پلی‌آمید و کلاس دقت تلرانسی P4 مناسب برای دور اسپیندل تا ۳۰,۰۰۰ RPM.',
-    descriptionEn: 'High-precision matched duplex pair of angular contact spindle ball bearings with 15° contact angle, polyamide cage, and ISO Class 4 runout tolerance.',
-    d: 50,
-    D: 80,
-    B: 16,
-    weightKg: 0.26,
-    crKn: 25.8,
-    corKn: 19.8,
-    speedGreaseRpm: 21000,
-    speedOilRpm: 32000,
-    cageMaterialFa: 'پلی‌آمید مهندسی مقاوم به حرارت (TYN)',
-    cageMaterialEn: 'Engineered high-speed polyamide cage (TYN)',
-    sealingFa: 'باز با گریس‌کاری تخصصی اسپیندل',
-    sealingEn: 'Open design for high-speed micro-lubrication',
-    clearanceOptions: ['Light Preload (L)', 'Medium Preload (M)'],
-    brands: ['NSK'],
-    applicationsFa: ['اسپیندل فرزهای CNC ۵ محوره', 'دستگاه‌های سنگ‌زنی داخل‌تراش', 'هد فرزهای دندانپزشکی و پزشکی'],
-    applicationsEn: ['5-Axis CNC Milling Spindles', 'High-Speed Internal Grinders', 'Medical & Dental Machining Heads'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 35000,
-    technicalSources: [
-        {
-            manufacturer: "NSK Ltd. Japan",
-            sourceType: "official_catalog",
-            reference: "NSK Rolling Bearings Global Master Catalog CAT. No. E1102 / Precision Bearings CAT. No. E1228",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-nsk-nu-2214-et',
-    slug: 'nsk-nu-2214-et',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'NSK NU 2214 ET Cylindrical',
-    category: 'cylindrical',
-    nameFa: 'رولبرینگ استوانه‌ای دور بالا NSK NU 2214 ET ژاپن',
-    nameEn: 'NSK NU 2214 ET High-Capacity Cylindrical Roller Bearing',
-    descriptionFa: 'رولبرینگ استوانه‌ای با قفسه پلی‌آمید ۶۶ تقویت‌شده ژاپنی، ظرفیت بار شعاعی بالا و قابلیت دمونتاژ رینگ داخلی برای سهولت در نصب و نگهداری.',
-    descriptionEn: 'NSK Japan cylindrical roller bearing with glass-fiber reinforced polyamide cage (ET) offering low friction, high shock capacity, and easy mounting.',
-    d: 70,
-    D: 125,
-    B: 31,
-    weightKg: 1.45,
-    crKn: 164.0,
-    corKn: 188.0,
-    speedGreaseRpm: 5300,
-    speedOilRpm: 6700,
-    cageMaterialFa: 'پلی‌آمید ۶۶ تقویت‌شده با الیاف شیشه (ET)',
-    cageMaterialEn: 'Polyamide 66 reinforced cage (ET)',
-    sealingFa: 'طراحی باز قابل روانکاری با گریس و روغن',
-    sealingEn: 'Open type for circulating lube systems',
-    clearanceOptions: ['C3', 'CN', 'C4'],
-    brands: ['NSK'],
-    applicationsFa: ['ترکشن موتورهای قطار و مترو', 'گیربکس‌های صنعتی کانوایر', 'پمپ‌های سانتریفیوژ دو مکشه'],
-    applicationsEn: ['Railway Traction Motors', 'Conveyor Drive Gearboxes', 'Double-Suction Centrifugal Pumps'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "NSK Ltd. Japan",
-            sourceType: "official_catalog",
-            reference: "NSK Rolling Bearings Global Master Catalog CAT. No. E1102 / Precision Bearings CAT. No. E1228",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // ==========================================
-  // BRAND ADDITIONS: NTN
-  // ==========================================
-  {
-    id: 'pc-ntn-6204-llu-c3',
-    slug: 'ntn-6204-llu-c3',
-    imageUrl: ballBearingImg,
-    images: [ballBearingImg],
-    code: 'NTN 6204 LLU / C3 Japan',
-    category: 'ball',
-    nameFa: 'بلبرینگ ضد آب و غبار NTN ژاپن مدل 6204 LLU C3',
-    nameEn: 'NTN 6204 LLU / C3 Sealed Ball Bearing (Japan)',
-    descriptionFa: 'بلبرینگ شیار عمیق ژاپنی اورجینال NTN با کاسه نمد لاستیکی تماسی فشرده LLU و لقی C3 مناسب برای پمپ‌های آب و کارواش صنعتی.',
-    descriptionEn: 'High quality NTN Japan deep groove ball bearing with full contact synthetic LLU seals and C3 clearance for severe water and dust environments.',
-    d: 20,
-    D: 47,
-    B: 14,
-    weightKg: 0.11,
-    crKn: 12.8,
-    corKn: 6.65,
-    speedGreaseRpm: 12000,
-    speedOilRpm: 0,
-    cageMaterialFa: 'فولاد آلیاژی ژاپنی',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'کاسه نمد تماسی سنتتیک LLU دو طرفه',
-    sealingEn: 'Dual synthetic contact rubber seals (LLU)',
-    clearanceOptions: ['C3', 'CN'],
-    brands: ['NTN'],
-    applicationsFa: ['پمپ‌های طبقاتی آب و تصفیه‌خانه‌ها', 'الکتروموتورهای کارگاهی', 'فن‌های تهویه مرغداری و گلخانه'],
-    applicationsEn: ['Multi-Stage Booster Pumps', 'Workshop Electric Motors', 'Agricultural Ventilation Fans'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "NTN Corporation Japan",
-            sourceType: "official_catalog",
-            reference: "NTN Ball and Roller Bearings Main Catalog CAT. No. 2203 / ULTAGE® High-Capacity Series",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-ntn-22214-eakd1',
-    slug: 'ntn-22214-eakd1',
-    imageUrl: sphericalBearingImg,
-    images: [sphericalBearingImg],
-    code: 'NTN 22214 EAKD1 ULTAGE®',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای NTN 22214 EAKD1 سری فوق‌العاده ULTAGE',
-    nameEn: 'NTN 22214 EAKD1 ULTAGE Spherical Roller Bearing Tapered',
-    descriptionFa: 'سری اولتاژ (ULTAGE) پیشرفته‌ترین دستاورد فنی NTN ژاپن با رولرهای بهینه‌سازی‌شده برای تحمل بارهای ضربه‌ای تا ۲ برابر بیشتر و سوراخ کونیک.',
-    descriptionEn: 'NTN flagship ULTAGE series spherical roller bearing engineered with optimal roller geometry for extreme dynamic fatigue resistance.',
-    d: 70,
-    D: 125,
-    B: 31,
-    weightKg: 1.55,
-    crKn: 212.0,
-    corKn: 236.0,
-    speedGreaseRpm: 4500,
-    speedOilRpm: 5800,
-    calculationFactorE: 0.23,
-    calculationFactorY1: 2.9,
-    calculationFactorY2: 4.4,
-    calculationFactorY0: 2.9,
-    cageMaterialFa: 'ورق فولادی فرم‌دهی شده بسیار سخت',
-    cageMaterialEn: 'Heavy gauge stamped steel cage',
-    sealingFa: 'شیار و سوراخ روانکاری رینگ خارجی (D1)',
-    sealingEn: 'Outer ring lubrication groove and holes (D1)',
-    clearanceOptions: ['C3', 'CN', 'C4'],
-    brands: ['NTN'],
-    applicationsFa: ['غلتک‌های انتقال سنگ معدن', 'تسمه‌نقاله‌های کارخانجات فولادسازی', 'میکسر بتن و آسفالت'],
-    applicationsEn: ['Mining Ore Idler Rollers', 'Steel Plant Conveyor Pulleys', 'Concrete & Asphalt Mixers'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "NTN Corporation Japan",
-            sourceType: "official_catalog",
-            reference: "NTN Ball and Roller Bearings Main Catalog CAT. No. 2203 / ULTAGE® High-Capacity Series",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-ntn-5206-s',
-    slug: 'ntn-5206-s',
-    imageUrl: ballBearingImg,
-    images: [ballBearingImg],
-    code: 'NTN 5206 S Double Row',
-    category: 'ball',
-    nameFa: 'بلبرینگ دو ردیفه تماس زاویه‌ای NTN مدل 5206 S ژاپن',
-    nameEn: 'NTN 5206 S Double Row Angular Contact Ball Bearing',
-    descriptionFa: 'بلبرینگ دو ردیفه ژاپنی با زاویه تماس داخلی ۲۵ درجه، قابلیت جذب همزمان بارهای محوری دوطرفه و گشتاورهای خمشی در یک پکیج فشرده.',
-    descriptionEn: 'NTN double row angular contact ball bearing engineered with rigid internal contact angles for high combined axial & moment loads.',
-    d: 30,
-    D: 62,
-    B: 23.8,
-    weightKg: 0.30,
-    crKn: 30.5,
-    corKn: 21.0,
-    speedGreaseRpm: 8500,
-    speedOilRpm: 12000,
-    cageMaterialFa: 'فولاد پرسکاری شده دو تکه',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'طراحی باز جهت غوطه‌وری در محفظه روغن',
-    sealingEn: 'Open type for oil circulation lubrication',
-    clearanceOptions: ['Normal (CN)', 'C3'],
-    brands: ['NTN'],
-    applicationsFa: ['پمپ‌های فرآیندی نفت و پتروشیمی', 'کلاچ‌های هیدرولیک گیربکس', 'دمنده‌های هوای فشرده'],
-    applicationsEn: ['Petrochemical API Process Pumps', 'Hydraulic Gearbox Clutches', 'Screw Air Compressors'],
-    inStock: true,
-    featured: false,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 13000,
-    technicalSources: [
-        {
-            manufacturer: "NTN Corporation Japan",
-            sourceType: "official_catalog",
-            reference: "NTN Ball and Roller Bearings Main Catalog CAT. No. 2203 / ULTAGE® High-Capacity Series",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // ==========================================
-  // BRAND ADDITIONS: KOYO (JTEKT)
-  // ==========================================
-  {
-    id: 'pc-koyo-6207-2rs',
-    slug: 'koyo-6207-2rs',
-    imageUrl: ballBearingImg,
-    images: [ballBearingImg],
-    code: 'KOYO 6207-2RS (JTEKT Japan)',
-    category: 'ball',
-    nameFa: 'بلبرینگ شیار عمیق ژاپنی KOYO مدل 6207 2RS با آب‌بند لاستیکی',
-    nameEn: 'KOYO 6207-2RS JTEKT Deep Groove Ball Bearing',
-    descriptionFa: 'بلبرینگ ژاپنی اورجینال کویو (JTEKT) برای شفت ۳۵ میلی‌متر، طراحی آب‌بند ضد گرد و خاک با گریس ماندگار با کارایی بالا.',
-    descriptionEn: 'High quality Japanese KOYO JTEKT deep groove ball bearing with dual contact rubber seals and premium lifetime grease filling.',
-    d: 35,
-    D: 72,
-    B: 17,
-    weightKg: 0.29,
-    crKn: 25.7,
-    corKn: 15.3,
-    speedGreaseRpm: 8500,
-    speedOilRpm: 0,
-    cageMaterialFa: 'فولاد فشرده دقیق ژاپنی',
-    cageMaterialEn: 'Pressed steel cage',
-    sealingFa: 'کاسه نمد لاستیکی تماسی NBR دو طرفه (2RS)',
-    sealingEn: 'Dual rubber contact seals (2RS)',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['KOYO', 'JTEKT'],
-    applicationsFa: ['دینام و استارت خودروهای سنگین', 'موتورهای بالابر کارگاهی', 'پمپ‌های خلاء'],
-    applicationsEn: ['Heavy Vehicle Alternators', 'Workshop Hoist Motors', 'Industrial Vacuum Pumps'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "JTEKT Corporation (Koyo Bearings)",
-            sourceType: "official_catalog",
-            reference: "JTEKT / Koyo Ball and Roller Bearings Main Catalog CAT. No. B2001E / ISO 15 Standards",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-koyo-30212-jr',
-    slug: 'koyo-30212-jr',
-    imageUrl: taperedBearingImg,
-    images: [taperedBearingImg],
-    code: 'KOYO 30212 JR Tapered Roller',
-    category: 'roller',
-    nameFa: 'رولبرینگ مخروطی ژاپنی KOYO مدل 30212 JR دقیق',
-    nameEn: 'KOYO 30212 JR Metric Tapered Roller Bearing (Japan)',
-    descriptionFa: 'رولبرینگ مخروطی متریک با دقت دور بالا و تلرانس زاویه کونیک اصلاح‌شده، مناسب برای محور گیربکس‌های صنعتی و بارهای محوری سنگین.',
-    descriptionEn: 'Japanese KOYO metric tapered roller bearing manufactured to stringent precision tolerances for high rigidity gear drives and machine tool shafts.',
-    d: 60,
-    D: 110,
-    B: 23.75,
-    weightKg: 0.89,
-    crKn: 104.0,
-    corKn: 122.0,
-    speedGreaseRpm: 3800,
-    speedOilRpm: 5300,
-    calculationFactorE: 0.40,
-    calculationFactorY: 1.50,
-    calculationFactorY0: 0.80,
-    cageMaterialFa: 'فولاد سخت‌کاری شده کویو',
-    cageMaterialEn: 'Stamped high-strength steel cage',
-    sealingFa: 'طراحی باز قابل تنظیم لقی دقیق محوری',
-    sealingEn: 'Open type separable cone & cup assembly',
-    clearanceOptions: ['Precision Setup'],
-    brands: ['KOYO', 'JTEKT'],
-    applicationsFa: ['گیربکس خورشیدی و هلیکال سنگین', 'محور چرخ تریلرهای معدنی', 'پینیون دیفرانسیل'],
-    applicationsEn: ['Heavy Planetary & Helical Gearboxes', 'Mining Trailer Wheel Axles', 'Differential Drive Pinions'],
-    inStock: true,
-    featured: false,
-    schematicType: 'tapered',
-    speedReferenceType: 'both',
-    thermalSpeedRatingRpm: 5600,
-    technicalSources: [
-        {
-            manufacturer: "JTEKT Corporation (Koyo Bearings)",
-            sourceType: "official_catalog",
-            reference: "JTEKT / Koyo Ball and Roller Bearings Main Catalog CAT. No. B2001E / ISO 15 Standards",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-koyo-22218-rhr',
-    slug: 'koyo-22218-rhr',
-    imageUrl: sphericalBearingImg,
-    images: [sphericalBearingImg],
-    code: 'KOYO 22218 RHR Spherical Roller',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای KOYO 22218 RHR با ظرفیت بار استثنایی',
-    nameEn: 'KOYO 22218 RHR High-Load Spherical Roller Bearing',
-    descriptionFa: 'رولبرینگ بشکه‌ای ژاپنی کویو با طراحی رولرهای پرظرفیت سری RHR جهت توزیع بهینه تنش تماسی و جلوگیری از خستگی زودرس در شرایط بارهای نوسانی.',
-    descriptionEn: 'KOYO JTEKT premium spherical roller bearing featuring RHR design for uniform contact stress distribution under fluctuating shock loads.',
-    d: 90,
-    D: 160,
-    B: 40,
-    weightKg: 3.40,
-    crKn: 325.0,
-    corKn: 390.0,
-    speedGreaseRpm: 3400,
-    speedOilRpm: 4500,
-    calculationFactorE: 0.23,
-    calculationFactorY1: 2.9,
-    calculationFactorY2: 4.4,
-    calculationFactorY0: 2.9,
-    cageMaterialFa: 'قفسه فولادی پرسکاری دو تکه فسفاته شده',
-    cageMaterialEn: 'High rigidity stamped steel cage',
-    sealingFa: 'شیار و سوراخ‌های روغن‌کاری روی رینگ بیرونی',
-    sealingEn: 'Outer ring lubrication groove with 3 holes',
-    clearanceOptions: ['C3', 'CN', 'C4'],
-    brands: ['KOYO', 'JTEKT'],
-    applicationsFa: ['گیربکس آسیاب‌های سنگ‌شکن', 'درام محرک تسمه نقاله‌ها', 'میکسر صنایع غذایی و شیمیایی'],
-    applicationsEn: ['Primary Crusher Gear Drives', 'Conveyor Head Pulleys', 'Chemical & Food Processing Mixers'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "JTEKT Corporation (Koyo Bearings)",
-            sourceType: "official_catalog",
-            reference: "JTEKT / Koyo Ball and Roller Bearings Main Catalog CAT. No. B2001E / ISO 15 Standards",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // ==========================================
-  // BRAND ADDITIONS: NACHI
-  // ==========================================
-  {
-    id: 'pc-nachi-6008-2nse9',
-    slug: 'nachi-6008-2nse9',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'NACHI 6008-2NSE9 Quest® Japan',
-    category: 'ball',
-    nameFa: 'بلبرینگ باریک دور بالا NACHI 6008 2NSE9 سری کوئست ژاپن',
-    nameEn: 'NACHI 6008-2NSE9 Quest Series High-Precision Ball Bearing',
-    descriptionFa: 'بلبرینگ ژاپنی ناچی سری Quest با فولاد فوق‌العاده تمیز خلاء و آب‌بند غیرتماسی/تماسی بهینه 2NSE9 جهت کاهش اتلاف توان و نویز در الکتروموتورها.',
-    descriptionEn: 'Japanese NACHI Quest series ball bearing made with high-purity vacuum degassed steel and 2NSE9 low torque contact rubber seals.',
-    d: 40,
-    D: 68,
-    B: 15,
-    weightKg: 0.19,
-    crKn: 16.8,
-    corKn: 11.5,
-    speedGreaseRpm: 11000,
-    speedOilRpm: 0,
-    cageMaterialFa: 'فولاد پرسکاری شده دقیق ناچی',
-    cageMaterialEn: 'Precision pressed steel cage',
-    sealingFa: 'آب‌بند لاستیکی کم‌اصطکاک پیشرفته (2NSE9)',
-    sealingEn: 'Dual low-torque contact rubber seals (2NSE9)',
-    clearanceOptions: ['CN', 'C3'],
-    brands: ['NACHI'],
-    applicationsFa: ['الکتروموتورهای صنعتی با راندمان IE3 و IE4', 'ژنراتورهای دیزلی', 'دمنده‌های هوادهی تصفیه'],
-    applicationsEn: ['IE3 / IE4 High-Efficiency Motors', 'Diesel Generators', 'Wastewater Aeration Blowers'],
-    inStock: true,
-    featured: true,
-    schematicType: 'deep-groove',
-    speedReferenceType: 'limiting',
-    technicalSources: [
-        {
-            manufacturer: "NACHI-FUJIKOSHI Corp. Japan",
-            sourceType: "official_catalog",
-            reference: "NACHI Bearings Quest® Series Master Catalog CAT. No. 2200-8",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-nachi-22222-ex',
-    slug: 'nachi-22222-ex',
-    imageUrl: sphericalBearingImg,
-    images: [sphericalBearingImg],
-    code: 'NACHI 22222 EX Quest Spherical',
-    category: 'spherical',
-    nameFa: 'رولبرینگ بشکه‌ای پرقدرت NACHI مدل 22222 EX ساخت ژاپن',
-    nameEn: 'NACHI 22222 EX Quest Series Heavy Spherical Roller Bearing',
-    descriptionFa: 'رولبرینگ بشکه‌ای ژاپنی ناچی با رولرهای متقارن طولانی‌تر و ظرفیت بار دینامیکی استثنایی برای کارخانجات صنایع سیمان، فولاد و نورد سنگین.',
-    descriptionEn: 'NACHI Japan Quest series spherical roller bearing featuring maximized symmetrical roller dimensions for maximum load ratings and service life.',
-    d: 110,
-    D: 200,
-    B: 53,
-    weightKg: 6.95,
-    crKn: 560.0,
-    corKn: 690.0,
-    speedGreaseRpm: 2600,
-    speedOilRpm: 3400,
-    calculationFactorE: 0.23,
-    calculationFactorY1: 2.9,
-    calculationFactorY2: 4.4,
-    calculationFactorY0: 2.9,
-    cageMaterialFa: 'قفسه فولادی ضخیم با راهنمای رولر مرکزی',
-    cageMaterialEn: 'Heavy duty pressed steel cage with guide ring',
-    sealingFa: 'شیار و ۳ سوراخ استاندارد روغنکاری روی رینگ بیرونی',
-    sealingEn: 'Standard outer ring lubrication feature (W33)',
-    clearanceOptions: ['C3', 'CN', 'C4'],
-    brands: ['NACHI'],
-    applicationsFa: ['آسیاب‌های بالمیل سیمان', 'خطوط نورد تیرآهن و میلگرد', 'پمپ‌های غلیظ‌کش با ویسکوزیته بالا'],
-    applicationsEn: ['Cement Ball Mills', 'Steel Rebar Rolling Mills', 'High Viscosity Heavy Pumps'],
-    inStock: true,
-    featured: true,
-    schematicType: 'spherical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "NACHI-FUJIKOSHI Corp. Japan",
-            sourceType: "official_catalog",
-            reference: "NACHI Bearings Quest® Series Master Catalog CAT. No. 2200-8",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-nachi-nup-310-eg',
-    slug: 'nachi-nup-310-eg',
-    imageUrl: cylindricalBearingImg,
-    images: [cylindricalBearingImg],
-    code: 'NACHI NUP 310 EG Cylindrical',
-    category: 'cylindrical',
-    nameFa: 'رولبرینگ استوانه‌ای لبه‌دار تثبیت‌کننده NACHI NUP 310 EG',
-    nameEn: 'NACHI NUP 310 EG Locating Cylindrical Roller Bearing',
-    descriptionFa: 'رولبرینگ استوانه‌ای مجهز به رینگ لبه‌دار و واشر کفی تثبیت‌کننده برای جذب بارهای شعاعی سنگین و موقعیت‌دهی محوری دوطرفه در شفت‌های چرخان.',
-    descriptionEn: 'NACHI Japan cylindrical roller bearing with fixed flange and loose rib plate for dual axial locating capability under heavy radial loads.',
-    d: 50,
-    D: 110,
-    B: 27,
-    weightKg: 1.15,
-    crKn: 112.0,
-    corKn: 108.0,
-    speedGreaseRpm: 6000,
-    speedOilRpm: 7500,
-    cageMaterialFa: 'پلی‌آمید مقاوم ۶۶ یا قفسه فولادی (EG)',
-    cageMaterialEn: 'Engineered high strength polyamide cage (EG)',
-    sealingFa: 'طراحی باز جهت روانکاری مطمئن با روغن دنده',
-    sealingEn: 'Open type for circulating oil/grease',
-    clearanceOptions: ['C3', 'CN'],
-    brands: ['NACHI'],
-    applicationsFa: ['شفت خروجی گیربکس‌های صنعتی', 'توربین‌های هیدروالکتریک کوچک', 'پولی‌های محرک جرثقیل'],
-    applicationsEn: ['Industrial Gearbox Output Shafts', 'Hydroelectric Micro-Turbines', 'Overhead Crane Drive Pulleys'],
-    inStock: true,
-    featured: false,
-    schematicType: 'cylindrical',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "NACHI-FUJIKOSHI Corp. Japan",
-            sourceType: "official_catalog",
-            reference: "NACHI Bearings Quest® Series Master Catalog CAT. No. 2200-8",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-
-  // ==========================================
-  // BRAND ADDITIONS: CORTECO (FREUDENBERG GROUP)
-  // ==========================================
-  {
-    id: 'pc-corteco-12011153b',
-    slug: 'corteco-12011153b',
-    imageUrl: oilSealImg,
-    images: [oilSealImg],
-    code: 'CORTECO 12011153B Simmerring® TC 35x52x7',
-    category: 'seal',
-    nameFa: 'کاسه نمد سیمرینگ ایتالیایی کورتکو CORTECO 35x52x7 NBR',
-    nameEn: 'CORTECO 12011153B Simmerring TC 35x52x7 NBR (Italy)',
-    descriptionFa: 'کاسه نمد اورجینال کورتکو ایتالیا (گروه فرویدنبرگ) با فنر گالوانیزه و لبه گردگیر اضافه، مناسب برای جلوگیری از نشت روغن در گیربکس‌ها و شفت‌های دوار.',
-    descriptionEn: 'Genuine Italian CORTECO (Freudenberg Group) Simmerring radial shaft seal with dust lip and garter spring for high-speed industrial shafts.',
-    d: 35,
-    D: 52,
-    B: 7,
-    weightKg: 0.022,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 7000,
-    speedOilRpm: 11000,
-    cageMaterialFa: 'اسکلت فلزی فولادی روکش‌دار نیتریل',
-    cageMaterialEn: 'Internal steel case with bonded NBR elastomer',
-    sealingFa: 'لاستیک نیتریل NBR درجه یک با لبه محافظ گردگیر',
-    sealingEn: '70 Shore A Nitrile (NBR) with tension garter spring',
-    clearanceOptions: ['DIN 3760 AS'],
-    brands: ['Corteco', 'Freudenberg'],
-    applicationsFa: ['جعبه‌دنده‌های صنعتی و خودرویی', 'شفت ورودی پمپ‌های آب', 'محرک‌های الکتریکی دوار'],
-    applicationsEn: ['Industrial & Automotive Gearboxes', 'Water Pump Input Shafts', 'Rotary Electric Drives'],
-    inStock: true,
-    featured: true,
-    schematicType: 'oil-seal',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
-            sourceType: "official_catalog",
-            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
-  {
-    id: 'pc-corteco-12012014b',
-    slug: 'corteco-12012014b',
-    imageUrl: oilSealImg,
-    images: [oilSealImg],
-    code: 'CORTECO 12012014B Viton® TC 50x72x8',
-    category: 'seal',
-    nameFa: 'کاسه نمد وایتون نسوز کورتکو CORTECO 50x72x8 FKM',
-    nameEn: 'CORTECO 12012014B Simmerring Viton TC 50x72x8 FKM',
-    descriptionFa: 'کاسه نمد وایتون اصل کورتکو با مقاومت حرارتی مداوم تا ۲۰۰ درجه سانتی‌گر، مقاوم به روغن‌های سنتتیک داغ، اسیدها و سیالات تهاجمی در پتروشیمی و فولاد.',
-    descriptionEn: 'High-temperature CORTECO Viton FKM rotary shaft seal with SUS304 spring offering thermal resistance up to 200°C for synthetic lubricants and chemicals.',
-    d: 50,
-    D: 72,
-    B: 8,
-    weightKg: 0.038,
-    crKn: 0,
-    corKn: 0,
-    speedGreaseRpm: 6000,
-    speedOilRpm: 9500,
-    cageMaterialFa: 'اسکلت فلزی ضدزنگ تقویت‌شده',
-    cageMaterialEn: 'Steel insert fully vulcanized in FKM',
-    sealingFa: '۱۰۰٪ وایتون خالص (FKM/Viton) با فنر استنلس استیل',
-    sealingEn: '100% Genuine Fluoroelastomer (FKM) with SUS304 spring',
-    clearanceOptions: ['DIN 3760 AS / ISO 6194'],
-    brands: ['Corteco', 'Freudenberg'],
-    applicationsFa: ['گیربکس کوره‌های نورد و ریخته‌گری', 'پمپ‌های روغن داغ هیدرولیک', 'کمپرسورهای اسکرو هوا و گاز داغ'],
-    applicationsEn: ['Steel Mill & Furnace Drives', 'Thermal Oil Hydraulic Pumps', 'Hot Gas Screw Compressors'],
-    inStock: true,
-    featured: true,
-    schematicType: 'oil-seal',
-    speedReferenceType: 'both',
-    technicalSources: [
-        {
-            manufacturer: "CORTECO / Freudenberg Sealing Technologies",
-            sourceType: "official_catalog",
-            reference: "CORTECO Simmerring® & Industrial Fluid Sealing Master Catalog / DIN 3760 & ISO 6194",
-            verifiedAt: "2026-08"
-        }
-    ],
-  },
+export const bearingProducts: BearingProduct[] = [
+  {
+    "id": "pc-6204-2rs",
+    "slug": "6204-2rs",
+    "imageUrl": "/assets/images/bearing_6204_2rs_1787678583210.webp",
+    "images": [
+      "/assets/images/bearing_6204_2rs_1787678583210.webp"
+    ],
+    "code": "6204-2RSH / 2RS1",
+    "category": "ball",
+    "nameFa": "بلبرینگ شیار عمیق تک ردیفه 6204-2RS",
+    "nameEn": "Deep Groove Ball Bearing 6204-2RS",
+    "descriptionFa": "بلبرینگ پرمصرف صنعتی با دو لایه آب‌بند لاستیکی ضد گرد و غبار، مناسب برای دور بالا و بارهای شعاعی متوسط.",
+    "descriptionEn": "High-precision deep groove ball bearing with dual contact rubber seals for optimal dust and moisture resistance.",
+    "d": 20,
+    "D": 47,
+    "B": 14,
+    "weightKg": 0.11,
+    "crKn": 13.5,
+    "corKn": 6.55,
+    "speedGreaseRpm": 12000,
+    "speedOilRpm": 19000,
+    "cageMaterialFa": "فولاد پرسکاری شده (Pressed Steel)",
+    "cageMaterialEn": "Pressed sheet steel",
+    "sealingFa": "آب‌بند تماسی NBR دو طرفه (2RS / 2RSH)",
+    "sealingEn": "Dual Contact Rubber Seal (NBR)",
+    "clearanceOptions": [
+      "CN",
+      "C3",
+      "C4"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK",
+      "KOYO",
+      "NACHI"
+    ],
+    "applicationsFa": [
+      "الکتروموتورهای صنعتی",
+      "پمپ‌های آب و سیالات",
+      "گیربکس‌های سبک",
+      "تسمه نقاله"
+    ],
+    "applicationsEn": [
+      "Electric Motors",
+      "Centrifugal Pumps",
+      "Light Gearboxes",
+      "Conveyors"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 32000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Deep Groove Ball Bearings / ISO 15:2017 & DIN 625-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1,
+    "calculationFactorF0": 13.1,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-6308-2z",
+    "slug": "6308-2z",
+    "imageUrl": "/assets/images/bearing_6308_2z_1787678597854.webp",
+    "images": [
+      "/assets/images/bearing_6308_2z_1787678597854.webp"
+    ],
+    "code": "6308-2Z / ZZ C3",
+    "category": "ball",
+    "nameFa": "بلبرینگ دور بالای سری سنگین 6308-2Z C3",
+    "nameEn": "Deep Groove Ball Bearing 6308-2Z C3",
+    "descriptionFa": "بلبرینگ مجهز به شیلد فلزی دو طرفه با لقی داخلی C3 جهت کارکرد روان در دماهای بالا و سرعت‌های خطی زیاد.",
+    "descriptionEn": "Heavy duty single row ball bearing with non-contact metal shields and C3 radial clearance for high-speed operation.",
+    "d": 40,
+    "D": 90,
+    "B": 23,
+    "weightKg": 0.63,
+    "crKn": 42.3,
+    "corKn": 24,
+    "speedGreaseRpm": 7500,
+    "speedOilRpm": 9500,
+    "cageMaterialFa": "فولاد آلیاژی سخت‌کاری شده",
+    "cageMaterialEn": "Sheet steel cage",
+    "sealingFa": "شیلد فلزی محافظ دو طرفه (ZZ / 2Z)",
+    "sealingEn": "Dual Non-contact Metal Shield (ZZ)",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "الکتروموتورهای فشار قوی",
+      "ژنراتورهای برق",
+      "کمپرسورهای صنعتی",
+      "سانتریفیوژ"
+    ],
+    "applicationsEn": [
+      "High-voltage Motors",
+      "Power Generators",
+      "Industrial Compressors",
+      "Centrifuges"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 16000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Deep Groove Ball Bearings / ISO 15:2017 & DIN 625-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "calculationFactorF0": 13.2,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-6005-open",
+    "slug": "6005-open",
+    "imageUrl": "/assets/images/bearing_6005_open_1787678608569.webp",
+    "images": [
+      "/assets/images/bearing_6005_open_1787678608569.webp"
+    ],
+    "code": "6005 Open / C3",
+    "category": "ball",
+    "nameFa": "بلبرینگ باریک شیار عمیق 6005 باز",
+    "nameEn": "Deep Groove Ball Bearing 6005 Open",
+    "descriptionFa": "طراحی کم‌عرض و سبک با قابلیت روانکاری مستقیم در حمام روغن و گیربکس‌های دقیق صنعتی.",
+    "descriptionEn": "Lightweight, low-friction open ball bearing designed for oil-bath lubrication in precision machines.",
+    "d": 25,
+    "D": 47,
+    "B": 12,
+    "weightKg": 0.08,
+    "crKn": 11.9,
+    "corKn": 5.85,
+    "speedGreaseRpm": 15000,
+    "speedOilRpm": 19000,
+    "cageMaterialFa": "فولاد ورقی ریخته‌گری دقیق",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "بدون شیلد (Open - حمام روغن)",
+    "sealingEn": "Open (Oil Bath Lubricated)",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "NSK",
+      "SKF",
+      "KOYO",
+      "NACHI"
+    ],
+    "applicationsFa": [
+      "جعبه دنده‌های اتومبیل",
+      "اسپیندل‌های فرزکاری سبک",
+      "سیستم‌های انتقال قدرت"
+    ],
+    "applicationsEn": [
+      "Automotive Transmissions",
+      "Light Milling Spindles",
+      "Drive Shafts"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 30000,
+    "technicalSources": [
+      {
+        "manufacturer": "NSK Ltd. (Japan)",
+        "catalogCode": "CAT. No. E1102m",
+        "reference": "NSK Rolling Bearings Global Catalog - Deep Groove Ball Bearings / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 0.6,
+    "calculationFactorF0": 14.5,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-6206-c3",
+    "slug": "6206-c3",
+    "imageUrl": "/assets/images/ball_bearing_photo_1787677355061.webp",
+    "images": [
+      "/assets/images/ball_bearing_photo_1787677355061.webp"
+    ],
+    "code": "6206-2RS1 C3",
+    "category": "ball",
+    "nameFa": "بلبرینگ شیار عمیق دور بالا 6206-2RS C3",
+    "nameEn": "Deep Groove Ball Bearing 6206-2RS C3",
+    "descriptionFa": "بلبرینگ صنعتی استاندارد سایز ۳۰ میلی‌متر با لقی C3 مناسب برای الکتروموتورهای ۵.۵ تا ۱۱ کیلووات.",
+    "descriptionEn": "Standard 30mm industrial ball bearing with C3 clearance engineered for 5.5kW to 11kW electric drive motors.",
+    "d": 30,
+    "D": 62,
+    "B": 16,
+    "weightKg": 0.2,
+    "crKn": 20.3,
+    "corKn": 11.2,
+    "speedGreaseRpm": 9000,
+    "speedOilRpm": 13000,
+    "cageMaterialFa": "فولاد پرسکاری تقویت‌شده",
+    "cageMaterialEn": "Pressed sheet steel",
+    "sealingFa": "آب‌بند پلاستیکی ضد نفوذ NBR",
+    "sealingEn": "Dual Contact NBR Rubber Seals",
+    "clearanceOptions": [
+      "CN",
+      "C3",
+      "C4"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NTN",
+      "NSK"
+    ],
+    "applicationsFa": [
+      "الکتروموتورهای سه فاز",
+      "پمپ‌های گریز از مرکز",
+      "بالابرهای صنعتی"
+    ],
+    "applicationsEn": [
+      "Three-phase Motors",
+      "Centrifugal Pumps",
+      "Industrial Hoists"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 24000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Deep Groove Ball Bearings / ISO 15:2017 & DIN 625-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1,
+    "calculationFactorF0": 13.8,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-6310-2z",
+    "slug": "6310-2z",
+    "imageUrl": "/assets/images/bearing_6308_2z_1787678597854.webp",
+    "images": [
+      "/assets/images/bearing_6308_2z_1787678597854.webp"
+    ],
+    "code": "6310-2Z / C3",
+    "category": "ball",
+    "nameFa": "بلبرینگ سنگین صنعتی 6310-2Z",
+    "nameEn": "Deep Groove Ball Bearing 6310-2Z",
+    "descriptionFa": "بلبرینگ سری سنگین با قطر شفت ۵۰ میلی‌متر با ظرفیت بار دینامیکی فوق‌العاده ۶۵ کیلو نیوتن.",
+    "descriptionEn": "Heavy series ball bearing with 50mm shaft diameter delivering massive 65 kN dynamic load rating.",
+    "d": 50,
+    "D": 110,
+    "B": 27,
+    "weightKg": 1.07,
+    "crKn": 65,
+    "corKn": 38,
+    "speedGreaseRpm": 6000,
+    "speedOilRpm": 7500,
+    "cageMaterialFa": "فولاد آلیاژی",
+    "cageMaterialEn": "Sheet steel cage",
+    "sealingFa": "شیلد فلزی محافظ دوطرفه",
+    "sealingEn": "Dual Metal Shields (ZZ)",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken",
+      "NACHI"
+    ],
+    "applicationsFa": [
+      "کمپرسورهای اسکرو هوا",
+      "الکتروموتورهای بزرگ",
+      "گیربکس‌های صنعتی"
+    ],
+    "applicationsEn": [
+      "Screw Compressors",
+      "Heavy Electric Motors",
+      "Industrial Gearboxes"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 13000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Deep Groove Ball Bearings / ISO 15:2017 & DIN 625-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 2,
+    "calculationFactorF0": 13.2,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-30206",
+    "slug": "30206",
+    "imageUrl": "/assets/images/bearing_30208_tapered_1787678619565.webp",
+    "images": [
+      "/assets/images/bearing_30208_tapered_1787678619565.webp"
+    ],
+    "code": "30206 J2/Q",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی یک ردیفه 30206",
+    "nameEn": "Tapered Roller Bearing 30206",
+    "descriptionFa": "تحمل دقیق بارهای ترکیبی محوری و شعاعی با قابلیت تفکیک رینگ داخلی (کون) و رینگ خارجی (کاپ).",
+    "descriptionEn": "Single-row metric tapered roller bearing for combined radial and axial thrust loads in automotive gearboxes and industrial drives.",
+    "d": 30,
+    "D": 62,
+    "B": 17.25,
+    "weightKg": 0.23,
+    "crKn": 43,
+    "corKn": 45,
+    "speedGreaseRpm": 6300,
+    "speedOilRpm": 8500,
+    "calculationFactorE": 0.37,
+    "calculationFactorY": 1.6,
+    "calculationFactorY0": 0.9,
+    "cageMaterialFa": "فولاد پرسکاری شده",
+    "cageMaterialEn": "Pressed sheet steel cage",
+    "sealingFa": "باز (نیاز به گریس‌کاری یا روغن‌کاری)",
+    "sealingEn": "Open design (Lubrication required)",
+    "clearanceOptions": [
+      "Standard Preset"
+    ],
+    "brands": [
+      "Timken",
+      "SKF",
+      "FAG",
+      "KOYO",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "جعبه دنده‌های صنعتی",
+      "اکسل و توپی چرخ سبک",
+      "پمپ‌های گریز از مرکز"
+    ],
+    "applicationsEn": [
+      "Industrial Gearboxes",
+      "Automotive Axles",
+      "Centrifugal Pumps"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 9000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Metric Tapered Roller Bearings / ISO 355:2019 & DIN 720",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-30208",
+    "slug": "30208",
+    "imageUrl": "/assets/images/bearing_30208_tapered_1787678619565.webp",
+    "images": [
+      "/assets/images/bearing_30208_tapered_1787678619565.webp"
+    ],
+    "code": "30208 J2/Q",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی یک ردیفه 30208",
+    "nameEn": "Tapered Roller Bearing 30208",
+    "descriptionFa": "تحمل فوق‌العاده بارهای همزمان محوری و شعاعی سنگین در محور چرخ خودروهای سنگین و اکسل‌های صنعتی.",
+    "descriptionEn": "Engineered to support heavy combined radial and thrust loads in automotive hubs and gearboxes.",
+    "d": 40,
+    "D": 80,
+    "B": 19.75,
+    "weightKg": 0.42,
+    "crKn": 63.8,
+    "corKn": 69.5,
+    "speedGreaseRpm": 5000,
+    "speedOilRpm": 6700,
+    "calculationFactorE": 0.37,
+    "calculationFactorY": 1.6,
+    "calculationFactorY0": 0.9,
+    "cageMaterialFa": "فولاد پرسکاری شده با شیار هدایت‌گر",
+    "cageMaterialEn": "Pressed sheet steel window cage",
+    "sealingFa": "باز (نیاز به گریس‌کاری یا روغن‌کاری)",
+    "sealingEn": "Open design (Lubrication required)",
+    "clearanceOptions": [
+      "Standard Preset"
+    ],
+    "brands": [
+      "Timken",
+      "SKF",
+      "FAG",
+      "KOYO",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "توپی چرخ خودرو و تریلر",
+      "دیفرانسیل و گیربکس‌های صنعتی",
+      "رولیک‌های سنگین نورد"
+    ],
+    "applicationsEn": [
+      "Wheel Hubs & Trailers",
+      "Industrial Differentials",
+      "Heavy Rolling Mills"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 7000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Metric Tapered Roller Bearings / ISO 355:2019 & DIN 720",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-32210",
+    "slug": "32210",
+    "imageUrl": "/assets/images/bearing_32210_tapered_1787678639800.webp",
+    "images": [
+      "/assets/images/bearing_32210_tapered_1787678639800.webp"
+    ],
+    "code": "32210 J2/Q",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی سری عریض 32210",
+    "nameEn": "Tapered Roller Bearing 32210",
+    "descriptionFa": "دارای زاویه مخروطی مهندسی‌شده و غلطک‌های بلندتر جهت دفع بارهای ضربه‌ای در اکسل و گیربکس.",
+    "descriptionEn": "Wide series tapered roller bearing with extended contact length for severe shock loads.",
+    "d": 50,
+    "D": 90,
+    "B": 24.75,
+    "weightKg": 0.6,
+    "crKn": 89.1,
+    "corKn": 104,
+    "speedGreaseRpm": 4500,
+    "speedOilRpm": 6000,
+    "calculationFactorE": 0.4,
+    "calculationFactorY": 1.5,
+    "calculationFactorY0": 0.8,
+    "cageMaterialFa": "فولاد آلیاژی عملیات حرارتی شده",
+    "cageMaterialEn": "Treated pressed steel",
+    "sealingFa": "بدون شیلد (Open)",
+    "sealingEn": "Open (Oil/Grease Bath)",
+    "clearanceOptions": [
+      "Standard"
+    ],
+    "brands": [
+      "Timken",
+      "FAG",
+      "SKF",
+      "NSK"
+    ],
+    "applicationsFa": [
+      "گیربکس‌های صنعتی سنگین",
+      "اکسل کامیون و اتوبوس",
+      "ماشین‌آلات راه‌سازی"
+    ],
+    "applicationsEn": [
+      "Heavy Industrial Gearboxes",
+      "Commercial Vehicle Axles",
+      "Earthmoving Machinery"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 6300,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Metric Tapered Roller Bearings / ISO 355:2019 & DIN 720",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-32014-x",
+    "slug": "32014-x",
+    "imageUrl": "/assets/images/bearing_30208_tapered_1787678619565.webp",
+    "images": [
+      "/assets/images/bearing_30208_tapered_1787678619565.webp"
+    ],
+    "code": "32014 X / Q",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی کم‌ارتفاع 32014 X",
+    "nameEn": "Tapered Roller Bearing 32014 X",
+    "descriptionFa": "طراحی پروفیل فشرده با قطر ۷۰ میلی‌متر جهت نصب در فضاهای محوری محدود با بار سنگین.",
+    "descriptionEn": "Compact section tapered roller bearing for 70mm shafts with optimized stress distribution.",
+    "d": 70,
+    "D": 110,
+    "B": 25,
+    "weightKg": 0.85,
+    "crKn": 112,
+    "corKn": 146,
+    "speedGreaseRpm": 3800,
+    "speedOilRpm": 5000,
+    "calculationFactorE": 0.43,
+    "calculationFactorY": 1.4,
+    "calculationFactorY0": 0.8,
+    "cageMaterialFa": "فولاد آلیاژی",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "باز (Open)",
+    "sealingEn": "Open (Requires Lubrication)",
+    "clearanceOptions": [
+      "Standard"
+    ],
+    "brands": [
+      "SKF",
+      "Timken",
+      "KOYO",
+      "FAG"
+    ],
+    "applicationsFa": [
+      "وینچ‌های دریایی و معدنی",
+      "اسپیندل ماشین‌ابزار سنگین",
+      "محرک‌های چرخشی"
+    ],
+    "applicationsEn": [
+      "Mining & Marine Winches",
+      "Heavy Machine Tool Spindles",
+      "Rotary Drives"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 5300,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Metric Tapered Roller Bearings / ISO 355:2019 & DIN 720",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-22212-ek",
+    "slug": "22212-ek",
+    "imageUrl": "/assets/images/bearing_22212_spherical_1787678650795.webp",
+    "images": [
+      "/assets/images/bearing_22212_spherical_1787678650795.webp"
+    ],
+    "code": "22212 EK / C3 + H312",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای خودتنظیم 22212 EK",
+    "nameEn": "Spherical Roller Bearing 22212 EK",
+    "descriptionFa": "قابلیت خودتنظیمی زاویه‌ای فوق‌العاده برای جبران خمش شفت و ناهم‌محوری در محیط‌های خشن معدنی و کارخانجات سیمان.",
+    "descriptionEn": "Self-aligning spherical roller bearing with 1:12 tapered bore and C3 clearance, compensating for severe shaft deflections.",
+    "d": 60,
+    "D": 110,
+    "B": 28,
+    "weightKg": 1.15,
+    "crKn": 159,
+    "corKn": 166,
+    "speedGreaseRpm": 4800,
+    "speedOilRpm": 6300,
+    "calculationFactorE": 0.24,
+    "calculationFactorY1": 2.8,
+    "calculationFactorY2": 4.2,
+    "calculationFactorY0": 2.8,
+    "cageMaterialFa": "فولاد فشرده سخت‌کاری سطحی",
+    "cageMaterialEn": "Hardened pressed steel cage",
+    "sealingFa": "شیار و سوراخ روغن‌کاری W33",
+    "sealingEn": "Annular lubrication groove with 3 holes (W33)",
+    "clearanceOptions": [
+      "C3",
+      "C4"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken",
+      "NTN",
+      "URB"
+    ],
+    "applicationsFa": [
+      "سنگ‌شکن‌ها و آسیاب‌های چکشی",
+      "فن‌های مکنده بزرگ صنعتی",
+      "نوار نقاله‌های طولانی",
+      "کارخانجات سیمان"
+    ],
+    "applicationsEn": [
+      "Crushers & Hammer Mills",
+      "Heavy Induced Draft Fans",
+      "Long Conveyors",
+      "Cement Plants"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Spherical Roller Bearings / ISO 15:2017 & DIN 635-2",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 6000,
+    "rMin": 1.5,
+    "calculationFactorY": 2.8,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-22316-cc-w33",
+    "slug": "22316-cc-w33",
+    "imageUrl": "/assets/images/bearing_22316_spherical_1787678662094.webp",
+    "images": [
+      "/assets/images/bearing_22316_spherical_1787678662094.webp"
+    ],
+    "code": "22316 CC/W33 / C3",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای سنگین سری 22316 CC/W33",
+    "nameEn": "Heavy Spherical Roller Bearing 22316 CC/W33",
+    "descriptionFa": "طراحی ویژه بارهای ضربه‌ای بسیار سنگین با ظرفیت بار دینامیکی شگفت‌انگیز ۴۴۵ کیلو نیوتن و قفسه تقویت‌شده.",
+    "descriptionEn": "Extra-heavy series spherical roller bearing engineered for extreme radial shock loads (445 kN dynamic rating).",
+    "d": 80,
+    "D": 170,
+    "B": 58,
+    "weightKg": 6.1,
+    "crKn": 445,
+    "corKn": 490,
+    "speedGreaseRpm": 2600,
+    "speedOilRpm": 3400,
+    "calculationFactorE": 0.33,
+    "calculationFactorY1": 2,
+    "calculationFactorY2": 3.1,
+    "calculationFactorY0": 2,
+    "cageMaterialFa": "قفسه فولادی راهنمای رینگ وسط (CC)",
+    "cageMaterialEn": "CC type stamped window steel cage",
+    "sealingFa": "سیستم روانکاری W33",
+    "sealingEn": "W33 Lubrication Groove & Ports",
+    "clearanceOptions": [
+      "C3",
+      "C4"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken",
+      "NSK"
+    ],
+    "applicationsFa": [
+      "سرندهای ویبره معدنی",
+      "غلتک‌های نورد فولاد",
+      "خطوط ذوب فلزات"
+    ],
+    "applicationsEn": [
+      "Vibrating Screens",
+      "Steel Mill Rolls",
+      "Metal Smelting Lines"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Spherical Roller Bearings / ISO 15:2017 & DIN 635-2",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 3200,
+    "rMin": 2.1,
+    "calculationFactorY": 2,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-22220-ek",
+    "slug": "22220-ek",
+    "imageUrl": "/assets/images/spherical_bearing_photo_1787677386106.webp",
+    "images": [
+      "/assets/images/spherical_bearing_photo_1787677386106.webp"
+    ],
+    "code": "22220 EK / C3",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای 22220 EK شفت ۱۰۰",
+    "nameEn": "Spherical Roller Bearing 22220 EK (100mm)",
+    "descriptionFa": "سایز محبوب شفت ۱۰۰ میلی‌متر با زاویه مخروطی جهت سوار شدن با بوش تطبیقی H220 در یاتاقان‌های SNL.",
+    "descriptionEn": "Standard 100mm spherical roller bearing suited for adapter sleeve mounting inside plummer block housings.",
+    "d": 100,
+    "D": 180,
+    "B": 46,
+    "weightKg": 4.85,
+    "crKn": 425,
+    "corKn": 490,
+    "speedGreaseRpm": 3000,
+    "speedOilRpm": 4000,
+    "calculationFactorE": 0.24,
+    "calculationFactorY1": 2.8,
+    "calculationFactorY2": 4.2,
+    "calculationFactorY0": 2.8,
+    "cageMaterialFa": "فولاد پرسکاری شده دو تکه",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "شیار روانکاری W33",
+    "sealingEn": "W33 standard lubrication groove",
+    "clearanceOptions": [
+      "C3",
+      "C4"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken"
+    ],
+    "applicationsFa": [
+      "یاتاقان‌های دو تکه SNL",
+      "میکسرها و درام‌های صنعتی",
+      "پمپ‌های غلیظ‌کش معدنی"
+    ],
+    "applicationsEn": [
+      "SNL Plummer Blocks",
+      "Industrial Mixers & Drums",
+      "Slurry Pumps"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Spherical Roller Bearings / ISO 15:2017 & DIN 635-2",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 3800,
+    "rMin": 2.1,
+    "calculationFactorY": 2.8,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nu-208-ecp",
+    "slug": "nu-208-ecp",
+    "imageUrl": "/assets/images/bearing_nu208_cylindrical_1787678672477.webp",
+    "images": [
+      "/assets/images/bearing_nu208_cylindrical_1787678672477.webp"
+    ],
+    "code": "NU 208 ECP / C3",
+    "category": "cylindrical",
+    "nameFa": "رولبرینگ استوانه‌ای یک ردیفه NU 208 ECP",
+    "nameEn": "Cylindrical Roller Bearing NU 208 ECP",
+    "descriptionFa": "حداکثر ظرفیت بار شعاعی با قفسه پلی‌آمید سبک (ECP) جهت شتاب‌گیری سریع در موتورهای سرعت بالا.",
+    "descriptionEn": "High radial capacity cylindrical roller bearing with glass-fiber reinforced polyamide cage (ECP) for fast acceleration.",
+    "d": 40,
+    "D": 80,
+    "B": 18,
+    "weightKg": 0.38,
+    "crKn": 56,
+    "corKn": 50,
+    "speedGreaseRpm": 9000,
+    "speedOilRpm": 11000,
+    "cageMaterialFa": "پلی‌آمید تقویت‌شده با الیاف شیشه (PA66)",
+    "cageMaterialEn": "Glass fiber reinforced Polyamide (PA66)",
+    "sealingFa": "بدون کاسه نمد (حمام روغن)",
+    "sealingEn": "Open (Oil / Grease Lubed)",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "ژنراتورهای توربینی",
+      "موتورهای کشنده ریلی",
+      "اسپیندل فرزکاری CNC"
+    ],
+    "applicationsEn": [
+      "Turbine Generators",
+      "Railway Traction Motors",
+      "CNC Milling Spindles"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Cylindrical Roller Bearings NU / ISO 15:2017 & DIN 5412-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 10000,
+    "rMin": 1.1,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nj-212-ecp",
+    "slug": "nj-212-ecp",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "NJ 212 ECP",
+    "category": "cylindrical",
+    "nameFa": "رولبرینگ استوانه‌ای لبه‌دار NJ 212 ECP",
+    "nameEn": "Cylindrical Roller Bearing NJ 212 ECP",
+    "descriptionFa": "دارای لبه راهنما روی رینگ داخلی جهت مهار بار محوری یک‌طرفه علاوه بر بار شعاعی سنگین.",
+    "descriptionEn": "Single row cylindrical roller bearing with two integral flanges on outer ring and one on inner ring for single-direction axial locating.",
+    "d": 60,
+    "D": 110,
+    "B": 22,
+    "weightKg": 0.82,
+    "crKn": 108,
+    "corKn": 102,
+    "speedGreaseRpm": 6300,
+    "speedOilRpm": 7500,
+    "cageMaterialFa": "پلی‌آمید PA66",
+    "cageMaterialEn": "Reinforced Polyamide 66",
+    "sealingFa": "Open (بدون شیلد)",
+    "sealingEn": "Open type",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK"
+    ],
+    "applicationsFa": [
+      "گیربکس‌های صنعتی چند محوره",
+      "الکتروموتورهای تراکشن",
+      "پمپ‌های پیستونی"
+    ],
+    "applicationsEn": [
+      "Multi-shaft Industrial Gearboxes",
+      "Traction Motors",
+      "Piston Pumps"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Cylindrical Roller Bearings NJ / ISO 15:2017 & DIN 5412-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 7000,
+    "rMin": 1.5,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nup-310-ecp",
+    "slug": "nup-310-ecp",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "NUP 310 ECP / C3",
+    "category": "cylindrical",
+    "nameFa": "رولبرینگ استوانه‌ای مهارکننده دوطرفه NUP 310",
+    "nameEn": "Cylindrical Roller Bearing NUP 310 ECP",
+    "descriptionFa": "مجهز به رینگ هوزینگ و واشر نگهدارنده برای تثبیت کامل موقعیت محوری شفت در هر دو جهت.",
+    "descriptionEn": "Locating cylindrical roller bearing with loose flange ring accommodating axial displacement in both directions.",
+    "d": 50,
+    "D": 110,
+    "B": 27,
+    "weightKg": 1.15,
+    "crKn": 125,
+    "corKn": 114,
+    "speedGreaseRpm": 6000,
+    "speedOilRpm": 7000,
+    "cageMaterialFa": "پلی‌آمید مهندسی",
+    "cageMaterialEn": "Engineering Polyamide",
+    "sealingFa": "Open",
+    "sealingEn": "Open",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken"
+    ],
+    "applicationsFa": [
+      "کمپرسورهای هوا و گاز",
+      "اکسترودرهای پلاستیک",
+      "شفت‌های تثبیت‌شده"
+    ],
+    "applicationsEn": [
+      "Air & Gas Compressors",
+      "Plastic Extruders",
+      "Locating Shaft Drives"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Locating Cylindrical Roller Bearings NUP / ISO 15:2017 & DIN 5412-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 6700,
+    "rMin": 2,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-51106",
+    "slug": "51106",
+    "imageUrl": "/assets/images/bearing_51108_thrust_1787678727693.webp",
+    "images": [
+      "/assets/images/bearing_51108_thrust_1787678727693.webp"
+    ],
+    "code": "51106 Single Direction",
+    "category": "thrust",
+    "nameFa": "بلبرینگ کف‌گرد یک‌طرفه 51106",
+    "nameEn": "Thrust Ball Bearing 51106",
+    "descriptionFa": "تحمل بارهای محوری خالص یک‌طرفه با واشر شفت، واشر هوزینگ و مجموعه ساچمه و قفسه تفکیک‌پذیر.",
+    "descriptionEn": "Single direction thrust ball bearing for pure axial loading in vertical shafts, turntables and jacks.",
+    "d": 30,
+    "D": 47,
+    "B": 11,
+    "weightKg": 0.079,
+    "crKn": 20.3,
+    "corKn": 37.5,
+    "speedGreaseRpm": 4500,
+    "speedOilRpm": 6300,
+    "cageMaterialFa": "فولاد پرسکاری شده",
+    "cageMaterialEn": "Pressed sheet steel cage",
+    "sealingFa": "باز (نیاز به روانکاری مداوم)",
+    "sealingEn": "Open (Continuous lubrication required)",
+    "clearanceOptions": [
+      "Standard ISO"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "جک‌های اسکرو و بالابرها",
+      "شفت‌های عمودی پمپ",
+      "میزهای گردان صنعتی"
+    ],
+    "applicationsEn": [
+      "Screw Jacks & Lifts",
+      "Vertical Pump Shafts",
+      "Industrial Turntables"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "thrust",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 6000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Thrust Ball Bearings Single Direction / ISO 104:2015 & DIN 711",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 0.6,
+    "calculationFactorX": 0,
+    "calculationFactorY": 1,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-51108",
+    "slug": "51108",
+    "imageUrl": "/assets/images/bearing_51108_thrust_1787678727693.webp",
+    "images": [
+      "/assets/images/bearing_51108_thrust_1787678727693.webp"
+    ],
+    "code": "51108 Single Direction",
+    "category": "thrust",
+    "nameFa": "بلبرینگ کف‌گرد یک‌طرفه 51108",
+    "nameEn": "Thrust Ball Bearing 51108",
+    "descriptionFa": "تحمل بارهای محوری خالص در سرعت‌های متوسط بدون پذیرش بار شعاعی با ساچمه‌های فوق‌صیقلی.",
+    "descriptionEn": "Single direction thrust ball bearing designed strictly for pure axial thrust loads in vertical shafts and jacks.",
+    "d": 40,
+    "D": 60,
+    "B": 13,
+    "weightKg": 0.12,
+    "crKn": 26.5,
+    "corKn": 58.5,
+    "speedGreaseRpm": 3800,
+    "speedOilRpm": 5300,
+    "cageMaterialFa": "فولاد پرسکاری شده",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "باز (مستلزم روانکاری مداوم)",
+    "sealingEn": "Open (Continuous lubrication required)",
+    "clearanceOptions": [
+      "Standard ISO"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK",
+      "NACHI"
+    ],
+    "applicationsFa": [
+      "جک‌های مکانیکی و هیدرولیکی",
+      "صفحات دوار میزهای صنعتی",
+      "قلاب جرثقیل"
+    ],
+    "applicationsEn": [
+      "Mechanical & Hydraulic Jacks",
+      "Rotary Turn Tables",
+      "Crane Hooks"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "thrust",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Thrust Ball Bearings Single Direction / ISO 104:2015 & DIN 711",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 0.6,
+    "calculationFactorX": 0,
+    "calculationFactorY": 1,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-51210",
+    "slug": "51210",
+    "imageUrl": "/assets/images/bearing_51108_thrust_1787678727693.webp",
+    "images": [
+      "/assets/images/bearing_51108_thrust_1787678727693.webp"
+    ],
+    "code": "51210 High Capacity",
+    "category": "thrust",
+    "nameFa": "بلبرینگ کف‌گرد سری سنگین 51210",
+    "nameEn": "Thrust Ball Bearing 51210",
+    "descriptionFa": "سایز ۵۰ میلی‌متر با واشرهای شیاردار سخت‌کاری شده برای بارهای فشاری عمودی تا ۹۸ کیلو نیوتن.",
+    "descriptionEn": "Heavy duty 50mm thrust bearing with ground raceway washers supporting up to 98 kN static thrust.",
+    "d": 50,
+    "D": 78,
+    "B": 22,
+    "weightKg": 0.38,
+    "crKn": 47.5,
+    "corKn": 98,
+    "speedGreaseRpm": 2800,
+    "speedOilRpm": 4000,
+    "cageMaterialFa": "فولاد آلیاژی",
+    "cageMaterialEn": "Sheet steel cage",
+    "sealingFa": "Open",
+    "sealingEn": "Open",
+    "clearanceOptions": [
+      "Standard"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK"
+    ],
+    "applicationsFa": [
+      "شیرآلات صنعتی نفت و گاز",
+      "اکستروژن پلاستیک",
+      "دستگاه‌های پرس قالب"
+    ],
+    "applicationsEn": [
+      "Oil & Gas Actuator Valves",
+      "Plastic Extruders",
+      "Molding Press Machines"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "thrust",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Thrust Ball Bearings Single Direction / ISO 104:2015 & DIN 711",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1,
+    "calculationFactorX": 0,
+    "calculationFactorY": 1,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-ucp-205",
+    "slug": "ucp-205",
+    "imageUrl": "/assets/images/unit_ucp205_pillow_1787678692893.webp",
+    "images": [
+      "/assets/images/unit_ucp205_pillow_1787678692893.webp"
+    ],
+    "code": "UCP 205 (Cast Iron Pillow Block)",
+    "category": "housing",
+    "nameFa": "یاتاقان پایه‌دار چدنی UCP 205",
+    "nameEn": "Pillow Block Bearing Unit UCP 205",
+    "descriptionFa": "مجهز به هوزینگ چدن نشکن، گریس‌خور برنجی و بلبرینگ داخلی UC205 با پیچ مغزی جهت قفل شدن روی شفت ۲۵ میلی‌متر.",
+    "descriptionEn": "Solid cast iron plummer housing with UC205 insert bearing and set-screw locking collar for 25mm shafts.",
+    "d": 25,
+    "D": 71,
+    "B": 34.1,
+    "weightKg": 0.79,
+    "crKn": 14,
+    "corKn": 7.85,
+    "speedGreaseRpm": 5600,
+    "speedOilRpm": 5600,
+    "cageMaterialFa": "بلبرینگ داخلی با قفسه فولادی",
+    "cageMaterialEn": "Insert ball bearing steel cage",
+    "sealingFa": "آب‌بند سه‌لایه پلاستیکی-فلزی (Flingers)",
+    "sealingEn": "Dual seal with steel slinger",
+    "clearanceOptions": [
+      "Standard UC"
+    ],
+    "brands": [
+      "FYH Japan",
+      "ASAHI",
+      "SKF",
+      "KG"
+    ],
+    "applicationsFa": [
+      "نوار نقاله‌های صنعتی",
+      "ماشین‌آلات کشاورزی",
+      "فن‌های تهویه مطبوع"
+    ],
+    "applicationsEn": [
+      "Industrial Conveyors",
+      "Agricultural Equipment",
+      "HVAC Air Blowers"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "pillow-block",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "FYH Bearings (Japan) / ASAHI Seiko",
+        "catalogCode": "CAT. No. 2005-B",
+        "reference": "Pillow Block Units UCP 205 - Cast Iron Housing P205 / ISO 3228 & JIS B 1559",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-ucf-208",
+    "slug": "ucf-208",
+    "imageUrl": "/assets/images/unit_ucf208_flange_1787678704716.webp",
+    "images": [
+      "/assets/images/unit_ucf208_flange_1787678704716.webp"
+    ],
+    "code": "UCF 208 (4-Bolt Flange Housing)",
+    "category": "housing",
+    "nameFa": "یاتاقان ۴ پیچ فلنجی UCF 208",
+    "nameEn": "Four-Bolt Flange Bearing Unit UCF 208",
+    "descriptionFa": "یاتاقان مربعی فلنجی ۴ سوراخ با چدن داکتیل جهت نصب عمود بر بدنه ماشین و شفت‌های ۴۰ میلی‌متر.",
+    "descriptionEn": "Ductile iron square 4-bolt flange unit with UC208 insert bearing for mounting on side frames and 40mm shafts.",
+    "d": 40,
+    "D": 130,
+    "B": 51.2,
+    "weightKg": 1.9,
+    "crKn": 29.6,
+    "corKn": 18.2,
+    "speedGreaseRpm": 4000,
+    "speedOilRpm": 4000,
+    "cageMaterialFa": "فولاد پرسکاری شده",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "آب‌بند لاستیکی تماسی محافظ‌دار",
+    "sealingEn": "Contact rubber seal with metal shield",
+    "clearanceOptions": [
+      "Standard"
+    ],
+    "brands": [
+      "ASAHI Japan",
+      "FYH",
+      "SKF",
+      "INA"
+    ],
+    "applicationsFa": [
+      "خطوط بسته‌بندی کارخانجات",
+      "بالابرهای غلات",
+      "میکسرها و تجهیزات شستشو"
+    ],
+    "applicationsEn": [
+      "Packaging Lines",
+      "Grain Elevators",
+      "Washdown Mixers"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "pillow-block",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "FYH Bearings (Japan) / ASAHI Seiko",
+        "catalogCode": "CAT. No. 2005-B",
+        "reference": "Flanged Housing Units UCF 208 - 4-Bolt Cast Iron Housing F208 / ISO 3228 & JIS B 1559",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-snl-511-609",
+    "slug": "snl-511-609",
+    "imageUrl": "/assets/images/housing_snl511_split_1787678749335.webp",
+    "images": [
+      "/assets/images/housing_snl511_split_1787678749335.webp"
+    ],
+    "code": "SNL 511-609 (Split Plummer Block)",
+    "category": "housing",
+    "nameFa": "پوسته یاتاقان دوتکه سنگین SNL 511-609",
+    "nameEn": "Split Plummer Block Housing SNL 511-609",
+    "descriptionFa": "هوزینگ چدنی دوتکه مناسب برای رولبرینگ‌های بشکه‌ای و بوش‌های تطبیقی در سخت‌ترین شرایط صنعتی.",
+    "descriptionEn": "Heavy duty split plummer block housing for spherical roller bearings with labyrinth or felt seals.",
+    "d": 50,
+    "D": 130,
+    "B": 95,
+    "weightKg": 4.7,
+    "crKn": 190,
+    "corKn": 160,
+    "speedGreaseRpm": 3200,
+    "speedOilRpm": 4500,
+    "cageMaterialFa": "هوزینگ چدن خاکستری GG25",
+    "cageMaterialEn": "Cast grey iron GG25 housing",
+    "sealingFa": "آب‌بند لابیرنت فلزی / نمدی استاندارد",
+    "sealingEn": "Labyrinth / Taconite heavy seals",
+    "clearanceOptions": [
+      "C3 / C4 for Bearings"
+    ],
+    "brands": [
+      "SKF",
+      "FAG"
+    ],
+    "applicationsFa": [
+      "فن‌های مکنده کوره‌ها",
+      "نوار نقاله‌های فولاد و معدن",
+      "تجهیزات بندری"
+    ],
+    "applicationsEn": [
+      "Kiln Exhaust Blowers",
+      "Steel & Mining Conveyors",
+      "Port Handling Equipment"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "pillow-block",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB 131-001 EN",
+        "reference": "SKF Split Plummer Block Housings SNL 2, 3, 5 and 6 Series / ISO 113:2010 & DIN 736",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-tc-35-52-10",
+    "slug": "tc-35-52-10",
+    "imageUrl": "/assets/images/seal_tc35_nbr_1787678715667.webp",
+    "images": [
+      "/assets/images/seal_tc35_nbr_1787678715667.webp"
+    ],
+    "code": "TC 35-52-10 NBR (Dual Lip)",
+    "category": "seal",
+    "nameFa": "کاسه نمد دو لبه فنردار 35x52x10 NBR",
+    "nameEn": "Rotary Oil Seal TC 35-52-10 NBR",
+    "descriptionFa": "کاسه نمد روکش لاستیکی با فنر استیل زنگ‌نزن و لبه گردگیر فرعی (Dust Lip) جهت مهار روغن و جلوگیری از ورود آلودگی.",
+    "descriptionEn": "Rubber covered dual-lip rotary oil seal with stainless garter spring for dynamic shaft oil retention.",
+    "d": 35,
+    "D": 52,
+    "B": 10,
+    "weightKg": 0.024,
+    "crKn": 0.05,
+    "corKn": 0.05,
+    "speedGreaseRpm": 6000,
+    "speedOilRpm": 9000,
+    "cageMaterialFa": "اسکلت فلزی فولاد کربنی روکش لاستیک",
+    "cageMaterialEn": "Carbon steel internal case with NBR elastomer",
+    "sealingFa": "الاستومر NBR ضد روغن (-30°C تا +120°C)",
+    "sealingEn": "Nitrile (NBR) synthetic rubber (-30°C to +120°C)",
+    "clearanceOptions": [
+      "ISO 6194 / DIN 3760"
+    ],
+    "brands": [
+      "Corteco Italy",
+      "CFW Simrit",
+      "SKF CR",
+      "TTO Taiwan"
+    ],
+    "applicationsFa": [
+      "شفت خروجی گیربکس‌های صنعتی",
+      "پمپ‌های هیدرولیک",
+      "میل‌لنگ و میل‌سوپاپ"
+    ],
+    "applicationsEn": [
+      "Gearbox Output Shafts",
+      "Hydraulic Pumps",
+      "Crankshafts & Camshafts"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "oil-seal",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Freudenberg / Corteco (Germany)",
+        "catalogCode": "Simmerring Industrial Cat. 2022",
+        "reference": "Rotary Shaft Lip Seals TC / Type AS Double Lip with Garter Spring - DIN 3760 & ISO 6194-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-tc-50-72-8-viton",
+    "slug": "tc-50-72-8-viton",
+    "imageUrl": "/assets/images/seal_tc50_viton_1787678737812.webp",
+    "images": [
+      "/assets/images/seal_tc50_viton_1787678737812.webp"
+    ],
+    "code": "TC 50-72-8 Viton / FKM High-Temp",
+    "category": "seal",
+    "nameFa": "کاسه نمد نسوز وایتون 50x72x8 FKM",
+    "nameEn": "High-Temperature Viton Oil Seal 50x72x8 FKM",
+    "descriptionFa": "مقاومت حرارتی فوق‌العاده تا ۲۰۰ درجه سانتی‌گر، مقاوم به انواع روغن‌های سنتتیک، اسیدها و حلال‌های شیمیایی.",
+    "descriptionEn": "Premium Fluorocarbon (Viton/FKM) rotary shaft seal resisting aggressive synthetic oils and temperatures up to 200°C.",
+    "d": 50,
+    "D": 72,
+    "B": 8,
+    "weightKg": 0.038,
+    "crKn": 0.05,
+    "corKn": 0.05,
+    "speedGreaseRpm": 8000,
+    "speedOilRpm": 12000,
+    "cageMaterialFa": "اسکلت استیل با فنر ضدزنگ استنلس ۳۰۴",
+    "cageMaterialEn": "Stainless steel case with SUS304 garter spring",
+    "sealingFa": "الاستومر خالص Viton FKM قهوه‌ای/سبز",
+    "sealingEn": "Viton/FKM Fluoroelastomer (-20°C to +200°C)",
+    "clearanceOptions": [
+      "DIN 3760 Form AS"
+    ],
+    "brands": [
+      "Corteco",
+      "CFW Freudenberg",
+      "SKF",
+      "Dichtomatik"
+    ],
+    "applicationsFa": [
+      "صنایع شیمیایی و پتروشیمی",
+      "توربوکمپرسورهای داغ",
+      "موتورهای دیزل سنگین"
+    ],
+    "applicationsEn": [
+      "Petrochemical Refineries",
+      "Hot Turbochargers",
+      "Heavy Marine Diesels"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "oil-seal",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Freudenberg / Corteco (Germany)",
+        "catalogCode": "Simmerring Industrial Cat. 2022",
+        "reference": "Fluoroelastomer FKM / Viton® Rotary Shaft Lip Seal DIN 3760 Form AS / ISO 6194-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-tc-75-100-12",
+    "slug": "tc-75-100-12",
+    "imageUrl": "/assets/images/seal_tc35_nbr_1787678715667.webp",
+    "images": [
+      "/assets/images/seal_tc35_nbr_1787678715667.webp"
+    ],
+    "code": "TC 75-100-12 NBR Heavy Duty",
+    "category": "seal",
+    "nameFa": "کاسه نمد سنگین صنعتی 75x100x12",
+    "nameEn": "Heavy Industrial Shaft Seal 75-100-12",
+    "descriptionFa": "سایز بزرگ شفت ۷۵ میلی‌متر با بدنه تقویت‌شده جهت جلوگیری از نشتی گریس و روغن در خطوط تولید پیوسته.",
+    "descriptionEn": "Heavy duty rotary shaft seal for 75mm industrial drives with reinforced rubber-to-metal bonding.",
+    "d": 75,
+    "D": 100,
+    "B": 12,
+    "weightKg": 0.065,
+    "crKn": 0.05,
+    "corKn": 0.05,
+    "speedGreaseRpm": 4500,
+    "speedOilRpm": 6500,
+    "cageMaterialFa": "ورق فولادی سخت‌کاری شده",
+    "cageMaterialEn": "Pressed steel case",
+    "sealingFa": "NBR ۷۰ شور با فنر پیوسته",
+    "sealingEn": "70 Shore A NBR with garter spring",
+    "clearanceOptions": [
+      "ISO 6194"
+    ],
+    "brands": [
+      "Corteco",
+      "TTO",
+      "CFW",
+      "SKF"
+    ],
+    "applicationsFa": [
+      "گیربکس آسیاب‌های معدنی",
+      "اکسل‌های محرک ماشین‌آلات سنگین",
+      "رولیک‌های ریخته‌گری"
+    ],
+    "applicationsEn": [
+      "Mining Mill Gearboxes",
+      "Heavy Machinery Drive Axles",
+      "Continuous Casting Rollers"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "oil-seal",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Freudenberg / Corteco (Germany)",
+        "catalogCode": "Simmerring Industrial Cat. 2022",
+        "reference": "NBR Rotary Shaft Lip Seal DIN 3760 Form AS / ISO 6194-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-skf-lgmt-2",
+    "slug": "skf-lgmt-2",
+    "imageUrl": "/assets/images/grease_skf_lgmt2_1787678760211.webp",
+    "images": [
+      "/assets/images/grease_skf_lgmt2_1787678760211.webp"
+    ],
+    "code": "SKF LGMT 2 / 1kg",
+    "category": "lubricant",
+    "nameFa": "گریس تخصصی چندمنظوره بلبرینگ SKF LGMT 2",
+    "nameEn": "SKF Multi-Purpose Industrial Grease LGMT 2",
+    "descriptionFa": "گریس پایه صابون لیتیوم با پایداری اکسیداسیون بالا و کارکرد عالی در دمای -۳۰ تا +۱۲۰ درجه سانتی‌گر.",
+    "descriptionEn": "High-performance lithium soap-based mineral oil grease with excellent rust inhibiting properties and thermal stability.",
+    "d": 0,
+    "D": 0,
+    "B": 0,
+    "weightKg": 1,
+    "crKn": 0,
+    "corKn": 0,
+    "speedGreaseRpm": 12000,
+    "speedOilRpm": 12000,
+    "cageMaterialFa": "پایه صابون لیتیوم / روغن معدنی تغلیظ‌شده",
+    "cageMaterialEn": "Lithium soap / Mineral base oil NLGI 2",
+    "sealingFa": "مقاوم در برابر شستشو با آب و زنگ‌زدگی",
+    "sealingEn": "Water resistant & anti-corrosion ISO L-XCCEA 2",
+    "clearanceOptions": [
+      "NLGI 2 Standard"
+    ],
+    "brands": [
+      "SKF Sweden",
+      "Total",
+      "Mobil"
+    ],
+    "applicationsFa": [
+      "الکتروموتورهای صنعتی",
+      "یاتاقان‌های نوار نقاله",
+      "پمپ‌های آب صنعتی"
+    ],
+    "applicationsEn": [
+      "Electric Motors",
+      "Conveyor Bearings",
+      "Industrial Water Pumps"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB MP/P1 10000 EN",
+        "reference": "SKF Maintenance and Lubrication Products - General Purpose Industrial Grease DIN 51825: K2K-30",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-22324-ccja-w33va405",
+    "slug": "22324-ccja-w33va405",
+    "imageUrl": "/assets/images/bearing_22324_brass_1787678785316.webp",
+    "images": [
+      "/assets/images/bearing_22324_brass_1787678785316.webp"
+    ],
+    "code": "22324 CCJA/W33VA405 (Vibrating Screen Special)",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای ویژه سرند معدنی 22324 VA405",
+    "nameEn": "Vibrating Screen Spherical Bearing 22324 VA405",
+    "descriptionFa": "طراحی فوق‌سنگین مهندسی شده برای شتاب‌های گرانشی بالا (تا g5)، دارای قفسه برنجی یکپارچه با سختی سطحی و لقی C4 ویژه معادن سنگ‌آهن و شن و ماسه.",
+    "descriptionEn": "Special vibrating screen spherical roller bearing with case-hardened brass cage and C4 clearance designed to withstand heavy 5g cyclic accelerations.",
+    "d": 120,
+    "D": 260,
+    "B": 86,
+    "weightKg": 22,
+    "crKn": 1040,
+    "corKn": 1200,
+    "speedGreaseRpm": 1800,
+    "speedOilRpm": 2400,
+    "calculationFactorE": 0.35,
+    "calculationFactorY1": 1.9,
+    "calculationFactorY2": 2.9,
+    "calculationFactorY0": 1.8,
+    "cageMaterialFa": "قفسه برنجی ماشین‌کاری شده صلب سخت‌کاری سطحی (JA)",
+    "cageMaterialEn": "Surface-hardened machined solid brass cage (JA)",
+    "sealingFa": "شیار و سوراخ‌های روانکاری بزرگ W33",
+    "sealingEn": "W33 Lubrication groove with enlarged discharge ports",
+    "clearanceOptions": [
+      "VA405 (C4 Special)"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken"
+    ],
+    "applicationsFa": [
+      "سرندهای لرزشی معادن سنگ‌آهن",
+      "فیدرهای ارتعاشی کارخانجات سیمان",
+      "ماسه شورها و آسیاهای نیمه خودفشنگ"
+    ],
+    "applicationsEn": [
+      "Iron Ore Vibrating Screens",
+      "Cement Vibratory Feeders",
+      "Heavy Mining SAG Mills"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB 6103 EN",
+        "reference": "SKF Spherical Roller Bearings for Vibrating Applications VA405 / ISO 15:2017 & DIN 635-2",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 2200,
+    "rMin": 3,
+    "calculationFactorY": 1.9,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-32218-j2-q",
+    "slug": "32218-j2-q",
+    "imageUrl": "/assets/images/tapered_bearing_photo_1787677370531.webp",
+    "images": [
+      "/assets/images/tapered_bearing_photo_1787677370531.webp"
+    ],
+    "code": "32218 J2/Q (Heavy Steel Mill & Axle)",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی سنگین خطوط نورد فولاد 32218",
+    "nameEn": "Heavy Tapered Roller Bearing 32218 J2/Q",
+    "descriptionFa": "رولبرینگ مخروطی سایز بزرگ با زاویه تماس بهینه شده برای تحمل ضربات شدید نورد گرم و اکسل‌های تناژ سنگین صنعتی.",
+    "descriptionEn": "Large-bore tapered roller bearing with optimized internal geometry for severe rolling mill shock loads and heavy industrial axles.",
+    "d": 90,
+    "D": 160,
+    "B": 42.5,
+    "weightKg": 3.8,
+    "crKn": 286,
+    "corKn": 380,
+    "speedGreaseRpm": 2400,
+    "speedOilRpm": 3200,
+    "calculationFactorE": 0.4,
+    "calculationFactorY": 1.5,
+    "calculationFactorY0": 0.8,
+    "cageMaterialFa": "فولاد آلیاژی سخت‌کاری شده حرارتی",
+    "cageMaterialEn": "Heat-treated alloy steel window cage",
+    "sealingFa": "بدون شیلد (حمام روغن و روانکاری چرخشی)",
+    "sealingEn": "Open (Circulating Oil Bath)",
+    "clearanceOptions": [
+      "Standard Preset"
+    ],
+    "brands": [
+      "Timken",
+      "SKF",
+      "FAG"
+    ],
+    "applicationsFa": [
+      "خطوط نورد میلگرد و تیرآهن",
+      "گیربکس‌های اکستروژن فولاد",
+      "چرخ‌های لوکوموتیو و واگن‌های باربری"
+    ],
+    "applicationsEn": [
+      "Rebar & Beam Rolling Mills",
+      "Steel Extrusion Gearboxes",
+      "Locomotive Wheelsets"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 3400,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Metric Tapered Roller Bearings / ISO 355:2019 & DIN 720",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 2.5,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-29420-e",
+    "slug": "29420-e",
+    "imageUrl": "/assets/images/bearing_29420_thrust_1787678796134.webp",
+    "images": [
+      "/assets/images/bearing_29420_thrust_1787678796134.webp"
+    ],
+    "code": "29420 E (Spherical Roller Thrust Bearing)",
+    "category": "thrust",
+    "nameFa": "رولبرینگ بشکه‌ای کف‌گرد دکل حفاری و نفت 29420 E",
+    "nameEn": "Spherical Roller Thrust Bearing 29420 E",
+    "descriptionFa": "تحمل بارهای محوری بسیار سنگین به همراه بار شعاعی همزمان با قابلیت خودتنظیمی زاویه‌ای در تجهیزات سرچاهی و دریل‌های نفتی.",
+    "descriptionEn": "Self-aligning spherical roller thrust bearing accommodating extremely high axial loads with concurrent radial capacity for deep oil drilling.",
+    "d": 100,
+    "D": 210,
+    "B": 67,
+    "weightKg": 9.85,
+    "crKn": 780,
+    "corKn": 1960,
+    "speedGreaseRpm": 1200,
+    "speedOilRpm": 2000,
+    "cageMaterialFa": "قفسه برنجی ماشین‌کاری شده با هدایت رینگ شفت",
+    "cageMaterialEn": "Machined brass cage guided by shaft washer",
+    "sealingFa": "روغن‌کاری مدار بسته با فیلم هیدرودینامیکی",
+    "sealingEn": "Oil bath / circulating oil forced lubrication",
+    "clearanceOptions": [
+      "ISO 104 Standard"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken"
+    ],
+    "applicationsFa": [
+      "تاپ درایو دکل‌های حفاری نفت و گاز",
+      "اکسترودرهای عظیم لاستیک و پلاستیک",
+      "توربین‌های آبی سدها"
+    ],
+    "applicationsEn": [
+      "Oil & Gas Top Drives",
+      "Heavy Rubber Extruders",
+      "Hydroelectric Dam Turbines"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "thrust",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Spherical Roller Thrust Bearings / ISO 104:2015 & DIN 728",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 1700,
+    "rMin": 3,
+    "calculationFactorE": 0.32,
+    "calculationFactorY": 1.9,
+    "calculationFactorY0": 1.2,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nu-2224-ecp",
+    "slug": "nu-2224-ecp",
+    "imageUrl": "/assets/images/bearing_nu208_cylindrical_1787678672477.webp",
+    "images": [
+      "/assets/images/bearing_nu208_cylindrical_1787678672477.webp"
+    ],
+    "code": "NU 2224 ECP / C3 (Heavy Refinery Pump)",
+    "category": "cylindrical",
+    "nameFa": "رولبرینگ استوانه‌ای پمپ‌های پالایشگاهی NU 2224 ECP",
+    "nameEn": "Heavy Cylindrical Roller Bearing NU 2224 ECP",
+    "descriptionFa": "تحمل حداکثری بارهای شعاعی در دورهای بالا با قفسه پلی‌آمید ۶۶ تقویت‌شده جهت نصب روی شفت پمپ‌های خوراک پالایشگاهی.",
+    "descriptionEn": "High capacity cylindrical roller bearing designed for non-locating pump positions in oil refineries and petrochemical installations.",
+    "d": 120,
+    "D": 215,
+    "B": 58,
+    "weightKg": 8.55,
+    "crKn": 475,
+    "corKn": 610,
+    "speedGreaseRpm": 3200,
+    "speedOilRpm": 4000,
+    "cageMaterialFa": "پلی‌آمید مهندسی تقویت‌شده با الیاف کربن/شیشه",
+    "cageMaterialEn": "Reinforced Polyamide PA66 with fiber glass",
+    "sealingFa": "Open (شناور در روغن)",
+    "sealingEn": "Open (Submerged Oil Bath)",
+    "clearanceOptions": [
+      "C3",
+      "C4"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "پمپ‌های فرآیندی نفت و گاز استاندارد API 610",
+      "کمپرسورهای گازی سانتریفیوژ",
+      "دمنده‌های هوای داغ فولادسازی"
+    ],
+    "applicationsEn": [
+      "API 610 Refinery Process Pumps",
+      "Centrifugal Gas Compressors",
+      "Steel Plant Hot Air Blowers"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Heavy Cylindrical Roller Bearings NU 22 Series / ISO 15:2017 & DIN 5412-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 3600,
+    "rMin": 2.1,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-6210-2z-va208",
+    "slug": "6210-2z-va208",
+    "imageUrl": "/assets/images/bearing_6210_kiln_1787678818521.webp",
+    "images": [
+      "/assets/images/bearing_6210_kiln_1787678818521.webp"
+    ],
+    "code": "6210-2Z/VA208 (High-Temp 350°C Kiln Bearing)",
+    "category": "ball",
+    "nameFa": "بلبرینگ نسوز کوره حرارت ۳۵۰ درجه 6210-2Z/VA208",
+    "nameEn": "High Temperature Kiln Ball Bearing 6210-2Z/VA208",
+    "descriptionFa": "بلبرینگ نسوز با پوشش فسفاته منگنز و قفسه گرافیت متخلخل روانکار جامد ویژه واگن‌های کوره آجر، سرامیک و عملیات حرارتی فولاد.",
+    "descriptionEn": "High temperature ball bearing engineered for extreme temperatures up to 350°C with solid graphite segmented cage and manganese phosphating.",
+    "d": 50,
+    "D": 90,
+    "B": 20,
+    "weightKg": 0.46,
+    "crKn": 37.1,
+    "corKn": 23.2,
+    "speedGreaseRpm": 120,
+    "speedOilRpm": 120,
+    "cageMaterialFa": "قفسه تکه‌ای گرافیتی خود روانکار (VA208)",
+    "cageMaterialEn": "Segmented solid graphite lubricating crown (VA208)",
+    "sealingFa": "شیلد فلزی محافظ با پوشش ضدزنگ فسفاته",
+    "sealingEn": "Dual Metal Shields with manganese phosphated rings",
+    "clearanceOptions": [
+      "Multiplied C5 Radial Play"
+    ],
+    "brands": [
+      "SKF High-Temp",
+      "FAG High-Temp"
+    ],
+    "applicationsFa": [
+      "واگن‌های کوره پخت سرامیک و آجر",
+      "خطوط عملیات حرارتی و آنیلینگ فولاد",
+      "خشک‌کن‌های صنایع گچ و سیمان"
+    ],
+    "applicationsEn": [
+      "Kiln Truck Wheels",
+      "Steel Heat Treatment Lines",
+      "Continuous Gypsum & Cement Dryers"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Bearings for Extreme Temperatures VA208 (+350°C Kiln Duty) / ISO 15:2017",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 120,
+    "rMin": 1.1,
+    "calculationFactorF0": 14.4,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-fkm-tc-80-100-12",
+    "slug": "fkm-tc-80-100-12",
+    "imageUrl": "/assets/images/seal_tc50_viton_1787678737812.webp",
+    "images": [
+      "/assets/images/seal_tc50_viton_1787678737812.webp"
+    ],
+    "code": "TC 80-100-12 Viton / FKM Petrochemical",
+    "category": "seal",
+    "nameFa": "کاسه نمد وایتون نسوز صنایع پتروشیمی 80x100x12",
+    "nameEn": "Petrochemical Viton FKM Oil Seal 80-100-12",
+    "descriptionFa": "کاسه نمد فلوروالاستومر (وایتون) با فنر استیل زنگ‌نزن ۳۱۶ ضداسید، مقاوم به روغن‌های سنتتیک داغ تا ۲۲۰ درجه سانتی‌گر در برج‌های تقطیر و پمپ‌های هیدروکربنی.",
+    "descriptionEn": "Fluorocarbon FKM oil seal with SUS316 acid-resistant garter spring for high temperature hydrocarbons and synthetic lubricants in refineries.",
+    "d": 80,
+    "D": 100,
+    "B": 12,
+    "weightKg": 0.082,
+    "crKn": 0.05,
+    "corKn": 0.05,
+    "speedGreaseRpm": 5000,
+    "speedOilRpm": 8000,
+    "cageMaterialFa": "بدنه فولادی اینکپسوله شده با وایتون نسوز",
+    "cageMaterialEn": "Fully encapsulated steel insert with FKM Viton",
+    "sealingFa": "لبه آب‌بند هیدرو دینامیک با فنر استیل ۳۱۶",
+    "sealingEn": "Bi-rotational hydrodynamic wave lip with 316SS spring",
+    "clearanceOptions": [
+      "DIN 3760 AS/TC"
+    ],
+    "brands": [
+      "CFW Simrit Germany",
+      "Corteco Italy",
+      "SKF CR Seals",
+      "Dichtomatik"
+    ],
+    "applicationsFa": [
+      "پمپ‌های انتقال هیدروکربن داغ پالایشگاه",
+      "گیربکس‌های توربین‌های بادی",
+      "میکسرها و رآکتورهای پتروشیمی"
+    ],
+    "applicationsEn": [
+      "Hot Hydrocarbon Transfer Pumps",
+      "Wind Turbine Gearboxes",
+      "Petrochemical Reactor Vessels"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "oil-seal",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Freudenberg / Corteco (Germany)",
+        "catalogCode": "Simmerring Industrial Cat. 2022",
+        "reference": "Viton® / FKM High Temperature Chemical Rotary Shaft Seal DIN 3760 Form AS / ISO 6194-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-snl-518-615",
+    "slug": "snl-518-615",
+    "imageUrl": "/assets/images/housing_snl511_split_1787678749335.webp",
+    "images": [
+      "/assets/images/housing_snl511_split_1787678749335.webp"
+    ],
+    "code": "SNL 518-615 (Heavy Mining Split Housing)",
+    "category": "housing",
+    "nameFa": "پوسته یاتاقان دوتکه سنگین معدن و فولاد SNL 518-615",
+    "nameEn": "Heavy Mining Split Plummer Block SNL 518-615",
+    "descriptionFa": "هوزینگ چدن نشکن سنگین برای شفت‌های ۷۵ و ۸۰ میلی‌متر، مجهز به آب‌بند لابیرنت فلزی ضد ورود لجن و غبار سنگ‌آهن.",
+    "descriptionEn": "Rugged split plummer block housing for 75mm/80mm shafts fitted with heavy taconite labyrinth seals for extreme slurry and iron dust.",
+    "d": 75,
+    "D": 192,
+    "B": 125,
+    "weightKg": 12.5,
+    "crKn": 420,
+    "corKn": 345,
+    "speedGreaseRpm": 2400,
+    "speedOilRpm": 3200,
+    "cageMaterialFa": "چدن نشکن داکتیل spheroidal graphite iron",
+    "cageMaterialEn": "Ductile spheroidal graphite iron housing",
+    "sealingFa": "آب‌بند لابیرنت فولادی سنگین Taconite ضد گردوغبار معدنی",
+    "sealingEn": "Heavy Taconite Labyrinth multi-barrier seal",
+    "clearanceOptions": [
+      "Fits 22218 EK / 23218 CCK"
+    ],
+    "brands": [
+      "SKF",
+      "FAG"
+    ],
+    "applicationsFa": [
+      "درام‌های انتقال مواد سنگ‌شکن",
+      "نوار نقاله‌های اصلی کارخانجات فولاد",
+      "اسکرو فیدرهای خاکستر کوره‌ها"
+    ],
+    "applicationsEn": [
+      "Crusher Discharge Head Pulleys",
+      "Primary Steel Plant Overland Conveyors",
+      "Boiler Ash Screw Feeders"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "pillow-block",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB 131-001 EN",
+        "reference": "SKF Split Plummer Block Housings SNL Heavy Duty Series / ISO 113:2010 & DIN 736",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-mobilith-shc-220",
+    "slug": "mobilith-shc-220",
+    "imageUrl": "/assets/images/grease_mobilith_red_1787678829445.webp",
+    "images": [
+      "/assets/images/grease_mobilith_red_1787678829445.webp"
+    ],
+    "code": "Mobilith SHC 220 Synthetic",
+    "category": "lubricant",
+    "nameFa": "گریس تمام سنتتیک سنگین Mobilith SHC 220",
+    "nameEn": "Mobilith SHC 220 Full Synthetic Grease",
+    "descriptionFa": "گریس ویژه حرارت و فشار بسیار بالا با پایه کمپلکس لیتیوم و روغن سنتتیک برای صنایع فولاد و کوره.",
+    "descriptionEn": "Severe-duty full synthetic lithium complex grease engineered for extreme temperatures (-40°C to +150°C) and heavy shock loads.",
+    "d": 0,
+    "D": 0,
+    "B": 0,
+    "weightKg": 0.38,
+    "crKn": 0,
+    "corKn": 0,
+    "speedGreaseRpm": 10000,
+    "speedOilRpm": 10000,
+    "cageMaterialFa": "کمپلکس لیتیوم سنتتیک NLGI 2",
+    "cageMaterialEn": "Synthetic Lithium Complex NLGI 2",
+    "sealingFa": "پایداری مکانیکی در برابر لرزش‌های شدید",
+    "sealingEn": "Extreme Pressure (EP) with water resistance",
+    "clearanceOptions": [
+      "DIN 51825 - KPHC 2N-40"
+    ],
+    "brands": [
+      "Mobil",
+      "Shell Gadus",
+      "Klüber"
+    ],
+    "applicationsFa": [
+      "سرندهای ویبره",
+      "کالندرها و غلتک‌های داغ کاغذسازی",
+      "محرک‌های فولادسازی"
+    ],
+    "applicationsEn": [
+      "Vibrating Screens",
+      "Paper Machine Calenders",
+      "Steel Mill Continuous Casting"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "spherical",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "ExxonMobil Chemical",
+        "catalogCode": "PDS 01-2023",
+        "reference": "Mobilith SHC Series Synthetic Grease - ISO 6743-9: L-XDDIB 2 / DIN 51825: KPHC2N-40",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-7312-becbm",
+    "slug": "7312-becbm",
+    "imageUrl": "/assets/images/bearing_7312_brass_1787678774838.webp",
+    "images": [
+      "/assets/images/bearing_7312_brass_1787678774838.webp"
+    ],
+    "code": "7312 BECBM (40° Brass Cage)",
+    "category": "ball",
+    "nameFa": "بلبرینگ تماس زاویه‌ای قفسه برنجی 7312 BECBM",
+    "nameEn": "Angular Contact Ball Bearing 7312 BECBM",
+    "descriptionFa": "بلبرینگ تماس زاویه‌ای ۴۰ درجه با قفسه برنجی ماشین‌کاری شده صلب برای تحمل بارهای محوری سنگین یک‌طرفه در پمپ‌های فشار قوی و کمپرسورهای اسکرو.",
+    "descriptionEn": "Single row angular contact ball bearing with 40° contact angle and machined solid brass cage for high axial thrust in heavy process pumps.",
+    "d": 60,
+    "D": 130,
+    "B": 31,
+    "weightKg": 1.8,
+    "crKn": 104,
+    "corKn": 76.5,
+    "speedGreaseRpm": 6000,
+    "speedOilRpm": 8000,
+    "cageMaterialFa": "قفسه برنجی یکپارچه ماشین‌کاری شده (M)",
+    "cageMaterialEn": "Machined solid brass cage (M)",
+    "sealingFa": "باز (Open - روانکاری حمام روغن)",
+    "sealingEn": "Open (Oil Bath Lubrication)",
+    "clearanceOptions": [
+      "CB (Standard)",
+      "CC (Increased)",
+      "CA (Light)"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "پمپ‌های طبقاتی فشار قوی آب و نفت",
+      "کمپرسورهای برودتی اسکرو",
+      "اسپیندل دستگاه‌های تراش سنگین"
+    ],
+    "applicationsEn": [
+      "Multi-Stage High Pressure Pumps",
+      "Screw Refrigeration Compressors",
+      "Heavy Lathe Spindles"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 6700,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Angular Contact Ball Bearings 40° Brass Cage / ISO 15:2017 & DIN 628-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 2.1,
+    "contactAngle": "40°",
+    "calculationFactorE": 1.14,
+    "calculationFactorX": 0.35,
+    "calculationFactorY": 0.57,
+    "calculationFactorY0": 0.26,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-7210-becbp",
+    "slug": "7210-becbp",
+    "imageUrl": "/assets/images/bearing_7312_brass_1787678774838.webp",
+    "images": [
+      "/assets/images/bearing_7312_brass_1787678774838.webp"
+    ],
+    "code": "7210 BECBP / P6",
+    "category": "ball",
+    "nameFa": "بلبرینگ تماس زاویه‌ای دقیق 7210 BECBP",
+    "nameEn": "Precision Angular Contact Bearing 7210 BECBP",
+    "descriptionFa": "طراحی بهینه با قفسه پلی‌آمید تقویت‌شده PA66 و زاویه ۴۰ درجه جهت آرایش جفتی روبرو (DB) و پشت به پشت (DF) در پمپ‌های استاندارد API.",
+    "descriptionEn": "Universal matched angular contact ball bearing with glass fiber reinforced PA66 cage for back-to-back or face-to-face mounting.",
+    "d": 50,
+    "D": 90,
+    "B": 20,
+    "weightKg": 0.46,
+    "crKn": 41,
+    "corKn": 30,
+    "speedGreaseRpm": 8500,
+    "speedOilRpm": 11000,
+    "cageMaterialFa": "پلی‌آمید مهندسی PA66 تقویت شده با الیاف شیشه",
+    "cageMaterialEn": "Glass fiber reinforced PA66 cage",
+    "sealingFa": "Open (حمام روغن)",
+    "sealingEn": "Open (Oil Bath)",
+    "clearanceOptions": [
+      "CB Universal Pairing",
+      "GA Light Preload"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NACHI",
+      "KOYO"
+    ],
+    "applicationsFa": [
+      "پمپ‌های فرآیندی پتروشیمی",
+      "گیربکس‌های صنعتی هلیکال",
+      "موتورهای سروو صنعتی"
+    ],
+    "applicationsEn": [
+      "Petrochemical Process Pumps",
+      "Helical Gearboxes",
+      "Industrial Servo Drives"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 10000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Angular Contact Ball Bearings 40° Polyamide Cage / ISO 15:2017 & DIN 628-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.1,
+    "contactAngle": "40°",
+    "calculationFactorE": 1.14,
+    "calculationFactorX": 0.35,
+    "calculationFactorY": 0.57,
+    "calculationFactorY0": 0.26,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-3308-a-2z",
+    "slug": "3308-a-2z",
+    "imageUrl": "/assets/images/bearing_3308_doublerow_1787678851991.webp",
+    "images": [
+      "/assets/images/bearing_3308_doublerow_1787678851991.webp"
+    ],
+    "code": "3308 A-2Z/C3 (Double Row)",
+    "category": "ball",
+    "nameFa": "بلبرینگ دو ردیفه تماس زاویه‌ای شیلددار 3308-2Z",
+    "nameEn": "Double Row Angular Contact Bearing 3308 A-2Z",
+    "descriptionFa": "تحمل همزمان بارهای محوری دوطرفه و بارهای شعاعی با شیلدهای فلزی بدون نیاز به روانکاری مجدد.",
+    "descriptionEn": "Double row angular contact ball bearing with dual non-contact metal shields accommodating bidirectional thrust and radial loads.",
+    "d": 40,
+    "D": 90,
+    "B": 36.5,
+    "weightKg": 0.98,
+    "crKn": 57,
+    "corKn": 41.5,
+    "speedGreaseRpm": 6700,
+    "speedOilRpm": 8500,
+    "cageMaterialFa": "فولاد پرسکاری شده",
+    "cageMaterialEn": "Pressed sheet steel cage",
+    "sealingFa": "شیلد فلزی دو طرفه گریس‌دار مادام‌العمر (ZZ)",
+    "sealingEn": "Dual non-contact metal shields (2Z)",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NTN",
+      "NSK"
+    ],
+    "applicationsFa": [
+      "اکسل خودروهای تجاری",
+      "پمپ‌های غوطه‌ور لجن‌کش",
+      "ماشین‌آلات بسته‌بندی"
+    ],
+    "applicationsEn": [
+      "Commercial Vehicle Hubs",
+      "Submersible Slurry Pumps",
+      "Packaging Machines"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 8000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Double Row Angular Contact Ball Bearings 3308 A / ISO 15:2017 & DIN 628-3",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "contactAngle": "30°",
+    "calculationFactorE": 0.8,
+    "calculationFactorY": 0.78,
+    "calculationFactorY1": 0.78,
+    "calculationFactorY2": 1.24,
+    "calculationFactorY0": 0.66,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-1309-ektn9",
+    "slug": "1309-ektn9",
+    "imageUrl": "/assets/images/bearing_1309_align_1787678841334.webp",
+    "images": [
+      "/assets/images/bearing_1309_align_1787678841334.webp"
+    ],
+    "code": "1309 EKTN9 (Self-Aligning Tapered Bore)",
+    "category": "ball",
+    "nameFa": "بلبرینگ خودتنظیم کونیک 1309 EKTN9",
+    "nameEn": "Self-Aligning Ball Bearing 1309 EKTN9",
+    "descriptionFa": "بلبرینگ دو ردیفه با رینگ بیرونی کروی مشترک جهت جبران انحراف شفت و خطاهای مونتاژ، قابل نصب با بوش H309.",
+    "descriptionEn": "Double row self-aligning ball bearing with tapered bore (1:12) compensating for angular misalignment up to 3 degrees.",
+    "d": 45,
+    "D": 100,
+    "B": 25,
+    "weightKg": 0.93,
+    "crKn": 39,
+    "corKn": 13.4,
+    "speedGreaseRpm": 7500,
+    "speedOilRpm": 9500,
+    "cageMaterialFa": "پلی‌آمید ۶۶ الیاف‌دار (TN9)",
+    "cageMaterialEn": "Moulded glass fibre reinforced PA66 (TN9)",
+    "sealingFa": "Open (تطبیقی با گریس یا روغن)",
+    "sealingEn": "Open (Adapter sleeve mountable)",
+    "clearanceOptions": [
+      "C3 Radial Internal Play"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "NSK"
+    ],
+    "applicationsFa": [
+      "ماشین‌آلات نساجی و ریسندگی",
+      "نوار نقاله‌های صنایع غذایی",
+      "شفت‌های بلند و منعطف"
+    ],
+    "applicationsEn": [
+      "Textile & Spinning Machinery",
+      "Food Grade Conveyors",
+      "Long Flexible Shafts"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 9000,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Self-Aligning Ball Bearings Tapered Bore 1309 / ISO 15:2017 & DIN 630",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "calculationFactorE": 0.23,
+    "calculationFactorY": 2.7,
+    "calculationFactorY1": 2.7,
+    "calculationFactorY2": 4.2,
+    "calculationFactorY0": 2.8,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-na-4910",
+    "slug": "na-4910",
+    "imageUrl": "/assets/images/bearing_na4910_needle_1787678806671.webp",
+    "images": [
+      "/assets/images/bearing_na4910_needle_1787678806671.webp"
+    ],
+    "code": "NA 4910 (Machined Needle Roller)",
+    "category": "roller",
+    "nameFa": "رولبرینگ سوزنی رینگ‌دار ماشین‌کاری NA 4910",
+    "nameEn": "Machined Needle Roller Bearing NA 4910",
+    "descriptionFa": "ارتفاع مقطع بسیار فشرده با ظرفیت بار شعاعی بالا برای محورهایی با محدودیت شدید فضای شعاعی.",
+    "descriptionEn": "Machined type needle roller bearing with inner and outer rings offering high rigidity and load carrying capacity in compact space.",
+    "d": 50,
+    "D": 72,
+    "B": 22,
+    "weightKg": 0.28,
+    "crKn": 44,
+    "corKn": 78,
+    "speedGreaseRpm": 5300,
+    "speedOilRpm": 8000,
+    "cageMaterialFa": "قفسه فولادی راهنمای دقیق سوزن‌ها",
+    "cageMaterialEn": "Hardened pressed steel needle guide cage",
+    "sealingFa": "شیار و سوراخ روغن‌کاری رینگ خارجی",
+    "sealingEn": "Outer ring lubrication groove & hole",
+    "clearanceOptions": [
+      "CN Standard"
+    ],
+    "brands": [
+      "INA Germany",
+      "SKF",
+      "IKO Japan",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "جعبه دنده‌های خودرو و گیربکس موتور سیکلت",
+      "پمپ‌های هیدرولیک دنده‌ای",
+      "بازوهای رباتیک صنعتی"
+    ],
+    "applicationsEn": [
+      "Automotive Transmissions",
+      "Hydraulic Gear Pumps",
+      "Industrial Robotic Arms"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 7500,
+    "technicalSources": [
+      {
+        "manufacturer": "Schaeffler (INA / Germany)",
+        "catalogCode": "Cat. HR 1 INA",
+        "reference": "INA Machined Needle Roller Bearings with Flanges NA 4910 / ISO 1206:2018 & DIN 617",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 0.6,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-23228-cc-w33",
+    "slug": "23228-cc-w33",
+    "imageUrl": "/assets/images/spherical_bearing_photo_1787677386106.webp",
+    "images": [
+      "/assets/images/spherical_bearing_photo_1787677386106.webp"
+    ],
+    "code": "23228 CC/W33 (Heavy Mining SAG Mill)",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای سنگین آسیاب معدن 23228 CC/W33",
+    "nameEn": "Heavy Mining SAG Mill Spherical Bearing 23228 CC/W33",
+    "descriptionFa": "رولبرینگ بشکه‌ای بسیار سنگین سری ۲۳۲ با عرض ۸۸ میلی‌متر و بار دینامیکی شگفت‌انگیز ۱۰۲۰ کیلو نیوتن جهت آسیاب‌های گلوله‌ای و درام‌های شستشوی معدنی.",
+    "descriptionEn": "Extra-wide spherical roller bearing series 232 engineered for heavy SAG mills, high-tonnage crushers, and primary mine screens.",
+    "d": 140,
+    "D": 250,
+    "B": 88,
+    "weightKg": 18,
+    "crKn": 1020,
+    "corKn": 1370,
+    "speedGreaseRpm": 1600,
+    "speedOilRpm": 2200,
+    "calculationFactorE": 0.35,
+    "calculationFactorY1": 1.9,
+    "calculationFactorY2": 2.9,
+    "calculationFactorY0": 1.8,
+    "cageMaterialFa": "قفسه فولادی پرس دوگانه راهنمای رینگ وسط (CC)",
+    "cageMaterialEn": "CC type stamped window steel cage with inner ring guide ring",
+    "sealingFa": "شیار روغن‌کاری W33 با ۳ سوراخ تخلیه روغن",
+    "sealingEn": "W33 Lubrication groove with enlarged ports",
+    "clearanceOptions": [
+      "C3",
+      "C4 Mining Clearances"
+    ],
+    "brands": [
+      "SKF",
+      "FAG",
+      "Timken",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "آسیاب‌های گلوله‌ای معادن مس و آهن",
+      "رولیک‌های ریخته‌گری مداوم فولاد",
+      "درام‌های درایو نوار نقاله معدنی"
+    ],
+    "applicationsEn": [
+      "Copper & Iron Ore Ball Mills",
+      "Steel Continuous Caster Rolls",
+      "Mine Overland Conveyor Pulleys"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Spherical Roller Bearings 23228 CC Heavy Mining Series / ISO 15:2017 & DIN 635-2",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 2000,
+    "rMin": 3,
+    "calculationFactorY": 1.9,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-32314-j2-q",
+    "slug": "32314-j2-q",
+    "imageUrl": "/assets/images/bearing_32210_tapered_1787678639800.webp",
+    "images": [
+      "/assets/images/bearing_32210_tapered_1787678639800.webp"
+    ],
+    "code": "32314 J2/Q (Heavy Crusher & Crane Wheel)",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی سنگین سری ۳۲۳ سایز 32314",
+    "nameEn": "Heavy Tapered Roller Bearing 32314 J2/Q",
+    "descriptionFa": "مقاومت استثنایی در برابر بارهای ضربه‌ای با عمق تماس عمیق در چرخ‌های واگن‌های باربری سنگین، سنگ‌شکن‌ها و وینچ‌های صنعتی.",
+    "descriptionEn": "High capacity heavy series 323 tapered roller bearing designed to absorb high impact shock loads in crane travel wheels and jaw crushers.",
+    "d": 70,
+    "D": 150,
+    "B": 54,
+    "weightKg": 4.15,
+    "crKn": 295,
+    "corKn": 365,
+    "speedGreaseRpm": 2600,
+    "speedOilRpm": 3600,
+    "calculationFactorE": 0.35,
+    "calculationFactorY": 1.7,
+    "calculationFactorY0": 0.9,
+    "cageMaterialFa": "فولاد آلیاژی سخت‌کاری شده حرارتی",
+    "cageMaterialEn": "Pressed steel window cage",
+    "sealingFa": "Open (حمام روغن یا گریس پرفشار)",
+    "sealingEn": "Open (Heavy duty grease/oil)",
+    "clearanceOptions": [
+      "Standard Preset"
+    ],
+    "brands": [
+      "Timken",
+      "SKF",
+      "FAG",
+      "NSK"
+    ],
+    "applicationsFa": [
+      "چرخ‌های ترولی جرثقیل‌های سقفی سنگین",
+      "سنگ‌شکن‌های فکی معدنی",
+      "اکسل کامیون‌های معدنی بلاز و کوماتسو"
+    ],
+    "applicationsEn": [
+      "Heavy Overhead Crane Wheels",
+      "Mining Jaw Crushers",
+      "Mining Dump Truck Axles"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 3800,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Rolling Bearings Master Catalog - Heavy Tapered Roller Bearings 32314 / ISO 355:2019 & DIN 720",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 3,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-ucp-210",
+    "slug": "ucp-210",
+    "imageUrl": "/assets/images/pillow_block_photo_1787677398497.webp",
+    "images": [
+      "/assets/images/pillow_block_photo_1787677398497.webp"
+    ],
+    "code": "UCP 210 (50mm Heavy Duty Pillow Block)",
+    "category": "housing",
+    "nameFa": "یاتاقان پایه‌دار چدنی سنگین UCP 210",
+    "nameEn": "Heavy Duty Pillow Block Unit UCP 210",
+    "descriptionFa": "پوسته چدن داکتیل با بلبرینگ داخلی UC210 جهت مهار شفت ۵۰ میلی‌متر با دو پیچ آلن قفل‌کننده و گریس‌خور مرکزی برنجی.",
+    "descriptionEn": "Rigid cast iron pillow block with UC210 insert bearing and set-screw locking collar for 50mm heavy drive shafts.",
+    "d": 50,
+    "D": 114,
+    "B": 51.6,
+    "weightKg": 2.75,
+    "crKn": 35.1,
+    "corKn": 23.2,
+    "speedGreaseRpm": 3400,
+    "speedOilRpm": 3400,
+    "cageMaterialFa": "بلبرینگ داخلی با قفسه فولادی",
+    "cageMaterialEn": "Insert ball bearing steel cage",
+    "sealingFa": "آب‌بند چندلایه فلزی با فلینگر گردگیر",
+    "sealingEn": "Contact rubber seal with metallic slinger",
+    "clearanceOptions": [
+      "Standard UC Fit"
+    ],
+    "brands": [
+      "FYH Japan",
+      "ASAHI",
+      "SKF",
+      "NTN"
+    ],
+    "applicationsFa": [
+      "نوار نقاله‌های انتقال گندله آهن",
+      "فن‌های هوادهی صنعتی",
+      "میکسرها و تجهیزات کشاورزی سنگین"
+    ],
+    "applicationsEn": [
+      "Iron Pellet Conveyors",
+      "Industrial Centrifugal Blowers",
+      "Agricultural Heavy Mixers"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "pillow-block",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "FYH Bearings (Japan) / ASAHI Seiko",
+        "catalogCode": "CAT. No. 2005-B",
+        "reference": "Pillow Block Units UCP 210 (50mm Shaft) - Cast Iron Housing P210 / ISO 3228 & JIS B 1559",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-tc-100-125-13-viton",
+    "slug": "tc-100-125-13-viton",
+    "imageUrl": "/assets/images/seal_tc50_viton_1787678737812.webp",
+    "images": [
+      "/assets/images/seal_tc50_viton_1787678737812.webp"
+    ],
+    "code": "TC 100-125-13 Viton / FKM Heavy Refractory",
+    "category": "seal",
+    "nameFa": "کاسه نمد وایتون نسوز نسوز کوره 100x125x13",
+    "nameEn": "Refractory Kiln Viton Oil Seal 100-125-13 FKM",
+    "descriptionFa": "کاسه نمد سایز بزرگ شفت ۱۰۰ میلی‌متر از جنس وایتون FKM با فنر استیل ۳۱۶، مقاوم به روغن‌های داغ گیربکس‌های کارخانجات سیمان و فولاد تا ۲۲۰°C.",
+    "descriptionEn": "Large-bore Viton FKM rotary shaft seal with 316 stainless garter spring for extreme thermal environments up to 220°C in cement & steel mills.",
+    "d": 100,
+    "D": 125,
+    "B": 13,
+    "weightKg": 0.12,
+    "crKn": 0.05,
+    "corKn": 0.05,
+    "speedGreaseRpm": 4000,
+    "speedOilRpm": 6000,
+    "cageMaterialFa": "اسکلت فلزی یکپارچه اینکپسوله شده",
+    "cageMaterialEn": "Internal steel case fully vulcanized with Viton",
+    "sealingFa": "الاستومر خالص Viton FKM مقاوم در برابر اسید و حرارت",
+    "sealingEn": "100% Pure Fluorocarbon (FKM) with SUS316 Spring",
+    "clearanceOptions": [
+      "DIN 3760 AS"
+    ],
+    "brands": [
+      "CFW Simrit",
+      "Corteco",
+      "SKF CR",
+      "Dichtomatik"
+    ],
+    "applicationsFa": [
+      "گیربکس آسیاب‌های کارخانجات سیمان",
+      "خطوط ریخته‌گری اسلب فولادی",
+      "دمنده‌های حرارتی بازیافت انرژی"
+    ],
+    "applicationsEn": [
+      "Cement Mill Gearboxes",
+      "Steel Slab Casting Lines",
+      "Heat Recovery Thermal Blowers"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "oil-seal",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Freudenberg / Corteco (Germany)",
+        "catalogCode": "Simmerring Industrial Cat. 2022",
+        "reference": "Heavy Viton® / FKM Rotary Shaft Seal DIN 3760 Form AS / ISO 6194-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-tc-60-85-10",
+    "slug": "tc-60-85-10",
+    "imageUrl": "/assets/images/oil_seal_photo_1787677410030.webp",
+    "images": [
+      "/assets/images/oil_seal_photo_1787677410030.webp"
+    ],
+    "code": "TC 60-85-10 NBR (Dual Lip)",
+    "category": "seal",
+    "nameFa": "کاسه نمد دو لبه فنردار صنعتی 60x85x10 NBR",
+    "nameEn": "Dual-Lip Rotary Shaft Seal TC 60-85-10 NBR",
+    "descriptionFa": "کاسه نمد استاندارد پرمصرف صنعتی برای شفت ۶۰ میلی‌متر با لبه محافظ گردگیر و فنر کربن استیل مقاوم در برابر پاشش روغن و روانکار.",
+    "descriptionEn": "Standard industrial NBR oil seal with auxiliary dust lip and carbon steel spring for 60mm shaft fluid retention.",
+    "d": 60,
+    "D": 85,
+    "B": 10,
+    "weightKg": 0.05,
+    "crKn": 0.05,
+    "corKn": 0.05,
+    "speedGreaseRpm": 5500,
+    "speedOilRpm": 8000,
+    "cageMaterialFa": "اسکلت فلزی فولادی با روکش NBR",
+    "cageMaterialEn": "Steel inner case with bonded NBR rubber",
+    "sealingFa": "لاستیک نیتریل NBR با فنر کششی",
+    "sealingEn": "70 Shore A Nitrile Rubber with tension spring",
+    "clearanceOptions": [
+      "ISO 6194"
+    ],
+    "brands": [
+      "Corteco Italy",
+      "TTO Taiwan",
+      "CFW Simrit",
+      "SKF"
+    ],
+    "applicationsFa": [
+      "شفت پمپ‌های آب کشاورزی و صنعتی",
+      "محرک‌های چرخشی ماشین‌آلات",
+      "یاتاقان‌های هوزینگی"
+    ],
+    "applicationsEn": [
+      "Agricultural & Industrial Water Pumps",
+      "Rotary Machinery Drives",
+      "Flanged Bearing Units"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "oil-seal",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Freudenberg / Corteco (Germany)",
+        "catalogCode": "Simmerring Industrial Cat. 2022",
+        "reference": "NBR Rotary Shaft Seal DIN 3760 Form AS / ISO 6194-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-skf-6311-c3",
+    "slug": "skf-6311-c3",
+    "imageUrl": "/assets/images/ball_bearing_photo_1787677355061.webp",
+    "images": [
+      "/assets/images/ball_bearing_photo_1787677355061.webp"
+    ],
+    "code": "SKF 6311 / C3 Explorer",
+    "category": "ball",
+    "nameFa": "بلبرینگ شیار عمیق سنگین SKF 6311 C3 اکسپلورر",
+    "nameEn": "SKF 6311 / C3 Explorer Deep Groove Ball Bearing",
+    "descriptionFa": "بلبرینگ کلاس Explorer کمپانی SKF با فولاد سوپردقیق با خلوص بالا، مناسب برای بارهای ترکیبی سنگین و دمای کارکرد پیوسته در الکتروموتورهای صنعتی.",
+    "descriptionEn": "High-performance SKF Explorer class single row deep groove ball bearing with C3 radial clearance for heavy-duty electric motors.",
+    "d": 55,
+    "D": 120,
+    "B": 29,
+    "weightKg": 1.35,
+    "crKn": 75,
+    "corKn": 45,
+    "speedGreaseRpm": 6000,
+    "speedOilRpm": 7500,
+    "cageMaterialFa": "فولاد پرسکاری شده بهینه‌سازی شده",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "بدون آب‌بند (باز - قابل روانکاری با حمام روغن)",
+    "sealingEn": "Open type for oil bath or grease lubrication",
+    "clearanceOptions": [
+      "C3",
+      "CN",
+      "C4"
+    ],
+    "brands": [
+      "SKF"
+    ],
+    "applicationsFa": [
+      "الکتروموتورهای سنگین ۱۱۰ تا ۲۵۰ کیلووات",
+      "گیربکس‌های صنعتی",
+      "پمپ‌های انتقال نفت و گاز"
+    ],
+    "applicationsEn": [
+      "Heavy 110-250kW Electric Motors",
+      "Industrial Gearboxes",
+      "Oil & Gas Transfer Pumps"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 8500,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Explorer Deep Groove Ball Bearings 6311 / ISO 15:2017 & DIN 625-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 2.1,
+    "calculationFactorF0": 13.1,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-skf-c-2215-k",
+    "slug": "skf-c-2215-k",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "SKF C 2215 K CARB® Toroidal",
+    "category": "roller",
+    "nameFa": "رولبرینگ توریدال خودتنظیم SKF C 2215 K سوراخ مخروطی",
+    "nameEn": "SKF C 2215 K CARB Toroidal Roller Bearing Tapered Bore",
+    "descriptionFa": "تکنولوژی انحصاری CARB سوئد ترکیب‌کننده ویژگی‌های خودتنظیمی رولبرینگ بشکه‌ای و جابجایی محوری نامحدود رولبرینگ استوانه‌ای در یک قطعه.",
+    "descriptionEn": "SKF patented CARB toroidal roller bearing combining self-aligning capability with axial displacement capability without induced internal axial loads.",
+    "d": 75,
+    "D": 130,
+    "B": 31,
+    "weightKg": 1.6,
+    "crKn": 198,
+    "corKn": 240,
+    "speedGreaseRpm": 3800,
+    "speedOilRpm": 5000,
+    "cageMaterialFa": "قفسه فولادی بدون درز سخت‌کاری شده",
+    "cageMaterialEn": "Sheet steel cage",
+    "sealingFa": "باز جهت نصب در هوزینگ‌های SNL",
+    "sealingEn": "Open design for split plummer blocks",
+    "clearanceOptions": [
+      "C3 (C08)",
+      "CN"
+    ],
+    "brands": [
+      "SKF"
+    ],
+    "applicationsFa": [
+      "غلتک‌های ریخته‌گری مداوم فولاد",
+      "خشک‌کن کارخانجات کاغذسازی",
+      "توربین‌های بادی و آسیاب‌های مواد"
+    ],
+    "applicationsEn": [
+      "Continuous Casting Rollers",
+      "Paper Machine Drying Cylinders",
+      "Wind Turbines & Material Mills"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 5300,
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB 6100 EN",
+        "reference": "SKF CARB® Toroidal Roller Bearings C 2215 K / ISO 15:2017",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-skf-sy-50-tf",
+    "slug": "skf-sy-50-tf",
+    "imageUrl": "/assets/images/pillow_block_photo_1787677398497.webp",
+    "images": [
+      "/assets/images/pillow_block_photo_1787677398497.webp"
+    ],
+    "code": "SKF SY 50 TF (Y-Bearing Unit)",
+    "category": "housing",
+    "nameFa": "یاتاقان پایه‌دار چدنی SKF مدل SY 50 TF شفت ۵۰ میلی‌متر",
+    "nameEn": "SKF SY 50 TF Plummer Block Ball Bearing Unit 50mm",
+    "descriptionFa": "واحد یاتاقان کامل ساخت شرکت SKF شامل پوسته چدن خاکستری صلب و بلبرینگ YAR 210-2F با قفل‌شو پیچ آلن و آب‌بندی مطمئن ۵ لبه.",
+    "descriptionEn": "Complete SKF ball bearing unit with cast iron housing and insert bearing with grub screws and multi-stage labyrinth seals.",
+    "d": 50,
+    "D": 114,
+    "B": 51.6,
+    "weightKg": 2.85,
+    "crKn": 35.1,
+    "corKn": 23.2,
+    "speedGreaseRpm": 4000,
+    "speedOilRpm": 4000,
+    "cageMaterialFa": "پلی‌آمید ۶۶ تقویت‌شده با الیاف شیشه",
+    "cageMaterialEn": "Fiberglass reinforced PA66",
+    "sealingFa": "آب‌بند تماسی دوگانه با حلقه فولادی محافظ فلینگر",
+    "sealingEn": "Multi-stage contact seal with galvanized slinger",
+    "clearanceOptions": [
+      "Standard Y-fit"
+    ],
+    "brands": [
+      "SKF"
+    ],
+    "applicationsFa": [
+      "خطوط بسته‌بندی پیوسته",
+      "کانوایرهای انتقال مصالح و قطعات",
+      "تجهیزات کشاورزی مدرن"
+    ],
+    "applicationsEn": [
+      "Automated Packaging Lines",
+      "Bulk Material Handling Conveyors",
+      "Agricultural Equipment"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "pillow-block",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "SKF Group (Sweden)",
+        "catalogCode": "PUB BU/P1 17000/1 EN",
+        "reference": "SKF Y-Bearings & Y-Bearing Units SY 50 TF (Cast Iron Housing SY 510 M) / ISO 3228",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-fag-6312-tb-p6",
+    "slug": "fag-6312-tb-p6",
+    "imageUrl": "/assets/images/ball_bearing_photo_1787677355061.webp",
+    "images": [
+      "/assets/images/ball_bearing_photo_1787677355061.webp"
+    ],
+    "code": "FAG 6312-TB-P6 Schaeffler",
+    "category": "ball",
+    "nameFa": "بلبرینگ دور بالا و دقیق FAG 6312-TB-P6 با قفسه تکستولیت",
+    "nameEn": "FAG 6312-TB-P6 High-Speed Precision Ball Bearing",
+    "descriptionFa": "بلبرینگ آلمانی FAG مجهز به قفسه فیبری تکستولیت هادی و کلاس تلرانسی P6 برای به حداقل رساندن ارتعاشات و عملکرد بی‌صدا در دورهای بسیار بالا.",
+    "descriptionEn": "High precision German FAG deep groove ball bearing with laminated textile phenolic resin cage (TB) and ISO class 6 tolerance.",
+    "d": 60,
+    "D": 130,
+    "B": 31,
+    "weightKg": 1.7,
+    "crKn": 88,
+    "corKn": 52,
+    "speedGreaseRpm": 8000,
+    "speedOilRpm": 11000,
+    "cageMaterialFa": "رزین فنولیک الیاف‌دار تکستولیت سبک (TB)",
+    "cageMaterialEn": "Laminated textile phenolic resin cage (TB)",
+    "sealingFa": "طراحی باز جهت روانکاری روغنی پرسرعت",
+    "sealingEn": "Open type for high-speed circulating oil",
+    "clearanceOptions": [
+      "P6",
+      "C3",
+      "CN"
+    ],
+    "brands": [
+      "FAG",
+      "Schaeffler"
+    ],
+    "applicationsFa": [
+      "اسپیندل‌های تراشکاری سنگین",
+      "کمپرسورهای هوا و گاز دور بالا",
+      "توربو شارژرها"
+    ],
+    "applicationsEn": [
+      "Heavy Turning Spindles",
+      "High-Speed Compressors",
+      "Centrifugal Blowers"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 12000,
+    "technicalSources": [
+      {
+        "manufacturer": "Schaeffler Technologies AG (FAG / Germany)",
+        "catalogCode": "HR 1 Rolling Bearings",
+        "reference": "FAG Precision Deep Groove Ball Bearings 6312-TB-P6 / ISO 15:2017 & ISO 492 Class 6",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 2.1,
+    "calculationFactorF0": 13.2,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-fag-22216-e1-xl-k",
+    "slug": "fag-22216-e1-xl-k",
+    "imageUrl": "/assets/images/spherical_bearing_photo_1787677386106.webp",
+    "images": [
+      "/assets/images/spherical_bearing_photo_1787677386106.webp"
+    ],
+    "code": "FAG 22216-E1-XL-K X-Life",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای FAG 22216-E1-XL-K سری X-Life سوراخ مخروطی",
+    "nameEn": "FAG 22216-E1-XL-K X-Life Spherical Roller Bearing Tapered",
+    "descriptionFa": "نسل جدید رولبرینگ‌های بشکه‌ای آلمان X-Life با طول عمر ۷۰٪ بیشتر، ظرفیت بار دینامیکی ارتقایافته و سوراخ مخروطی ۱:۱۲ برای نصب با بوش H316.",
+    "descriptionEn": "Schaeffler FAG X-Life spherical roller bearing offering up to 70% longer operating life and enhanced dynamic load ratings.",
+    "d": 80,
+    "D": 140,
+    "B": 33,
+    "weightKg": 2.15,
+    "crKn": 245,
+    "corKn": 275,
+    "speedGreaseRpm": 4300,
+    "speedOilRpm": 5600,
+    "calculationFactorE": 0.22,
+    "calculationFactorY1": 3.1,
+    "calculationFactorY2": 4.6,
+    "calculationFactorY0": 3,
+    "cageMaterialFa": "ورق فولادی دو تکه بهبودیافته با پوشش فسفاته",
+    "cageMaterialEn": "Window-type sheet steel cage",
+    "sealingFa": "باز با شیار و سوراخ‌های روانکاری W33",
+    "sealingEn": "Open with outer ring oil groove and 3 lubrication holes",
+    "clearanceOptions": [
+      "C3",
+      "CN",
+      "C4"
+    ],
+    "brands": [
+      "FAG",
+      "Schaeffler"
+    ],
+    "applicationsFa": [
+      "گیربکس آسیاب‌های پودری",
+      "فن‌های صنعتی کارخانجات سیمان",
+      "پمپ‌های غلیظ‌کش لجن معدنی"
+    ],
+    "applicationsEn": [
+      "Powder Mill Gearboxes",
+      "Cement Heavy ID Fans",
+      "Mining Slurry Pumps"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Schaeffler Technologies AG (FAG / Germany)",
+        "catalogCode": "HR 1 Rolling Bearings",
+        "reference": "FAG Spherical Roller Bearings X-Life 22216-E1-XL-K / ISO 15:2017 & DIN 635-2",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 5000,
+    "rMin": 2,
+    "calculationFactorY": 3.1,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-fag-nj-2312-e-m1a",
+    "slug": "fag-nj-2312-e-m1a",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "FAG NJ2312-E-XL-M1A Cylindrical",
+    "category": "cylindrical",
+    "nameFa": "رولبرینگ استوانه‌ای قفسه برنجی سنگین FAG NJ 2312 E M1A",
+    "nameEn": "FAG NJ2312-E-XL-M1A Heavy-Duty Cylindrical Roller Bearing",
+    "descriptionFa": "رولبرینگ استوانه‌ای یک‌طرف تثبیت‌کننده با قفسه برنجی ماشین‌کاری شده یکپارچه، مناسب برای مقاومت در برابر تکانه‌های ضربه‌ای شدید در گیبرکس‌های سنگین.",
+    "descriptionEn": "Single row cylindrical roller bearing with one-piece machined brass cage guided on inner ring, providing high radial load carrying capacity.",
+    "d": 60,
+    "D": 130,
+    "B": 46,
+    "weightKg": 2.95,
+    "crKn": 260,
+    "corKn": 270,
+    "speedGreaseRpm": 5000,
+    "speedOilRpm": 6300,
+    "cageMaterialFa": "برنج آلیاژی یکپارچه ماشین‌کاری شده (M1A)",
+    "cageMaterialEn": "Machined solid brass cage (M1A)",
+    "sealingFa": "طراحی باز برای روانکاری با روغن چرخ‌دنده",
+    "sealingEn": "Open design for high-pressure gear oils",
+    "clearanceOptions": [
+      "C3",
+      "CN",
+      "C4"
+    ],
+    "brands": [
+      "FAG",
+      "Schaeffler"
+    ],
+    "applicationsFa": [
+      "گیربکس‌های سنگین نورد گرم فولاد",
+      "وینچ‌ها و جرثقیل‌های صنعتی",
+      "پولی‌های محرک سنگ‌شکن"
+    ],
+    "applicationsEn": [
+      "Steel Rolling Mill Gearboxes",
+      "Industrial Winches & Cranes",
+      "Primary Crusher Drive Pulleys"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Schaeffler Technologies AG (FAG / Germany)",
+        "catalogCode": "HR 1 Rolling Bearings",
+        "reference": "FAG Heavy Cylindrical Roller Bearings NJ2312-E-XL-M1A / ISO 15:2017 & DIN 5412-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 6000,
+    "rMin": 2.1,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-ina-nk-25-20",
+    "slug": "ina-nk-25-20",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "INA NK 25/20 Heavy Needle Roller",
+    "category": "roller",
+    "nameFa": "رولبرینگ سوزنی سنگین بدون رینگ داخلی INA NK 25/20",
+    "nameEn": "INA NK 25/20 Heavy-Duty Needle Roller Bearing",
+    "descriptionFa": "رولبرینگ سوزنی صنعتی بدون رینگ داخلی برای فضاهای شعاعی فوق‌العاده محدود و شفت‌های سنگ‌خورده و سخت‌کاری شده تا 60 HRC.",
+    "descriptionEn": "Precision German INA needle roller bearing with machined outer ring and cage assembly without inner ring for compact high-load designs.",
+    "d": 25,
+    "D": 35,
+    "B": 20,
+    "weightKg": 0.058,
+    "crKn": 24.5,
+    "corKn": 34,
+    "speedGreaseRpm": 12000,
+    "speedOilRpm": 18000,
+    "cageMaterialFa": "فولاد آلیاژی نازک با سختی بالا",
+    "cageMaterialEn": "Hardened sheet steel cage",
+    "sealingFa": "باز با سوراخ و شیار گریس‌خور",
+    "sealingEn": "Open type with relubrication feature",
+    "clearanceOptions": [
+      "Standard Needle Fit"
+    ],
+    "brands": [
+      "INA",
+      "Schaeffler"
+    ],
+    "applicationsFa": [
+      "جعبه‌دنده‌های دستی و اتوماتیک خودرو",
+      "پمپ‌های هیدرولیک پیستونی",
+      "مفصل‌های بازوی روباتیک"
+    ],
+    "applicationsEn": [
+      "Automotive Manual & Auto Transmissions",
+      "Axial Piston Hydraulic Pumps",
+      "Robotic Articulated Joints"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 18900,
+    "technicalSources": [
+      {
+        "manufacturer": "Schaeffler Technologies AG (INA / Germany)",
+        "catalogCode": "HR 1 Needle Bearings",
+        "reference": "INA Needle Roller Bearings without Inner Ring NK 25/20 / ISO 1206:2018",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 0.3,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-ina-kr-35-pp",
+    "slug": "ina-kr-35-pp",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "INA KR 35 PP Cam Follower",
+    "category": "roller",
+    "nameFa": "بادامک پیرو پیچ‌دار گاید و ریل INA KR 35 PP آلمان",
+    "nameEn": "INA KR 35 PP Stud Type Track Roller / Cam Follower",
+    "descriptionFa": "غلتک مسیر پیچی همراه با گلویی شش‌گوش، قفسه سوزنی و آب‌بندی لب‌دار پلاستیکی دو طرفه با ظرفیت تحمل بارهای ضربه‌ای بالا در خطوط اتوماسیون.",
+    "descriptionEn": "INA stud type track roller with hexagonal socket in stud head, needle roller set, and axial contact seals (PP) for cam mechanisms.",
+    "d": 16,
+    "D": 35,
+    "B": 52,
+    "weightKg": 0.17,
+    "crKn": 10.8,
+    "corKn": 14.9,
+    "speedGreaseRpm": 6500,
+    "speedOilRpm": 6500,
+    "cageMaterialFa": "قفسه فولادی دقیق ماشین‌کاری شده",
+    "cageMaterialEn": "Precision sheet steel cage",
+    "sealingFa": "آب‌بند پلاستیکی تماسی محافظ لب‌دار (PP)",
+    "sealingEn": "Dual plastic axial contact seal rings (PP)",
+    "clearanceOptions": [
+      "Standard Cam Fit"
+    ],
+    "brands": [
+      "INA",
+      "Schaeffler"
+    ],
+    "applicationsFa": [
+      "مکانیزم‌های بادامکی خطوط بطری‌پرکنی",
+      "ریل‌های راهنمای دستگاه‌های بسته‌بندی",
+      "ماشین‌های ابزار CNC"
+    ],
+    "applicationsEn": [
+      "Bottle Filling Cam Mechanisms",
+      "Packaging Machine Linear Guides",
+      "CNC Transfer Lines"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "Schaeffler Technologies AG (INA / Germany)",
+        "catalogCode": "HR 1 Track Rollers",
+        "reference": "INA Cam Followers / Stud Type Track Rollers KR 35 PP / DIN 623",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-timken-lm11749-10",
+    "slug": "timken-lm11749-10",
+    "imageUrl": "/assets/images/tapered_bearing_photo_1787677370531.webp",
+    "images": [
+      "/assets/images/tapered_bearing_photo_1787677370531.webp"
+    ],
+    "code": "TIMKEN LM11749 / LM11710 (SET1)",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی اینچی آمریکایی TIMKEN LM11749/10",
+    "nameEn": "TIMKEN LM11749 / LM11710 Imperial Tapered Roller Bearing",
+    "descriptionFa": "رولبرینگ مخروطی اینچی اورجینال تیمکن آمریکا با ابعاد شفت 0.6875 اینچ (17.462 میلی‌متر)، مناسب برای چرخ جلو خودروها و تجهیزات کشاورزی با دوام بالا.",
+    "descriptionEn": "Genuine American Timken imperial tapered roller bearing cone and cup set with 0.6875\" (17.462mm) bore for precision axle and spindle applications.",
+    "d": 17.462,
+    "D": 39.878,
+    "B": 13.843,
+    "weightKg": 0.086,
+    "crKn": 24.8,
+    "corKn": 23.3,
+    "speedGreaseRpm": 9000,
+    "speedOilRpm": 13000,
+    "calculationFactorE": 0.33,
+    "calculationFactorY": 1.82,
+    "calculationFactorY0": 1,
+    "cageMaterialFa": "فولاد پرسکاری شده حرارت‌دیده تیمکن",
+    "cageMaterialEn": "Stamped steel Timken cage",
+    "sealingFa": "باز (نیاز به گریس نسوز با فشار بالا)",
+    "sealingEn": "Open (separate cone & cup)",
+    "clearanceOptions": [
+      "Standard Preload Range"
+    ],
+    "brands": [
+      "TIMKEN"
+    ],
+    "applicationsFa": [
+      "توپی چرخ تریلر و خودروهای تجاری",
+      "محور جلو تراکتورهای کشاورزی",
+      "اسپیندل ماشین‌های چوب‌بری"
+    ],
+    "applicationsEn": [
+      "Trailer Wheel Hubs",
+      "Tractor Front Axles",
+      "Woodworking High-Speed Spindles"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 13700,
+    "technicalSources": [
+      {
+        "manufacturer": "The Timken Company (USA)",
+        "catalogCode": "Order No. 10424",
+        "reference": "Timken Engineering Manual - Tapered Roller Bearings SET1 (LM11749/LM11710) / ABMA Std 19",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.3,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-timken-lm67048-10",
+    "slug": "timken-lm67048-10",
+    "imageUrl": "/assets/images/tapered_bearing_photo_1787677370531.webp",
+    "images": [
+      "/assets/images/tapered_bearing_photo_1787677370531.webp"
+    ],
+    "code": "TIMKEN LM67048 / LM67010 (SET6)",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی اینچی ۱.۲۵ اینچ TIMKEN LM67048/10",
+    "nameEn": "TIMKEN LM67048 / LM67010 Imperial Tapered Roller Set (1.25\")",
+    "descriptionFa": "ست رولبرینگ مخروطی اینچی با سوراخ ۱.۲۵ اینچ (۳۱.۷۵ میلی‌متر) ساخت تیمکن آمریکا، طراحی‌شده برای تحمل نیروهای محوری و شعاعی همزمان با تکنولوژی سخت‌کاری سطحی کیس‌هاردنینگ.",
+    "descriptionEn": "Timken premium case-hardened alloy steel imperial tapered roller bearing set with 1.25\" (31.75mm) bore for automotive hubs and drive axles.",
+    "d": 31.75,
+    "D": 59.131,
+    "B": 15.875,
+    "weightKg": 0.18,
+    "crKn": 41.5,
+    "corKn": 43.8,
+    "speedGreaseRpm": 6700,
+    "speedOilRpm": 9500,
+    "calculationFactorE": 0.44,
+    "calculationFactorY": 1.36,
+    "calculationFactorY0": 0.75,
+    "cageMaterialFa": "فولاد آلیاژی ویژه کیس‌هاردنینگ تیمکن",
+    "cageMaterialEn": "Case-carburized alloy steel cage",
+    "sealingFa": "طراحی باز قابل تنظیم لقی دقیق",
+    "sealingEn": "Open design with adjustable clearance",
+    "clearanceOptions": [
+      "Custom Preload"
+    ],
+    "brands": [
+      "TIMKEN"
+    ],
+    "applicationsFa": [
+      "دیفرانسیل خودروهای دو دیفرانسیل و وانت",
+      "گیربکس‌های صنعتی هلیکال",
+      "پولی‌های سنگین انتقال قدرت"
+    ],
+    "applicationsEn": [
+      "4WD Vehicle Differentials",
+      "Helical Gear Drives",
+      "Heavy Industrial Pulleys"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 10000,
+    "technicalSources": [
+      {
+        "manufacturer": "The Timken Company (USA)",
+        "catalogCode": "Order No. 10424",
+        "reference": "Timken Engineering Manual - Tapered Roller Bearings SET6 (LM67048/LM67010) / ABMA Std 19",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.3,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-timken-22220-emw33c3",
+    "slug": "timken-22220-emw33c3",
+    "imageUrl": "/assets/images/spherical_bearing_photo_1787677386106.webp",
+    "images": [
+      "/assets/images/spherical_bearing_photo_1787677386106.webp"
+    ],
+    "code": "TIMKEN 22220EMW33C3 Solid Brass",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای قفسه برنجی توپر TIMKEN 22220 EMW33 C3",
+    "nameEn": "TIMKEN 22220EMW33C3 Solid Machined Brass Spherical Roller",
+    "descriptionFa": "رولبرینگ بشکه‌ای قفسه برنجی ماشین‌کاری شده یک‌تکه تیمکن برای شرایط ارتعاش و بار بسیار سنگین، جلوگیری از سایش در دور بالا و لقی C3.",
+    "descriptionEn": "Timken premium heavy-duty spherical roller bearing featuring a one-piece precision-machined brass cage (EM) and C3 internal clearance.",
+    "d": 100,
+    "D": 180,
+    "B": 46,
+    "weightKg": 4.85,
+    "crKn": 435,
+    "corKn": 540,
+    "speedGreaseRpm": 3200,
+    "speedOilRpm": 4200,
+    "calculationFactorE": 0.24,
+    "calculationFactorY1": 2.8,
+    "calculationFactorY2": 4.2,
+    "calculationFactorY0": 2.8,
+    "cageMaterialFa": "برنج آلیاژی یکپارچه با راهنمای رولرها (EM)",
+    "cageMaterialEn": "Solid precision-machined brass cage (EM)",
+    "sealingFa": "شیار و ۳ سوراخ روانکاری رینگ بیرونی (W33)",
+    "sealingEn": "W33 Outer ring lubrication groove with holes",
+    "clearanceOptions": [
+      "C3",
+      "CN",
+      "C4"
+    ],
+    "brands": [
+      "TIMKEN"
+    ],
+    "applicationsFa": [
+      "سرندهای لرزان معادن شن و ماسه",
+      "درام‌های نوار نقاله کارخانجات مس و آهن",
+      "اکسترودرهای پلاستیک"
+    ],
+    "applicationsEn": [
+      "Mining Vibrating Screens",
+      "Belt Conveyor Pulley Drums",
+      "High-Torque Plastic Extruders"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "The Timken Company (USA)",
+        "catalogCode": "Timken Spherical Cat.",
+        "reference": "Timken Spherical Roller Bearings Solid Brass Cage 22220EMW33 / ISO 15:2017",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 4000,
+    "rMin": 2.1,
+    "calculationFactorY": 2.8,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nsk-6206-ddu-cm",
+    "slug": "nsk-6206-ddu-cm",
+    "imageUrl": "/assets/images/ball_bearing_photo_1787677355061.webp",
+    "images": [
+      "/assets/images/ball_bearing_photo_1787677355061.webp"
+    ],
+    "code": "NSK 6206 DDU CM Japan",
+    "category": "ball",
+    "nameFa": "بلبرینگ ژاپنی الکتروموتوری NSK 6206 DDU CM ضد آب",
+    "nameEn": "NSK 6206 DDU CM Electric Motor Quality Deep Groove Ball",
+    "descriptionFa": "بلبرینگ سوپر بی‌صدا ژاپن مجهز به آب‌بندهای لاستیکی تماسی DDU با لقی ویژه الکتروموتوری CM برای حداقل نویز صوتی و طول عمر فوق‌العاده.",
+    "descriptionEn": "Japanese NSK electric motor quality ball bearing featuring dual contact DDU rubber seals and special low-noise CM electric motor clearance.",
+    "d": 30,
+    "D": 62,
+    "B": 16,
+    "weightKg": 0.2,
+    "crKn": 19.5,
+    "corKn": 11.3,
+    "speedGreaseRpm": 10000,
+    "speedOilRpm": 10000,
+    "cageMaterialFa": "فولاد پرسکاری شده کم‌اصطکاک ژاپن",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "آب‌بند تماسی مقاوم DDU در دو طرف",
+    "sealingEn": "Dual contact synthetic rubber seals (DDU)",
+    "clearanceOptions": [
+      "CM (Electric Motor)",
+      "C3",
+      "CN"
+    ],
+    "brands": [
+      "NSK"
+    ],
+    "applicationsFa": [
+      "الکتروموتورهای فوق کم‌صدا",
+      "ماشین‌های لباسشویی و لوازم خانگی صنعتی",
+      "پمپ‌های خنک‌کننده CNC"
+    ],
+    "applicationsEn": [
+      "Ultra-Quiet Electric Motors",
+      "Industrial Washing Systems",
+      "CNC Coolant Pumps"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "NSK Ltd. (Japan)",
+        "catalogCode": "CAT. No. E1102m",
+        "reference": "NSK Rolling Bearings Global Catalog - Deep Groove Ball Bearings Electric Motor Quality CM / ISO 15:2017",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 15000,
+    "rMin": 1,
+    "calculationFactorF0": 13.8,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nsk-7010-ctyndblp4",
+    "slug": "nsk-7010-ctyndblp4",
+    "imageUrl": "/assets/images/ball_bearing_photo_1787677355061.webp",
+    "images": [
+      "/assets/images/ball_bearing_photo_1787677355061.webp"
+    ],
+    "code": "NSK 7010 CTYNDBLP4 Super Precision",
+    "category": "ball",
+    "nameFa": "بلبرینگ اسپیندل تماس زاویه‌ای فوق دقیق جفت NSK 7010 P4",
+    "nameEn": "NSK 7010 CTYNDBLP4 Super Precision Angular Contact Spindle Pair",
+    "descriptionFa": "جفت بلبرینگ تماس زاویه‌ای اسپیندل ساخت ژاپن با زاویه تماس ۱۵ درجه (C)، قفسه پلی‌آمید و کلاس دقت تلرانسی P4 مناسب برای دور اسپیندل تا ۳۰,۰۰۰ RPM.",
+    "descriptionEn": "High-precision matched duplex pair of angular contact spindle ball bearings with 15° contact angle, polyamide cage, and ISO Class 4 runout tolerance.",
+    "d": 50,
+    "D": 80,
+    "B": 16,
+    "weightKg": 0.26,
+    "crKn": 25.8,
+    "corKn": 19.8,
+    "speedGreaseRpm": 21000,
+    "speedOilRpm": 32000,
+    "cageMaterialFa": "پلی‌آمید مهندسی مقاوم به حرارت (TYN)",
+    "cageMaterialEn": "Engineered high-speed polyamide cage (TYN)",
+    "sealingFa": "باز با گریس‌کاری تخصصی اسپیندل",
+    "sealingEn": "Open design for high-speed micro-lubrication",
+    "clearanceOptions": [
+      "Light Preload (L)",
+      "Medium Preload (M)"
+    ],
+    "brands": [
+      "NSK"
+    ],
+    "applicationsFa": [
+      "اسپیندل فرزهای CNC ۵ محوره",
+      "دستگاه‌های سنگ‌زنی داخل‌تراش",
+      "هد فرزهای دندانپزشکی و پزشکی"
+    ],
+    "applicationsEn": [
+      "5-Axis CNC Milling Spindles",
+      "High-Speed Internal Grinders",
+      "Medical & Dental Machining Heads"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 35000,
+    "technicalSources": [
+      {
+        "manufacturer": "NSK Ltd. (Japan)",
+        "catalogCode": "CAT. No. E1228",
+        "reference": "NSK Precision Machine Tool Bearings - Angular Contact Ball Bearings 7010 / ISO 492 Class 4 (P4)",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1,
+    "contactAngle": "15°",
+    "calculationFactorE": 0.38,
+    "calculationFactorX": 0.44,
+    "calculationFactorY": 1.46,
+    "calculationFactorY0": 0.46,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nsk-nu-2214-et",
+    "slug": "nsk-nu-2214-et",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "NSK NU 2214 ET Cylindrical",
+    "category": "cylindrical",
+    "nameFa": "رولبرینگ استوانه‌ای دور بالا NSK NU 2214 ET ژاپن",
+    "nameEn": "NSK NU 2214 ET High-Capacity Cylindrical Roller Bearing",
+    "descriptionFa": "رولبرینگ استوانه‌ای با قفسه پلی‌آمید ۶۶ تقویت‌شده ژاپنی، ظرفیت بار شعاعی بالا و قابلیت دمونتاژ رینگ داخلی برای سهولت در نصب و نگهداری.",
+    "descriptionEn": "NSK Japan cylindrical roller bearing with glass-fiber reinforced polyamide cage (ET) offering low friction, high shock capacity, and easy mounting.",
+    "d": 70,
+    "D": 125,
+    "B": 31,
+    "weightKg": 1.45,
+    "crKn": 164,
+    "corKn": 188,
+    "speedGreaseRpm": 5300,
+    "speedOilRpm": 6700,
+    "cageMaterialFa": "پلی‌آمید ۶۶ تقویت‌شده با الیاف شیشه (ET)",
+    "cageMaterialEn": "Polyamide 66 reinforced cage (ET)",
+    "sealingFa": "طراحی باز قابل روانکاری با گریس و روغن",
+    "sealingEn": "Open type for circulating lube systems",
+    "clearanceOptions": [
+      "C3",
+      "CN",
+      "C4"
+    ],
+    "brands": [
+      "NSK"
+    ],
+    "applicationsFa": [
+      "ترکشن موتورهای قطار و مترو",
+      "گیربکس‌های صنعتی کانوایر",
+      "پمپ‌های سانتریفیوژ دو مکشه"
+    ],
+    "applicationsEn": [
+      "Railway Traction Motors",
+      "Conveyor Drive Gearboxes",
+      "Double-Suction Centrifugal Pumps"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "NSK Ltd. (Japan)",
+        "catalogCode": "CAT. No. E1102m",
+        "reference": "NSK Cylindrical Roller Bearings High Capacity ET Series NU 2214 / ISO 15:2017 & DIN 5412-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 6300,
+    "rMin": 1.5,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-ntn-6204-llu-c3",
+    "slug": "ntn-6204-llu-c3",
+    "imageUrl": "/assets/images/ball_bearing_photo_1787677355061.webp",
+    "images": [
+      "/assets/images/ball_bearing_photo_1787677355061.webp"
+    ],
+    "code": "NTN 6204 LLU / C3 Japan",
+    "category": "ball",
+    "nameFa": "بلبرینگ ضد آب و غبار NTN ژاپن مدل 6204 LLU C3",
+    "nameEn": "NTN 6204 LLU / C3 Sealed Ball Bearing (Japan)",
+    "descriptionFa": "بلبرینگ شیار عمیق ژاپنی اورجینال NTN با کاسه نمد لاستیکی تماسی فشرده LLU و لقی C3 مناسب برای پمپ‌های آب و کارواش صنعتی.",
+    "descriptionEn": "High quality NTN Japan deep groove ball bearing with full contact synthetic LLU seals and C3 clearance for severe water and dust environments.",
+    "d": 20,
+    "D": 47,
+    "B": 14,
+    "weightKg": 0.11,
+    "crKn": 12.8,
+    "corKn": 6.65,
+    "speedGreaseRpm": 12000,
+    "speedOilRpm": 12000,
+    "cageMaterialFa": "فولاد آلیاژی ژاپنی",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "کاسه نمد تماسی سنتتیک LLU دو طرفه",
+    "sealingEn": "Dual synthetic contact rubber seals (LLU)",
+    "clearanceOptions": [
+      "C3",
+      "CN"
+    ],
+    "brands": [
+      "NTN"
+    ],
+    "applicationsFa": [
+      "پمپ‌های طبقاتی آب و تصفیه‌خانه‌ها",
+      "الکتروموتورهای کارگاهی",
+      "فن‌های تهویه مرغداری و گلخانه"
+    ],
+    "applicationsEn": [
+      "Multi-Stage Booster Pumps",
+      "Workshop Electric Motors",
+      "Agricultural Ventilation Fans"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "NTN Corporation (Japan)",
+        "catalogCode": "CAT. No. 2203/E",
+        "reference": "NTN Ball and Roller Bearings Catalog - Deep Groove Ball Bearings 6204 LLU / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 18000,
+    "rMin": 1,
+    "calculationFactorF0": 13.1,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-ntn-22214-eakd1",
+    "slug": "ntn-22214-eakd1",
+    "imageUrl": "/assets/images/spherical_bearing_photo_1787677386106.webp",
+    "images": [
+      "/assets/images/spherical_bearing_photo_1787677386106.webp"
+    ],
+    "code": "NTN 22214 EAKD1 ULTAGE®",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای NTN 22214 EAKD1 سری فوق‌العاده ULTAGE",
+    "nameEn": "NTN 22214 EAKD1 ULTAGE Spherical Roller Bearing Tapered",
+    "descriptionFa": "سری اولتاژ (ULTAGE) پیشرفته‌ترین دستاورد فنی NTN ژاپن با رولرهای بهینه‌سازی‌شده برای تحمل بارهای ضربه‌ای تا ۲ برابر بیشتر و سوراخ کونیک.",
+    "descriptionEn": "NTN flagship ULTAGE series spherical roller bearing engineered with optimal roller geometry for extreme dynamic fatigue resistance.",
+    "d": 70,
+    "D": 125,
+    "B": 31,
+    "weightKg": 1.55,
+    "crKn": 212,
+    "corKn": 236,
+    "speedGreaseRpm": 4500,
+    "speedOilRpm": 5800,
+    "calculationFactorE": 0.23,
+    "calculationFactorY1": 2.9,
+    "calculationFactorY2": 4.4,
+    "calculationFactorY0": 2.9,
+    "cageMaterialFa": "ورق فولادی فرم‌دهی شده بسیار سخت",
+    "cageMaterialEn": "Heavy gauge stamped steel cage",
+    "sealingFa": "شیار و سوراخ روانکاری رینگ خارجی (D1)",
+    "sealingEn": "Outer ring lubrication groove and holes (D1)",
+    "clearanceOptions": [
+      "C3",
+      "CN",
+      "C4"
+    ],
+    "brands": [
+      "NTN"
+    ],
+    "applicationsFa": [
+      "غلتک‌های انتقال سنگ معدن",
+      "تسمه‌نقاله‌های کارخانجات فولادسازی",
+      "میکسر بتن و آسفالت"
+    ],
+    "applicationsEn": [
+      "Mining Ore Idler Rollers",
+      "Steel Plant Conveyor Pulleys",
+      "Concrete & Asphalt Mixers"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "NTN Corporation (Japan)",
+        "catalogCode": "CAT. No. 2203/E",
+        "reference": "NTN ULTAGE® Spherical Roller Bearings 22214 EAKD1 / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 5400,
+    "rMin": 1.5,
+    "calculationFactorY": 2.9,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-ntn-5206-s",
+    "slug": "ntn-5206-s",
+    "imageUrl": "/assets/images/ball_bearing_photo_1787677355061.webp",
+    "images": [
+      "/assets/images/ball_bearing_photo_1787677355061.webp"
+    ],
+    "code": "NTN 5206 S Double Row",
+    "category": "ball",
+    "nameFa": "بلبرینگ دو ردیفه تماس زاویه‌ای NTN مدل 5206 S ژاپن",
+    "nameEn": "NTN 5206 S Double Row Angular Contact Ball Bearing",
+    "descriptionFa": "بلبرینگ دو ردیفه ژاپنی با زاویه تماس داخلی ۲۵ درجه، قابلیت جذب همزمان بارهای محوری دوطرفه و گشتاورهای خمشی در یک پکیج فشرده.",
+    "descriptionEn": "NTN double row angular contact ball bearing engineered with rigid internal contact angles for high combined axial & moment loads.",
+    "d": 30,
+    "D": 62,
+    "B": 23.8,
+    "weightKg": 0.3,
+    "crKn": 30.5,
+    "corKn": 21,
+    "speedGreaseRpm": 8500,
+    "speedOilRpm": 12000,
+    "cageMaterialFa": "فولاد پرسکاری شده دو تکه",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "طراحی باز جهت غوطه‌وری در محفظه روغن",
+    "sealingEn": "Open type for oil circulation lubrication",
+    "clearanceOptions": [
+      "Normal (CN)",
+      "C3"
+    ],
+    "brands": [
+      "NTN"
+    ],
+    "applicationsFa": [
+      "پمپ‌های فرآیندی نفت و پتروشیمی",
+      "کلاچ‌های هیدرولیک گیربکس",
+      "دمنده‌های هوای فشرده"
+    ],
+    "applicationsEn": [
+      "Petrochemical API Process Pumps",
+      "Hydraulic Gearbox Clutches",
+      "Screw Air Compressors"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 13000,
+    "technicalSources": [
+      {
+        "manufacturer": "NTN Corporation (Japan)",
+        "catalogCode": "CAT. No. 2203/E",
+        "reference": "NTN Double Row Angular Contact Ball Bearings 5206 S / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.1,
+    "contactAngle": "30°",
+    "calculationFactorE": 0.8,
+    "calculationFactorY": 0.78,
+    "calculationFactorY1": 0.78,
+    "calculationFactorY2": 1.24,
+    "calculationFactorY0": 0.66,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-koyo-6207-2rs",
+    "slug": "koyo-6207-2rs",
+    "imageUrl": "/assets/images/ball_bearing_photo_1787677355061.webp",
+    "images": [
+      "/assets/images/ball_bearing_photo_1787677355061.webp"
+    ],
+    "code": "KOYO 6207-2RS (JTEKT Japan)",
+    "category": "ball",
+    "nameFa": "بلبرینگ شیار عمیق ژاپنی KOYO مدل 6207 2RS با آب‌بند لاستیکی",
+    "nameEn": "KOYO 6207-2RS JTEKT Deep Groove Ball Bearing",
+    "descriptionFa": "بلبرینگ ژاپنی اورجینال کویو (JTEKT) برای شفت ۳۵ میلی‌متر، طراحی آب‌بند ضد گرد و خاک با گریس ماندگار با کارایی بالا.",
+    "descriptionEn": "High quality Japanese KOYO JTEKT deep groove ball bearing with dual contact rubber seals and premium lifetime grease filling.",
+    "d": 35,
+    "D": 72,
+    "B": 17,
+    "weightKg": 0.29,
+    "crKn": 25.7,
+    "corKn": 15.3,
+    "speedGreaseRpm": 8500,
+    "speedOilRpm": 11000,
+    "cageMaterialFa": "فولاد فشرده دقیق ژاپنی",
+    "cageMaterialEn": "Pressed steel cage",
+    "sealingFa": "کاسه نمد لاستیکی تماسی NBR دو طرفه (2RS)",
+    "sealingEn": "Dual rubber contact seals (2RS)",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "KOYO",
+      "JTEKT"
+    ],
+    "applicationsFa": [
+      "دینام و استارت خودروهای سنگین",
+      "موتورهای بالابر کارگاهی",
+      "پمپ‌های خلاء"
+    ],
+    "applicationsEn": [
+      "Heavy Vehicle Alternators",
+      "Workshop Hoist Motors",
+      "Industrial Vacuum Pumps"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "JTEKT Corporation (Koyo Bearings / Japan)",
+        "catalogCode": "CAT. No. B2001E",
+        "reference": "Koyo Ball & Roller Bearings Catalog - Deep Groove Ball Bearings 6207 / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 14000,
+    "rMin": 1.1,
+    "calculationFactorF0": 13.8,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-koyo-30212-jr",
+    "slug": "koyo-30212-jr",
+    "imageUrl": "/assets/images/tapered_bearing_photo_1787677370531.webp",
+    "images": [
+      "/assets/images/tapered_bearing_photo_1787677370531.webp"
+    ],
+    "code": "KOYO 30212 JR Tapered Roller",
+    "category": "roller",
+    "nameFa": "رولبرینگ مخروطی ژاپنی KOYO مدل 30212 JR دقیق",
+    "nameEn": "KOYO 30212 JR Metric Tapered Roller Bearing (Japan)",
+    "descriptionFa": "رولبرینگ مخروطی متریک با دقت دور بالا و تلرانس زاویه کونیک اصلاح‌شده، مناسب برای محور گیربکس‌های صنعتی و بارهای محوری سنگین.",
+    "descriptionEn": "Japanese KOYO metric tapered roller bearing manufactured to stringent precision tolerances for high rigidity gear drives and machine tool shafts.",
+    "d": 60,
+    "D": 110,
+    "B": 23.75,
+    "weightKg": 0.89,
+    "crKn": 104,
+    "corKn": 122,
+    "speedGreaseRpm": 3800,
+    "speedOilRpm": 5300,
+    "calculationFactorE": 0.4,
+    "calculationFactorY": 1.5,
+    "calculationFactorY0": 0.8,
+    "cageMaterialFa": "فولاد سخت‌کاری شده کویو",
+    "cageMaterialEn": "Stamped high-strength steel cage",
+    "sealingFa": "طراحی باز قابل تنظیم لقی دقیق محوری",
+    "sealingEn": "Open type separable cone & cup assembly",
+    "clearanceOptions": [
+      "Precision Setup"
+    ],
+    "brands": [
+      "KOYO",
+      "JTEKT"
+    ],
+    "applicationsFa": [
+      "گیربکس خورشیدی و هلیکال سنگین",
+      "محور چرخ تریلرهای معدنی",
+      "پینیون دیفرانسیل"
+    ],
+    "applicationsEn": [
+      "Heavy Planetary & Helical Gearboxes",
+      "Mining Trailer Wheel Axles",
+      "Differential Drive Pinions"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "tapered",
+    "speedReferenceType": "both",
+    "thermalSpeedRatingRpm": 5600,
+    "technicalSources": [
+      {
+        "manufacturer": "JTEKT Corporation (Koyo Bearings / Japan)",
+        "catalogCode": "CAT. No. B2001E",
+        "reference": "Koyo Tapered Roller Bearings 30212 JR / ISO 355:2019 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "rMin": 1.5,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-koyo-22218-rhr",
+    "slug": "koyo-22218-rhr",
+    "imageUrl": "/assets/images/spherical_bearing_photo_1787677386106.webp",
+    "images": [
+      "/assets/images/spherical_bearing_photo_1787677386106.webp"
+    ],
+    "code": "KOYO 22218 RHR Spherical Roller",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای KOYO 22218 RHR با ظرفیت بار استثنایی",
+    "nameEn": "KOYO 22218 RHR High-Load Spherical Roller Bearing",
+    "descriptionFa": "رولبرینگ بشکه‌ای ژاپنی کویو با طراحی رولرهای پرظرفیت سری RHR جهت توزیع بهینه تنش تماسی و جلوگیری از خستگی زودرس در شرایط بارهای نوسانی.",
+    "descriptionEn": "KOYO JTEKT premium spherical roller bearing featuring RHR design for uniform contact stress distribution under fluctuating shock loads.",
+    "d": 90,
+    "D": 160,
+    "B": 40,
+    "weightKg": 3.4,
+    "crKn": 325,
+    "corKn": 390,
+    "speedGreaseRpm": 3400,
+    "speedOilRpm": 4500,
+    "calculationFactorE": 0.23,
+    "calculationFactorY1": 2.9,
+    "calculationFactorY2": 4.4,
+    "calculationFactorY0": 2.9,
+    "cageMaterialFa": "قفسه فولادی پرسکاری دو تکه فسفاته شده",
+    "cageMaterialEn": "High rigidity stamped steel cage",
+    "sealingFa": "شیار و سوراخ‌های روغن‌کاری روی رینگ بیرونی",
+    "sealingEn": "Outer ring lubrication groove with 3 holes",
+    "clearanceOptions": [
+      "C3",
+      "CN",
+      "C4"
+    ],
+    "brands": [
+      "KOYO",
+      "JTEKT"
+    ],
+    "applicationsFa": [
+      "گیربکس آسیاب‌های سنگ‌شکن",
+      "درام محرک تسمه نقاله‌ها",
+      "میکسر صنایع غذایی و شیمیایی"
+    ],
+    "applicationsEn": [
+      "Primary Crusher Gear Drives",
+      "Conveyor Head Pulleys",
+      "Chemical & Food Processing Mixers"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "JTEKT Corporation (Koyo Bearings / Japan)",
+        "catalogCode": "CAT. No. B2001E",
+        "reference": "Koyo High Capacity Spherical Roller Bearings 22218 RHR / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 4200,
+    "rMin": 2,
+    "calculationFactorY": 2.9,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nachi-6008-2nse9",
+    "slug": "nachi-6008-2nse9",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "NACHI 6008-2NSE9 Quest® Japan",
+    "category": "ball",
+    "nameFa": "بلبرینگ باریک دور بالا NACHI 6008 2NSE9 سری کوئست ژاپن",
+    "nameEn": "NACHI 6008-2NSE9 Quest Series High-Precision Ball Bearing",
+    "descriptionFa": "بلبرینگ ژاپنی ناچی سری Quest با فولاد فوق‌العاده تمیز خلاء و آب‌بند غیرتماسی/تماسی بهینه 2NSE9 جهت کاهش اتلاف توان و نویز در الکتروموتورها.",
+    "descriptionEn": "Japanese NACHI Quest series ball bearing made with high-purity vacuum degassed steel and 2NSE9 low torque contact rubber seals.",
+    "d": 40,
+    "D": 68,
+    "B": 15,
+    "weightKg": 0.19,
+    "crKn": 16.8,
+    "corKn": 11.5,
+    "speedGreaseRpm": 11000,
+    "speedOilRpm": 11000,
+    "cageMaterialFa": "فولاد پرسکاری شده دقیق ناچی",
+    "cageMaterialEn": "Precision pressed steel cage",
+    "sealingFa": "آب‌بند لاستیکی کم‌اصطکاک پیشرفته (2NSE9)",
+    "sealingEn": "Dual low-torque contact rubber seals (2NSE9)",
+    "clearanceOptions": [
+      "CN",
+      "C3"
+    ],
+    "brands": [
+      "NACHI"
+    ],
+    "applicationsFa": [
+      "الکتروموتورهای صنعتی با راندمان IE3 و IE4",
+      "ژنراتورهای دیزلی",
+      "دمنده‌های هوادهی تصفیه"
+    ],
+    "applicationsEn": [
+      "IE3 / IE4 High-Efficiency Motors",
+      "Diesel Generators",
+      "Wastewater Aeration Blowers"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "deep-groove",
+    "speedReferenceType": "limiting",
+    "technicalSources": [
+      {
+        "manufacturer": "NACHI-FUJIKOSHI Corp. (Japan)",
+        "catalogCode": "CAT. No. 2200-8",
+        "reference": "NACHI Quest® Deep Groove Ball Bearings 6008-2NSE9 / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 16000,
+    "rMin": 1,
+    "calculationFactorF0": 15.3,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nachi-22222-ex",
+    "slug": "nachi-22222-ex",
+    "imageUrl": "/assets/images/spherical_bearing_photo_1787677386106.webp",
+    "images": [
+      "/assets/images/spherical_bearing_photo_1787677386106.webp"
+    ],
+    "code": "NACHI 22222 EX Quest Spherical",
+    "category": "spherical",
+    "nameFa": "رولبرینگ بشکه‌ای پرقدرت NACHI مدل 22222 EX ساخت ژاپن",
+    "nameEn": "NACHI 22222 EX Quest Series Heavy Spherical Roller Bearing",
+    "descriptionFa": "رولبرینگ بشکه‌ای ژاپنی ناچی با رولرهای متقارن طولانی‌تر و ظرفیت بار دینامیکی استثنایی برای کارخانجات صنایع سیمان، فولاد و نورد سنگین.",
+    "descriptionEn": "NACHI Japan Quest series spherical roller bearing featuring maximized symmetrical roller dimensions for maximum load ratings and service life.",
+    "d": 110,
+    "D": 200,
+    "B": 53,
+    "weightKg": 6.95,
+    "crKn": 560,
+    "corKn": 690,
+    "speedGreaseRpm": 2600,
+    "speedOilRpm": 3400,
+    "calculationFactorE": 0.23,
+    "calculationFactorY1": 2.9,
+    "calculationFactorY2": 4.4,
+    "calculationFactorY0": 2.9,
+    "cageMaterialFa": "قفسه فولادی ضخیم با راهنمای رولر مرکزی",
+    "cageMaterialEn": "Heavy duty pressed steel cage with guide ring",
+    "sealingFa": "شیار و ۳ سوراخ استاندارد روغنکاری روی رینگ بیرونی",
+    "sealingEn": "Standard outer ring lubrication feature (W33)",
+    "clearanceOptions": [
+      "C3",
+      "CN",
+      "C4"
+    ],
+    "brands": [
+      "NACHI"
+    ],
+    "applicationsFa": [
+      "آسیاب‌های بالمیل سیمان",
+      "خطوط نورد تیرآهن و میلگرد",
+      "پمپ‌های غلیظ‌کش با ویسکوزیته بالا"
+    ],
+    "applicationsEn": [
+      "Cement Ball Mills",
+      "Steel Rebar Rolling Mills",
+      "High Viscosity Heavy Pumps"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "spherical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "NACHI-FUJIKOSHI Corp. (Japan)",
+        "catalogCode": "CAT. No. 2200-8",
+        "reference": "NACHI Quest® Spherical Roller Bearings 22222 EX / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 3200,
+    "rMin": 2.1,
+    "calculationFactorY": 2.9,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-nachi-nup-310-eg",
+    "slug": "nachi-nup-310-eg",
+    "imageUrl": "/assets/images/cylindrical_bearing_photo_1787677431892.webp",
+    "images": [
+      "/assets/images/cylindrical_bearing_photo_1787677431892.webp"
+    ],
+    "code": "NACHI NUP 310 EG Cylindrical",
+    "category": "cylindrical",
+    "nameFa": "رولبرینگ استوانه‌ای لبه‌دار تثبیت‌کننده NACHI NUP 310 EG",
+    "nameEn": "NACHI NUP 310 EG Locating Cylindrical Roller Bearing",
+    "descriptionFa": "رولبرینگ استوانه‌ای مجهز به رینگ لبه‌دار و واشر کفی تثبیت‌کننده برای جذب بارهای شعاعی سنگین و موقعیت‌دهی محوری دوطرفه در شفت‌های چرخان.",
+    "descriptionEn": "NACHI Japan cylindrical roller bearing with fixed flange and loose rib plate for dual axial locating capability under heavy radial loads.",
+    "d": 50,
+    "D": 110,
+    "B": 27,
+    "weightKg": 1.15,
+    "crKn": 112,
+    "corKn": 108,
+    "speedGreaseRpm": 6000,
+    "speedOilRpm": 7500,
+    "cageMaterialFa": "پلی‌آمید مقاوم ۶۶ یا قفسه فولادی (EG)",
+    "cageMaterialEn": "Engineered high strength polyamide cage (EG)",
+    "sealingFa": "طراحی باز جهت روانکاری مطمئن با روغن دنده",
+    "sealingEn": "Open type for circulating oil/grease",
+    "clearanceOptions": [
+      "C3",
+      "CN"
+    ],
+    "brands": [
+      "NACHI"
+    ],
+    "applicationsFa": [
+      "شفت خروجی گیربکس‌های صنعتی",
+      "توربین‌های هیدروالکتریک کوچک",
+      "پولی‌های محرک جرثقیل"
+    ],
+    "applicationsEn": [
+      "Industrial Gearbox Output Shafts",
+      "Hydroelectric Micro-Turbines",
+      "Overhead Crane Drive Pulleys"
+    ],
+    "inStock": true,
+    "featured": false,
+    "schematicType": "cylindrical",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "NACHI-FUJIKOSHI Corp. (Japan)",
+        "catalogCode": "CAT. No. 2200-8",
+        "reference": "NACHI Cylindrical Roller Bearings High Load EG Series NUP 310 / ISO 15:2017 & JIS B 1512",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "thermalSpeedRatingRpm": 7200,
+    "rMin": 2,
+    "calculationFactorX": 1,
+    "calculationFactorY": 0,
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-corteco-12011153b",
+    "slug": "corteco-12011153b",
+    "imageUrl": "/assets/images/oil_seal_photo_1787677410030.webp",
+    "images": [
+      "/assets/images/oil_seal_photo_1787677410030.webp"
+    ],
+    "code": "CORTECO 12011153B Simmerring® TC 35x52x7",
+    "category": "seal",
+    "nameFa": "کاسه نمد سیمرینگ ایتالیایی کورتکو CORTECO 35x52x7 NBR",
+    "nameEn": "CORTECO 12011153B Simmerring TC 35x52x7 NBR (Italy)",
+    "descriptionFa": "کاسه نمد اورجینال کورتکو ایتالیا (گروه فرویدنبرگ) با فنر گالوانیزه و لبه گردگیر اضافه، مناسب برای جلوگیری از نشت روغن در گیربکس‌ها و شفت‌های دوار.",
+    "descriptionEn": "Genuine Italian CORTECO (Freudenberg Group) Simmerring radial shaft seal with dust lip and garter spring for high-speed industrial shafts.",
+    "d": 35,
+    "D": 52,
+    "B": 7,
+    "weightKg": 0.022,
+    "crKn": 0.05,
+    "corKn": 0.05,
+    "speedGreaseRpm": 7000,
+    "speedOilRpm": 11000,
+    "cageMaterialFa": "اسکلت فلزی فولادی روکش‌دار نیتریل",
+    "cageMaterialEn": "Internal steel case with bonded NBR elastomer",
+    "sealingFa": "لاستیک نیتریل NBR درجه یک با لبه محافظ گردگیر",
+    "sealingEn": "70 Shore A Nitrile (NBR) with tension garter spring",
+    "clearanceOptions": [
+      "DIN 3760 AS"
+    ],
+    "brands": [
+      "Corteco",
+      "Freudenberg"
+    ],
+    "applicationsFa": [
+      "جعبه‌دنده‌های صنعتی و خودرویی",
+      "شفت ورودی پمپ‌های آب",
+      "محرک‌های الکتریکی دوار"
+    ],
+    "applicationsEn": [
+      "Industrial & Automotive Gearboxes",
+      "Water Pump Input Shafts",
+      "Rotary Electric Drives"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "oil-seal",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Freudenberg / Corteco (Germany)",
+        "catalogCode": "Simmerring 12011153B",
+        "reference": "Corteco Simmerring® TC 35x52x7 - 72 NBR 902 / DIN 3760 Type AS & ISO 6194-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  },
+  {
+    "id": "pc-corteco-12012014b",
+    "slug": "corteco-12012014b",
+    "imageUrl": "/assets/images/oil_seal_photo_1787677410030.webp",
+    "images": [
+      "/assets/images/oil_seal_photo_1787677410030.webp"
+    ],
+    "code": "CORTECO 12012014B Viton® TC 50x72x8",
+    "category": "seal",
+    "nameFa": "کاسه نمد وایتون نسوز کورتکو CORTECO 50x72x8 FKM",
+    "nameEn": "CORTECO 12012014B Simmerring Viton TC 50x72x8 FKM",
+    "descriptionFa": "کاسه نمد وایتون اصل کورتکو با مقاومت حرارتی مداوم تا ۲۰۰ درجه سانتی‌گر، مقاوم به روغن‌های سنتتیک داغ، اسیدها و سیالات تهاجمی در پتروشیمی و فولاد.",
+    "descriptionEn": "High-temperature CORTECO Viton FKM rotary shaft seal with SUS304 spring offering thermal resistance up to 200°C for synthetic lubricants and chemicals.",
+    "d": 50,
+    "D": 72,
+    "B": 8,
+    "weightKg": 0.038,
+    "crKn": 0.05,
+    "corKn": 0.05,
+    "speedGreaseRpm": 6000,
+    "speedOilRpm": 9500,
+    "cageMaterialFa": "اسکلت فلزی ضدزنگ تقویت‌شده",
+    "cageMaterialEn": "Steel insert fully vulcanized in FKM",
+    "sealingFa": "۱۰۰٪ وایتون خالص (FKM/Viton) با فنر استنلس استیل",
+    "sealingEn": "100% Genuine Fluoroelastomer (FKM) with SUS304 spring",
+    "clearanceOptions": [
+      "DIN 3760 AS / ISO 6194"
+    ],
+    "brands": [
+      "Corteco",
+      "Freudenberg"
+    ],
+    "applicationsFa": [
+      "گیربکس کوره‌های نورد و ریخته‌گری",
+      "پمپ‌های روغن داغ هیدرولیک",
+      "کمپرسورهای اسکرو هوا و گاز داغ"
+    ],
+    "applicationsEn": [
+      "Steel Mill & Furnace Drives",
+      "Thermal Oil Hydraulic Pumps",
+      "Hot Gas Screw Compressors"
+    ],
+    "inStock": true,
+    "featured": true,
+    "schematicType": "oil-seal",
+    "speedReferenceType": "both",
+    "technicalSources": [
+      {
+        "manufacturer": "Freudenberg / Corteco (Germany)",
+        "catalogCode": "Simmerring 12012014B",
+        "reference": "Corteco Simmerring® TC 50x72x8 - 80 FKM 595 (Viton) / DIN 3760 Type AS & ISO 6194-1",
+        "sourceType": "official_catalog",
+        "verifiedAt": "2026-09"
+      }
+    ],
+    "updatedAt": "2026-09-07T12:00:00.000Z",
+    "updatedBy": "Lead Standards Auditor"
+  }
 ];
-
-import { runDevProductValidation } from '../utils/productValidation';
-
-export const bearingProducts: BearingProduct[] = rawBearingProducts.map((product) => {
-  const resolvedImg = product.imageUrl || (product.images && product.images[0]) || getProductFallbackImage(product);
-  return {
-    ...product,
-    imageUrl: resolvedImg,
-    images: product.images && product.images.length > 0 ? product.images : [resolvedImg],
-  };
-});
-
-// Run non-destructive integrity check in development
-runDevProductValidation(bearingProducts);

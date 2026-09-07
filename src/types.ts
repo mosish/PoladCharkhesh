@@ -14,10 +14,15 @@ export type BearingCategory =
 
 export type BearingSchematicType = 
   | 'deep-groove' 
+  | 'angular-contact'
+  | 'self-aligning-ball'
   | 'tapered' 
   | 'spherical' 
   | 'cylindrical' 
+  | 'needle'
+  | 'carb'
   | 'thrust' 
+  | 'spherical-thrust'
   | 'pillow-block' 
   | 'oil-seal';
 
