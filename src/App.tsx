@@ -16,6 +16,7 @@ import { ProductFormModal } from './components/admin/ProductFormModal';
 
 import { findProductBySlug, getProductSlug } from './utils/productSlug';
 import { updateDocumentSeo } from './utils/seo';
+import { resolveInitialLanguage } from './utils/siteDomains';
 
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -76,19 +77,10 @@ function parseCurrentRoute(): RouteState {
 }
 
 function getInitialLanguage(): Language {
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname.toLowerCase();
-    // poladcharkhesh.com or English subdomains default to English
-    if (hostname.endsWith('.com') || hostname.startsWith('en.')) {
-      return 'en';
-    }
-    const saved = localStorage.getItem('polad_preferred_language');
-    if (saved === 'fa' || saved === 'en') {
-      return saved as Language;
-    }
-  }
-  // poladcharkhesh.ir & standard default is Persian
-  return 'fa';
+  if (typeof window === 'undefined') return 'fa';
+  let saved: string | null = null;
+  try { saved = localStorage.getItem('polad_preferred_language'); } catch {}
+  return resolveInitialLanguage(window.location.hostname, saved);
 }
 
 export default function App() {
@@ -100,6 +92,7 @@ export default function App() {
 
   // Live products dataset subscribed from central dataService
   const [allProducts, setAllProducts] = useState<BearingProduct[]>(dataService.getActiveProducts());
+  const [catalogStatus, setCatalogStatus] = useState(dataService.getCatalogStatus());
 
   // Admin state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(authService.isAuthenticated());
@@ -117,6 +110,8 @@ export default function App() {
   useEffect(() => {
     const unsubProducts = dataService.subscribeToProducts((updated) => {
       setAllProducts(updated.filter((p) => !p.isArchived));
+      setCatalogStatus(dataService.getCatalogStatus());
+      setSelectedProduct((selected) => selected ? updated.find((p) => p.id === selected.id && !p.isArchived) || null : null);
     });
     const unsubAuth = authService.subscribe((state) => {
       setIsAuthenticated(state.isAuthenticated);
@@ -328,6 +323,16 @@ export default function App() {
 
   // --- PUBLIC SITE VIEW RENDERING ---
   const currentProduct = route.type === 'product' ? findProductBySlug(route.slug, allProducts) : undefined;
+  const catalogNotice = (
+    <section id="catalog" className="mx-auto max-w-5xl p-8 text-center" role={catalogStatus === 'error' ? 'alert' : 'status'}>
+      <p>{catalogStatus === 'loading'
+        ? (language === 'fa' ? 'در حال دریافت کاتالوگ…' : 'Loading catalog…')
+        : (language === 'fa' ? 'کاتالوگ موقتاً در دسترس نیست. لطفاً دوباره تلاش کنید.' : 'The catalog is temporarily unavailable. Please try again.')}</p>
+      {catalogStatus === 'error' && <button className="glass-btn-secondary rounded-xl px-5 py-3 mt-4" onClick={() => void dataService.refreshFromServer()}>
+        {language === 'fa' ? 'تلاش مجدد' : 'Try again'}
+      </button>}
+    </section>
+  );
 
   return (
     <div className="min-h-screen flex flex-col liquid-mesh-bg text-slate-900 relative overflow-x-clip">
@@ -348,7 +353,7 @@ export default function App() {
       {/* Dynamic View: Product Page vs Single Page Scrolling Home */}
       <main className="flex-1 space-y-4 sm:space-y-6">
         {route.type === 'product' ? (
-          currentProduct ? (
+          catalogStatus !== 'ready' ? catalogNotice : currentProduct ? (
             <ProductPage
               product={currentProduct}
               allProducts={allProducts}
@@ -381,14 +386,14 @@ export default function App() {
 
             <AboutUs language={language} />
 
-            <ProductCatalog
+            {catalogStatus !== 'ready' ? catalogNotice : <ProductCatalog
               products={allProducts}
               language={language}
               selectedBearingCode={catalogSearch}
               initialCategory={catalogCategory}
               onSelectProduct={(p) => setSelectedProduct(p)}
               onNavigateProduct={navigateToProduct}
-            />
+            />}
 
             <BearingCalculator language={language} />
 
