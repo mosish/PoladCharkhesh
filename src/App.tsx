@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Language, BearingProduct } from './types';
-import { dataService } from './services/dataService';
+import { dataService, useDataSync } from './services/dataService';
 import { authService } from './services/authService';
+import { AlertCircle } from 'lucide-react';
 import { AdminTab, AdminLayout } from './components/admin/AdminLayout';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminOverview } from './components/admin/AdminOverview';
@@ -97,6 +98,9 @@ export default function App() {
   
   // Routing state
   const [route, setRoute] = useState<RouteState>(parseCurrentRoute);
+
+  // Synchronization status with authoritative SQLite backend
+  const syncState = useDataSync();
 
   // Live products dataset subscribed from central dataService
   const [allProducts, setAllProducts] = useState<BearingProduct[]>(dataService.getActiveProducts());
@@ -344,6 +348,18 @@ export default function App() {
         onContactClick={handleContactClick}
         onNavigateSection={handleSectionNavigate}
       />
+
+      {/* Controlled Degraded State Notice if SQLite backend is offline */}
+      {syncState.status === 'degraded' && (
+        <div id="backend-degraded-banner" className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-center text-xs text-amber-800 font-medium flex items-center justify-center gap-2">
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>
+            {language === 'fa'
+              ? 'ارتباط با پایگاه داده برخط سرور در دسترس نیست؛ اطلاعات کاتالوگ در حالت مرجع آفلاین نمایش داده می‌شود.'
+              : 'Server database connection is currently offline; catalog is operating in offline reference mode.'}
+          </span>
+        </div>
+      )}
 
       {/* Dynamic View: Product Page vs Single Page Scrolling Home */}
       <main className="flex-1 space-y-4 sm:space-y-6">

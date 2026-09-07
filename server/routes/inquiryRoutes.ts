@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { requireAuth, createRateLimiter, logAudit } from '../middleware';
+import { requireAuth, createRateLimiter, logAudit, getClientIp } from '../middleware';
 import { inquiryDb } from '../services/inquiryDb';
 import { validateInquiryPayload } from '../validation';
 
@@ -22,7 +22,7 @@ inquiryRouter.post('/', inquiryLimiter, (req: Request, res: Response): void => {
     return;
   }
 
-  const id = inquiryDb.createInquiry(validation.sanitized!, req.ip);
+  const id = inquiryDb.createInquiry(validation.sanitized!, getClientIp(req));
 
   res.status(201).json({
     success: true,

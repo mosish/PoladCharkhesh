@@ -60,11 +60,11 @@
   }
 
   html[lang="en"] {
-    font-family: 'IRANSans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Outfit', Roboto, sans-serif;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'IRANSans', sans-serif;
   }
 
   .font-mono-spec {
-    font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+    font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
     font-feature-settings: "zero" 1, "tnum" 1;
   }
 

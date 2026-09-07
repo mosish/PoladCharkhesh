@@ -84,13 +84,28 @@ export const DEFAULT_SEO_CONFIG: SiteSeoConfig = {
   googleSiteVerification: '',
 };
 
+export type DataSyncStatus = 'loading' | 'synced' | 'degraded';
+
+export interface DataSyncState {
+  status: DataSyncStatus;
+  isAuthoritative: boolean;
+  lastSyncedAt?: string;
+  error?: string;
+}
+
 class DataService {
+  // Authoritative runtime dataset (sourced directly from SQLite backend API)
   private products: BearingProduct[] = [...canonicalProducts];
   private companyInfo: CompanyContactInfo = { ...canonicalCompanyInfo };
   private pageContent: CmsPageContent = { ...DEFAULT_PAGE_CONTENT };
   private seoConfig: SiteSeoConfig = { ...DEFAULT_SEO_CONFIG };
   private inquiries: InquiryLog[] = [];
   
+  private syncState: DataSyncState = {
+    status: 'loading',
+    isAuthoritative: false,
+  };
+
   private listeners: Set<() => void> = new Set();
   private initialized: boolean = false;
 
@@ -116,7 +131,7 @@ class DataService {
     try {
       await this.refreshFromServer();
     } catch (err) {
-      console.warn('Initial backend sync failed, using canonical dataset baseline:', err);
+      console.warn('[DataService] Initial backend sync failed, running in degraded mode:', err);
     } finally {
       this.initialized = true;
     }
@@ -136,16 +151,25 @@ class DataService {
 
       if (prodRes.success && prodRes.data?.products && Array.isArray(prodRes.data.products)) {
         this.products = prodRes.data.products;
+        this.syncState = {
+          status: 'synced',
+          isAuthoritative: true,
+          lastSyncedAt: new Date().toISOString(),
+        };
+      } else {
+        this.syncState = {
+          status: 'degraded',
+          isAuthoritative: false,
+          error: prodRes.success ? 'No products array returned from server' : prodRes.error.message,
+        };
       }
 
       if (compRes.success && compRes.data?.company) {
         this.companyInfo = compRes.data.company;
       }
-
       if (contentRes.success && contentRes.data?.content) {
         this.pageContent = contentRes.data.content;
       }
-
       if (seoRes.success && seoRes.data?.seo) {
         this.seoConfig = seoRes.data.seo;
       }
@@ -159,8 +183,14 @@ class DataService {
       } catch {}
 
       this.notifyListeners();
-    } catch (err) {
-      console.error('refreshFromServer error:', err);
+    } catch (err: any) {
+      console.warn('[DataService] Server unreachable, running in degraded mode:', err?.message || err);
+      this.syncState = {
+        status: 'degraded',
+        isAuthoritative: false,
+        error: err?.message || 'Server connection failed',
+      };
+      this.notifyListeners();
     }
   }
 
@@ -208,6 +238,20 @@ class DataService {
   public subscribeToInquiries(listener: (inquiries: InquiryLog[]) => void): () => void {
     const handler = () => listener(this.getInquiries());
     listener(this.getInquiries());
+    return this.subscribe(handler);
+  }
+
+  public getSyncState(): DataSyncState {
+    return { ...this.syncState };
+  }
+
+  public isAuthoritative(): boolean {
+    return this.syncState.isAuthoritative;
+  }
+
+  public subscribeToSyncState(listener: (state: DataSyncState) => void): () => void {
+    const handler = () => listener(this.getSyncState());
+    listener(this.getSyncState());
     return this.subscribe(handler);
   }
 
@@ -477,6 +521,17 @@ export const dataService = new DataService();
 /**
  * React hook to reactively subscribe to active products from SQLite backend via dataService
  */
+/**
+ * React hook to reactively subscribe to backend synchronization state
+ */
+export function useDataSync(): DataSyncState {
+  const [syncState, setSyncState] = useState<DataSyncState>(() => dataService.getSyncState());
+  useEffect(() => {
+    return dataService.subscribeToSyncState(setSyncState);
+  }, []);
+  return syncState;
+}
+
 export function useActiveProducts(): BearingProduct[] {
   const [products, setProducts] = useState<BearingProduct[]>(() => dataService.getActiveProducts());
   useEffect(() => {

@@ -13,7 +13,7 @@ import {
 } from '../auth';
 import { getDatabase } from '../db';
 import { CONFIG } from '../config';
-import { requireAuth, logAudit, createRateLimiter } from '../middleware';
+import { requireAuth, logAudit, createRateLimiter, getClientIp } from '../middleware';
 
 export const authRouter = Router();
 
@@ -98,7 +98,7 @@ authRouter.post('/setup', async (req: Request, res: Response): Promise<void> => 
       nowIso
     );
 
-    const session = createSession(adminId, req.headers['user-agent'], req.ip);
+    const session = createSession(adminId, req.headers['user-agent'], getClientIp(req));
 
     // Set secure HttpOnly cookie
     res.cookie(CONFIG.COOKIE_NAME, session.token, {
@@ -182,7 +182,7 @@ authRouter.post('/login', loginRateLimiter, async (req: Request, res: Response):
   resetFailedLogin(cleanUsername);
 
   // 5. Create session in DB
-  const session = createSession(admin.id, req.headers['user-agent'], req.ip);
+  const session = createSession(admin.id, req.headers['user-agent'], getClientIp(req));
 
   // 6. Issue HttpOnly cookie
   const cookieMaxAge = rememberMe

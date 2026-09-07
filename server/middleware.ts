@@ -15,14 +15,13 @@ declare global {
 }
 
 /**
- * Extract client IP address safely
+ * Extract trusted client IP address safely using Express trust proxy resolution.
+ * Direct clients cannot spoof their IP through arbitrary X-Forwarded-For headers
+ * because Express validates proxy hops against CONFIG.TRUST_PROXY.
  */
 export function getClientIp(req: Request): string {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (typeof forwarded === 'string') {
-    return forwarded.split(',')[0].trim();
-  }
-  return req.socket.remoteAddress || '127.0.0.1';
+  const ip = req.ip || req.socket?.remoteAddress || '127.0.0.1';
+  return ip.replace(/^::ffff:/, '');
 }
 
 /**

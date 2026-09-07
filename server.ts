@@ -19,6 +19,9 @@ import { mediaRouter } from './server/routes/mediaRoutes';
 async function startServer() {
   const app = express();
 
+  // 0. Explicit Trust Proxy Configuration for Reverse Proxy (Nginx) Architecture
+  app.set('trust proxy', CONFIG.TRUST_PROXY);
+
   // 1. Core Parsers & Middlewares
   app.use(express.json({ limit: '15mb' }));
   app.use(express.urlencoded({ extended: true, limit: '15mb' }));

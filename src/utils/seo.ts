@@ -9,7 +9,23 @@ export interface SeoUpdateOptions {
   categoryLabel?: string;
 }
 
-const SITE_URL = 'https://poladcharkhesh.ir';
+/**
+ * Resolves the authoritative domain base URL according to language and environment:
+ * - Persian ('fa') -> https://poladcharkhesh.ir
+ * - English ('en') -> https://poladcharkhesh.com
+ */
+export function getAuthoritativeDomain(language: Language): string {
+  return language === 'en' ? 'https://poladcharkhesh.com' : 'https://poladcharkhesh.ir';
+}
+
+/**
+ * Resolves an absolute canonical / OpenGraph / Schema URL respecting the language domain foundation.
+ */
+export function resolveAbsoluteSeoUrl(path: string, language: Language): string {
+  const domain = getAuthoritativeDomain(language);
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${domain}${cleanPath === '/' ? '' : cleanPath}`;
+}
 
 function setMetaTag(nameOrProperty: string, content: string, isProperty: boolean = false) {
   const attributeName = isProperty ? 'property' : 'name';
@@ -32,6 +48,34 @@ function setCanonicalUrl(url: string) {
   link.setAttribute('href', url);
 }
 
+function setLinkTag(rel: string, hreflang: string, href: string) {
+  let link = document.querySelector(`link[rel="${rel}"][hreflang="${hreflang}"]`);
+  if (!link) {
+    link = document.createElement('link');
+    link.setAttribute('rel', rel);
+    link.setAttribute('hreflang', hreflang);
+    document.head.appendChild(link);
+  }
+  link.setAttribute('href', href);
+}
+
+/**
+ * Sets dual-domain hreflang tags:
+ * - fa-IR: https://poladcharkhesh.ir{path}
+ * - en: https://poladcharkhesh.com{path}
+ * - x-default: https://poladcharkhesh.ir{path}
+ */
+export function updateHreflangTags(path: string): void {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  const suffix = cleanPath === '/' ? '' : cleanPath;
+  const faUrl = `https://poladcharkhesh.ir${suffix}`;
+  const enUrl = `https://poladcharkhesh.com${suffix}`;
+
+  setLinkTag('alternate', 'fa-IR', faUrl);
+  setLinkTag('alternate', 'en', enUrl);
+  setLinkTag('alternate', 'x-default', faUrl);
+}
+
 function setJsonLd(id: string, schema: object) {
   let script = document.getElementById(id) as HTMLScriptElement | null;
   if (!script) {
@@ -49,11 +93,13 @@ function setJsonLd(id: string, schema: object) {
  */
 export function updateDocumentSeo({ product, language, path, categoryLabel }: SeoUpdateOptions): void {
   const isPersian = language === 'fa';
+  const siteUrl = getAuthoritativeDomain(language);
 
   if (product) {
     // --- INDIVIDUAL PRODUCT PAGE SEO ---
     const slug = getProductSlug(product);
-    const canonicalUrl = `${SITE_URL}/product/${slug}`;
+    const productPath = `/product/${slug}`;
+    const canonicalUrl = resolveAbsoluteSeoUrl(productPath, language);
     
     // Dynamic Localized Title
     const title = isPersian
@@ -68,6 +114,7 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     document.title = title;
     setMetaTag('description', description);
     setCanonicalUrl(canonicalUrl);
+    updateHreflangTags(productPath);
 
     // Open Graph
     setMetaTag('og:title', title, true);
@@ -76,7 +123,7 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     setMetaTag('og:type', 'product', true);
     setMetaTag('og:site_name', isPersian ? 'پولاد چرخِش' : 'Polad Charkhesh', true);
     if (product.imageUrl) {
-      setMetaTag('og:image', product.imageUrl.startsWith('http') ? product.imageUrl : `${SITE_URL}${product.imageUrl}`, true);
+      setMetaTag('og:image', product.imageUrl.startsWith('http') ? product.imageUrl : `${siteUrl}${product.imageUrl}`, true);
     }
 
     // Twitter Card
@@ -84,13 +131,15 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     setMetaTag('twitter:title', title);
     setMetaTag('twitter:description', description);
     if (product.imageUrl) {
-      setMetaTag('twitter:image', product.imageUrl.startsWith('http') ? product.imageUrl : `${SITE_URL}${product.imageUrl}`);
+      setMetaTag('twitter:image', product.imageUrl.startsWith('http') ? product.imageUrl : `${siteUrl}${product.imageUrl}`);
     }
 
     // 1. Schema.org Product Structured Data (Strictly NO fake prices / NO fake offers)
     const productSchema: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'Product',
+      '@id': `${canonicalUrl}#product`,
+      'url': canonicalUrl,
       'name': isPersian ? `${product.nameFa} - ${product.code}` : `${product.nameEn} - ${product.code}`,
       'mpn': product.code,
       'sku': product.id,
@@ -163,7 +212,7 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     }
 
     if (product.imageUrl) {
-      productSchema.image = product.imageUrl.startsWith('http') ? product.imageUrl : `${SITE_URL}${product.imageUrl}`;
+      productSchema.image = product.imageUrl.startsWith('http') ? product.imageUrl : `${siteUrl}${product.imageUrl}`;
     }
 
     setJsonLd('structured-data-product', productSchema);
@@ -177,19 +226,19 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
           '@type': 'ListItem',
           'position': 1,
           'name': isPersian ? 'صفحه اصلی' : 'Home',
-          'item': `${SITE_URL}/`,
+          'item': resolveAbsoluteSeoUrl('/', language),
         },
         {
           '@type': 'ListItem',
           'position': 2,
           'name': isPersian ? 'کاتالوگ قطعات صنعتی' : 'Product Catalog',
-          'item': `${SITE_URL}/#catalog`,
+          'item': resolveAbsoluteSeoUrl('/#catalog', language),
         },
         {
           '@type': 'ListItem',
           'position': 3,
           'name': categoryLabel || (isPersian ? 'دسته‌بندی بیرینگ' : 'Bearing Category'),
-          'item': `${SITE_URL}/#catalog`,
+          'item': resolveAbsoluteSeoUrl('/#catalog', language),
         },
         {
           '@type': 'ListItem',
@@ -203,7 +252,7 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
 
   } else {
     // --- HOMEPAGE / CATALOG SEO ---
-    const canonicalUrl = `${SITE_URL}${path === '/' ? '' : path}`;
+    const canonicalUrl = resolveAbsoluteSeoUrl(path === '/' ? '' : path, language);
     
     const title = isPersian
       ? 'پولاد چرخِش | تأمین و توزیع تخصصی انواع بیرینگ‌های صنایع نفت، معدن و فولاد'
@@ -216,6 +265,7 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     document.title = title;
     setMetaTag('description', description);
     setCanonicalUrl(canonicalUrl);
+    updateHreflangTags(path);
 
     setMetaTag('og:title', title, true);
     setMetaTag('og:description', description, true);
@@ -240,55 +290,65 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
           '@type': 'ListItem',
           'position': 1,
           'name': isPersian ? 'صفحه اصلی' : 'Home',
-          'item': `${SITE_URL}/`,
+          'item': resolveAbsoluteSeoUrl('/', language),
         },
         {
           '@type': 'ListItem',
           'position': 2,
           'name': isPersian ? 'کاتالوگ و بانک قطعات' : 'Product Catalog',
-          'item': `${SITE_URL}/#catalog`,
+          'item': resolveAbsoluteSeoUrl('/#catalog', language),
         },
       ],
     };
     setJsonLd('structured-data-breadcrumbs', homeBreadcrumbSchema);
   }
 
-  // --- ORGANIZATION / LOCAL BUSINESS SCHEMA (Always Active) ---
+  // --- ORGANIZATION / LOCAL BUSINESS SCHEMA (Authoritative dynamic consumption) ---
   const company = dataService.getCompanyInfo();
+  
+  // Parse working hours dynamically from company configuration
+  const matchHours = (company.workingHoursShortEn || company.workingHoursEn || '').match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+  const opensTime = matchHours ? matchHours[1] : '08:00';
+  const closesTime = matchHours ? matchHours[2] : '16:00';
+
+  const primaryTel = (company.primaryPhoneTel || company.primaryPhone || '').replace(/^tel:/, '');
+  const landlineTel = (company.landlinePhoneTel || company.landlinePhone || '').replace(/^tel:/, '');
+
   const orgSchema = {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    '@id': `${SITE_URL}/#organization`,
+    '@type': 'IndustrialBusiness',
+    '@id': `${siteUrl}/#organization`,
     'name': isPersian ? company.nameFa : company.nameEn,
     'legalName': isPersian ? company.legalNameFa : company.legalNameEn,
-    'alternateName': 'Polad Charkhesh Bearing Trading',
-    'url': SITE_URL,
-    'telephone': company.landlinePhone,
+    'alternateName': isPersian ? 'بازرگانی بلبرینگ پولاد چرخِش' : 'Polad Charkhesh Bearing Trading',
+    'url': siteUrl,
+    'email': company.email,
+    'telephone': primaryTel || landlineTel,
     'address': {
       '@type': 'PostalAddress',
       'streetAddress': isPersian ? company.addressFa : company.addressEn,
-      'addressLocality': 'Tehran',
+      'addressLocality': isPersian ? company.cityFa : company.cityEn,
       'addressCountry': 'IR',
     },
     'openingHoursSpecification': [
       {
         '@type': 'OpeningHoursSpecification',
         'dayOfWeek': ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
-        'opens': '08:00',
-        'closes': '16:00',
+        'opens': opensTime,
+        'closes': closesTime,
       },
     ],
     'contactPoint': [
       {
         '@type': 'ContactPoint',
-        'telephone': '+989127195313',
-        'contactType': 'Technical Sales & Engineering Support',
+        'telephone': primaryTel,
+        'contactType': isPersian ? 'واحد مهندسی و استعلام فنی' : 'Technical Sales & Engineering Support',
         'availableLanguage': ['Persian', 'English'],
       },
       {
         '@type': 'ContactPoint',
-        'telephone': '+982177209117',
-        'contactType': 'Office & Logistics Management',
+        'telephone': landlineTel,
+        'contactType': isPersian ? 'دفتر مرکزی و پشتیبانی اداری' : 'Central Office & Administration',
         'availableLanguage': ['Persian'],
       },
     ],
