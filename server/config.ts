@@ -3,12 +3,11 @@ import crypto from 'node:crypto';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Safe cryptographic fallback secrets so server container never crashes on startup if env secrets are unset
-const fallbackSessionSecret = crypto.randomBytes(32).toString('hex');
-const fallbackCookieSecret = crypto.randomBytes(32).toString('hex');
-
-if (isProduction && (!process.env.SESSION_SECRET || !process.env.COOKIE_SECRET)) {
-  console.warn('[Security] Notice: SESSION_SECRET or COOKIE_SECRET environment variables are not set. Generated runtime cryptographic fallback secrets for this instance.');
+function getSecret(name: 'SESSION_SECRET' | 'COOKIE_SECRET'): string {
+  const value = process.env[name]?.trim();
+  if (value) return value;
+  if (isProduction) throw new Error(`[Security] ${name} is required in production.`);
+  return crypto.randomBytes(32).toString('hex');
 }
 
 export const CONFIG = {
@@ -16,11 +15,13 @@ export const CONFIG = {
   HOST: '0.0.0.0',
   NODE_ENV: process.env.NODE_ENV || 'development',
   isProduction,
+  // Opt in only for a same-host Nginx proxy. Never trust arbitrary forwarded headers.
+  TRUST_PROXY: process.env.TRUST_PROXY === 'loopback' ? 'loopback' : false,
   
   DATABASE_PATH: process.env.DATABASE_PATH || path.resolve(process.cwd(), 'data', 'poladcharkhesh.db'),
   
-  SESSION_SECRET: process.env.SESSION_SECRET?.trim() || fallbackSessionSecret,
-  COOKIE_SECRET: process.env.COOKIE_SECRET?.trim() || fallbackCookieSecret,
+  SESSION_SECRET: getSecret('SESSION_SECRET'),
+  COOKIE_SECRET: getSecret('COOKIE_SECRET'),
   SESSION_TTL_HOURS: Number(process.env.SESSION_TTL_HOURS) || 12,
   COOKIE_NAME: 'polad_session',
   

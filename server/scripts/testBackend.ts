@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { getDatabase } from '../db';
@@ -72,20 +72,15 @@ async function runSecurityTestSuite() {
   // TEST 3: Production Startup Fail-Fast when Secrets Missing
   // --------------------------------------------------------------------------
   console.log('3. [ENV] Verifying Production Fail-Fast on Missing Secrets...');
-  try {
-    execSync(
-      'NODE_ENV=production SESSION_SECRET="" COOKIE_SECRET="" npx tsx -e "import(\'./server/config\')"',
-      { stdio: 'pipe' }
-    );
-    throw new Error('Production mode should have failed when SESSION_SECRET is missing!');
-  } catch (err: any) {
-    const errorOutput = err.stderr ? err.stderr.toString() : err.message;
-    if (errorOutput.includes('FATAL SECURITY CONFIGURATION ERROR')) {
-      console.log('   ✓ Production startup correctly threw FATAL SECURITY CONFIGURATION ERROR when secrets were omitted.\n');
-    } else {
-      throw new Error(`Unexpected failure output: ${errorOutput}`);
-    }
+  const configProbe = spawnSync(process.execPath, ['--import', 'tsx', '-e', "import('./server/config.ts')"], {
+    env: { ...process.env, NODE_ENV: 'production', SESSION_SECRET: '', COOKIE_SECRET: '' },
+    encoding: 'utf8',
+    timeout: 30000,
+  });
+  if (configProbe.status !== 1 || !configProbe.stderr.includes('SESSION_SECRET is required in production')) {
+    throw new Error('Production secret fail-fast probe did not fail for the expected reason');
   }
+  console.log('   ✓ Production startup rejected missing secrets.\n');
 
   // --------------------------------------------------------------------------
   // TEST 4: Spin up Test Express Server to test API endpoints
@@ -224,7 +219,7 @@ async function runSecurityTestSuite() {
       headers: { 'Content-Type': 'application/json', 'Cookie': cookiePart },
       body: JSON.stringify({
         code: testCode,
-        category: 'tapered',
+        category: 'roller', // Current API category for this disposable test fixture
         nameFa: 'رولبرینگ تست امنیتی',
         nameEn: 'Security Test Bearing',
         d: 25,

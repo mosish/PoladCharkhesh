@@ -1,25 +1,12 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { defineConfig, Plugin } from 'vite';
-import { generateSitemap } from './scripts/generate-sitemap.mjs';
-
-function sitemapPlugin(): Plugin {
-  return {
-    name: 'generate-sitemap-plugin',
-    buildStart() {
-      try {
-        generateSitemap();
-      } catch (err) {
-        console.warn('Sitemap generation skipped in dev:', err);
-      }
-    },
-  };
-}
+import { defineConfig } from 'vite';
+// Sitemap and robots are served by Express from authoritative SQLite data.
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss(), sitemapPlugin()],
+    plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

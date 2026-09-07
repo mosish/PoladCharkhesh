@@ -1,5 +1,7 @@
 # Polad Charkhesh Industrial Bearings — System Architecture
 
+> Current corrective policies and verification: [Phase 7.0.1](PHASE_7_0_1_INTEGRITY.md). Earlier phase statements below are historical.
+
 **Document Version:** 2.1.0  
 **Phase:** 6.2.2 Stabilization & Readiness Complete  
 **Engineered For:** Polad Charkhesh Industrial Trading Co. (بازرگانی پولاد چرخِش)

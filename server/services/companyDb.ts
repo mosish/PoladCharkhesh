@@ -3,6 +3,7 @@
  */
 
 import { getDatabase } from '../db';
+import { CONFIG } from '../config';
 import { COMPANY_INFO as canonicalCompanyInfo, CompanyContactInfo } from '../../src/data/company';
 
 export const companyDb = {
@@ -13,9 +14,11 @@ export const companyDb = {
       try {
         return JSON.parse(row.data);
       } catch {
+        if (CONFIG.isProduction) throw new Error('Authoritative company data is invalid');
         return canonicalCompanyInfo;
       }
     }
+    if (CONFIG.isProduction) throw new Error('Authoritative company data is missing');
     return canonicalCompanyInfo;
   },
 

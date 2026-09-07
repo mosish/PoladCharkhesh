@@ -18,11 +18,8 @@ declare global {
  * Extract client IP address safely
  */
 export function getClientIp(req: Request): string {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (typeof forwarded === 'string') {
-    return forwarded.split(',')[0].trim();
-  }
-  return req.socket.remoteAddress || '127.0.0.1';
+  // Express evaluates the socket and trusted proxy chain consistently for all callers.
+  return req.ip || req.socket.remoteAddress || 'unknown';
 }
 
 /**

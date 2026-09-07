@@ -13,7 +13,6 @@
 
 import { useState, useEffect } from 'react';
 import { BearingProduct } from '../types';
-import { bearingProducts as canonicalProducts } from '../data/products';
 import { COMPANY_INFO as canonicalCompanyInfo, CompanyContactInfo } from '../data/company';
 import {
   AdminUser,
@@ -84,8 +83,13 @@ export const DEFAULT_SEO_CONFIG: SiteSeoConfig = {
   googleSiteVerification: '',
 };
 
-class DataService {
-  private products: BearingProduct[] = [...canonicalProducts];
+export type CatalogStatus = 'loading' | 'ready' | 'error';
+
+export class DataService {
+  // SQLite/API is authoritative. Static products are seed/reference data only.
+  private products: BearingProduct[] = [];
+  private catalogStatus: CatalogStatus = 'loading';
+  private companyLoaded = false;
   private companyInfo: CompanyContactInfo = { ...canonicalCompanyInfo };
   private pageContent: CmsPageContent = { ...DEFAULT_PAGE_CONTENT };
   private seoConfig: SiteSeoConfig = { ...DEFAULT_SEO_CONFIG };
@@ -116,7 +120,7 @@ class DataService {
     try {
       await this.refreshFromServer();
     } catch (err) {
-      console.warn('Initial backend sync failed, using canonical dataset baseline:', err);
+      console.error('Initial backend sync failed:', err);
     } finally {
       this.initialized = true;
     }
@@ -126,6 +130,8 @@ class DataService {
    * Pull complete authoritative state from server API via domain services
    */
   public async refreshFromServer(): Promise<void> {
+    this.catalogStatus = 'loading';
+    this.notifyListeners();
     try {
       const [prodRes, compRes, contentRes, seoRes] = await Promise.all([
         productService.getProducts(true),
@@ -136,8 +142,13 @@ class DataService {
 
       if (prodRes.success && prodRes.data?.products && Array.isArray(prodRes.data.products)) {
         this.products = prodRes.data.products;
+        this.catalogStatus = 'ready';
+      } else {
+        this.products = [];
+        this.catalogStatus = 'error';
       }
 
+      this.companyLoaded = Boolean(compRes.success && compRes.data?.company);
       if (compRes.success && compRes.data?.company) {
         this.companyInfo = compRes.data.company;
       }
@@ -150,16 +161,24 @@ class DataService {
         this.seoConfig = seoRes.data.seo;
       }
 
-      // Inquiries (requires admin session, gracefully fails for public users)
+      this.notifyListeners();
+
+      // Inquiries require an admin session; public refresh must not trigger a 401.
       try {
-        const inqRes = await inquiryService.getInquiries();
-        if (inqRes.success && Array.isArray(inqRes.data?.inquiries)) {
-          this.inquiries = inqRes.data.inquiries;
+        if (authService.isAuthenticated()) {
+          const inqRes = await inquiryService.getInquiries();
+          if (inqRes.success && Array.isArray(inqRes.data?.inquiries)) {
+            this.inquiries = inqRes.data.inquiries;
+          }
         }
       } catch {}
 
       this.notifyListeners();
     } catch (err) {
+      this.products = [];
+      this.catalogStatus = 'error';
+      this.companyLoaded = false;
+      this.notifyListeners();
       console.error('refreshFromServer error:', err);
     }
   }
@@ -213,6 +232,14 @@ class DataService {
 
   public isInitialized(): boolean {
     return this.initialized;
+  }
+
+  public getCatalogStatus(): CatalogStatus {
+    return this.catalogStatus;
+  }
+
+  public hasAuthoritativeCompanyData(): boolean {
+    return this.companyLoaded;
   }
 
   // ==========================================
@@ -317,6 +344,7 @@ class DataService {
     }
 
     this.companyInfo = res.data.company;
+    this.companyLoaded = true;
     this.notifyListeners();
     return { success: true };
   }

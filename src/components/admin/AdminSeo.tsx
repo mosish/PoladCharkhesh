@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Language } from '../../types';
 import { SeoConfig } from '../../types/admin';
 import { dataService } from '../../services/dataService';
+import { SITE_ORIGINS } from '../../utils/siteDomains';
 import { 
   Globe, 
   Save, 
@@ -129,8 +130,8 @@ export const AdminSeo: React.FC<AdminSeoProps> = ({ language }) => {
                 </label>
                 <input
                   type="text"
-                  value={seo.canonicalBaseUrl}
-                  onChange={(e) => handleChange('canonicalBaseUrl', e.target.value)}
+                  value={SITE_ORIGINS[language]}
+                  readOnly
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white font-mono focus:border-indigo-500 focus:outline-none"
                 />
               </div>
@@ -216,7 +217,7 @@ export const AdminSeo: React.FC<AdminSeoProps> = ({ language }) => {
                   PC
                 </div>
                 <div className="text-[11px] text-slate-700 font-mono truncate" dir="ltr">
-                  {seo.canonicalBaseUrl || 'https://poladcharkhesh.ir'}
+                  {SITE_ORIGINS[language]}
                 </div>
               </div>
 

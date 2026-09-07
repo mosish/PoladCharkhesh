@@ -15,9 +15,11 @@ import { seoRouter } from './server/routes/seoRoutes';
 import { inquiryRouter } from './server/routes/inquiryRoutes';
 import { systemRouter } from './server/routes/systemRoutes';
 import { mediaRouter } from './server/routes/mediaRoutes';
+import { publicSeoRouter } from './server/routes/publicSeoRoutes';
 
 async function startServer() {
   const app = express();
+  app.set('trust proxy', CONFIG.TRUST_PROXY);
 
   // 1. Core Parsers & Middlewares
   app.use(express.json({ limit: '15mb' }));
@@ -37,9 +39,10 @@ async function startServer() {
   // 3. Initialize SQLite Database & Seed Canonical Bearings
   try {
     getDatabase();
-    seedDatabase(false);
+    // Production never repopulates an empty catalog from the static seed.
+    if (!CONFIG.isProduction) seedDatabase(false);
   } catch (err) {
-    console.error('Database startup initialization failed:', err);
+    throw new Error('Database startup initialization failed', { cause: err });
   }
 
   // 4. API Endpoints
@@ -59,6 +62,8 @@ async function startServer() {
   app.use('/api/inquiries', inquiryRouter);
   app.use('/api/system', systemRouter);
   app.use('/api/media', mediaRouter);
+  // Authoritative public metadata must run before historical static assets.
+  app.use(publicSeoRouter);
 
   // 5. Frontend Delivery: Vite middleware in Dev vs Static bundle in Production
   if (process.env.NODE_ENV !== 'production') {
