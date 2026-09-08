@@ -27,7 +27,7 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
-    const unsub = dataService.subscribeToProducts(setProducts);
+    const unsub = dataService.subscribeToAllProducts(setProducts);
     return () => unsub();
   }, []);
 

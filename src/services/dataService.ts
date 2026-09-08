@@ -217,6 +217,12 @@ class DataService {
     return this.subscribe(handler);
   }
 
+  public subscribeToAllProducts(listener: (products: AdminProductItem[]) => void): () => void {
+    const handler = () => listener(this.getAllProducts());
+    listener(this.getAllProducts());
+    return this.subscribe(handler);
+  }
+
   public subscribeToCompany(listener: (company: CompanyContactInfo) => void): () => void {
     const handler = () => listener(this.getCompanyInfo());
     listener(this.getCompanyInfo());
@@ -324,23 +330,31 @@ class DataService {
     return { success: true };
   }
 
-  public async toggleArchiveProduct(
+  public async setArchiveProduct(
     id: string,
+    isArchived: boolean,
     _user?: AdminUser | string
-  ): Promise<{ success: boolean; isArchived?: boolean }> {
-    const product = this.products.find((p) => p.id === id);
-    const newArchived = !Boolean(product?.isArchived);
-
-    const res = await productService.setArchiveStatus(id, newArchived);
+  ): Promise<{ success: boolean; isArchived?: boolean; error?: string }> {
+    const res = await productService.setArchiveStatus(id, isArchived);
     if (!res.success) {
-      return { success: false };
+      return { success: false, error: res.error.message };
     }
 
+    const product = this.products.find((p) => p.id === id);
     if (product) {
       product.isArchived = res.data.isArchived;
     }
     this.notifyListeners();
     return { success: true, isArchived: res.data.isArchived };
+  }
+
+  public async toggleArchiveProduct(
+    id: string,
+    _user?: AdminUser | string
+  ): Promise<{ success: boolean; isArchived?: boolean; error?: string }> {
+    const product = this.products.find((p) => p.id === id);
+    const targetState = product ? !product.isArchived : true;
+    return this.setArchiveProduct(id, targetState, _user);
   }
 
   public async duplicateProduct(

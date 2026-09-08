@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Language, BearingCategory, BearingProduct } from '../../types';
 import { AdminProductItem } from '../../types/admin';
 import { dataService } from '../../services/dataService';
+import { authService } from '../../services/authService';
 import { ProductFormModal } from './ProductFormModal';
 import { 
   Package, 
@@ -42,8 +43,12 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<AdminProductItem | null>(null);
 
+  const currentUser = authService.getCurrentUser();
+  const isSuperadmin = currentUser?.role === 'superadmin';
+
   useEffect(() => {
-    const unsub = dataService.subscribeToProducts(setProducts);
+    dataService.refreshFromServer();
+    const unsub = dataService.subscribeToAllProducts(setProducts);
     return () => unsub();
   }, []);
 
@@ -89,16 +94,31 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
     }
   };
 
-  const handleToggleArchive = (id: string, code: string, isArchived?: boolean) => {
+  const handleToggleArchive = async (id: string, code: string, isArchived?: boolean) => {
+    const targetState = !Boolean(isArchived);
     const actionName = isArchived ? (isFa ? 'بازیابی' : 'restore') : (isFa ? 'بایگانی' : 'archive');
     if (window.confirm(isFa ? `آیا از ${actionName} قطعه ${code} اطمینان دارید؟` : `Confirm ${actionName} for ${code}?`)) {
-      dataService.toggleArchiveProduct(id, 'admin');
+      const res = await dataService.setArchiveProduct(id, targetState, 'admin');
+      if (!res.success) {
+        alert(isFa ? `خطا در ${actionName}: ${res.error || 'خطای سرور'}` : `Failed to ${actionName}: ${res.error || 'Server error'}`);
+      }
     }
   };
 
-  const handleDelete = (id: string, code: string) => {
-    if (window.confirm(isFa ? `⚠️ هشدار امنیتی: آیا از حذف دائمی قطعه ${code} اطمینان کامل دارید؟` : `⚠️ Are you sure you want to permanently delete product ${code}?`)) {
-      dataService.deleteProduct(id, 'admin');
+  const handleDelete = async (id: string, code: string, isArchived?: boolean) => {
+    if (!isSuperadmin) {
+      alert(isFa ? 'دسترسی غیرمجاز: حذف دائمی کالا فقط توسط مدیر ارشد (Superadmin) امکان‌پذیر است.' : 'Forbidden: Permanent deletion requires superadmin role.');
+      return;
+    }
+    if (!isArchived) {
+      alert(isFa ? 'جهت ایمنی، حذف دائمی فقط پس از بایگانی کردن قطعه امکان‌پذیر است. لطفاً ابتدا کالا را بایگانی کنید.' : 'Safety check: Please archive the product before permanent deletion.');
+      return;
+    }
+    if (window.confirm(isFa ? `⚠️ هشدار امنیتی: آیا از حذف دائمی قطعه ${code} اطمینان کامل دارید؟ این عملیات غیرقابل بازگشت است.` : `⚠️ Security Warning: Are you sure you want to permanently delete product ${code}? This cannot be undone.`)) {
+      const res = await dataService.deleteProduct(id, 'admin');
+      if (!res.success) {
+        alert(isFa ? `خطا در حذف دائم کالا: ${res.error || 'خطای سرور'}` : `Failed to delete product: ${res.error || 'Server error'}`);
+      }
     }
   };
 
@@ -407,14 +427,25 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
                             {product.isArchived ? <Undo className="w-3.5 h-3.5 text-emerald-400" /> : <Archive className="w-3.5 h-3.5 text-amber-400" />}
                           </button>
 
-                          {/* Delete */}
-                          <button
-                            onClick={() => handleDelete(product.id, product.code)}
-                            className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 transition-colors"
-                            title={isFa ? 'حذف محصول' : 'Delete'}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {/* Delete (Superadmin only & Product must be archived) */}
+                          {isSuperadmin && (
+                            <button
+                              onClick={() => handleDelete(product.id, product.code, product.isArchived)}
+                              disabled={!product.isArchived}
+                              className={`p-1.5 rounded-lg border transition-colors ${
+                                product.isArchived
+                                  ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border-rose-500/20 cursor-pointer'
+                                  : 'bg-slate-800/40 text-slate-600 border-slate-800 cursor-not-allowed'
+                              }`}
+                              title={
+                                !product.isArchived
+                                  ? (isFa ? 'برای حذف، ابتدا باید کالا بایگانی شود' : 'Archive first to delete')
+                                  : (isFa ? 'حذف دائمی (مدیر ارشد)' : 'Permanently Delete (Superadmin)')
+                              }
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
 
                         </div>
                       </td>

@@ -74,8 +74,24 @@ export function rowToProduct(r: any): BearingProduct {
 }
 
 export function generateProductSlug(code: string, category = 'bearing'): string {
-  const cleanCode = code.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-  return `${cleanCode}-${category}`;
+  const cleanCode = code.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const cleanCategory = (category || 'bearing').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return `${cleanCode}-${cleanCategory}`;
+}
+
+export function ensureUniqueSlug(baseSlug: string, excludeProductId?: string): string {
+  const db = getDatabase();
+  let candidateSlug = baseSlug;
+  let counter = 2;
+
+  while (true) {
+    const row = db.prepare('SELECT id FROM products WHERE slug = ?;').get(candidateSlug) as { id: string } | undefined;
+    if (!row || (excludeProductId && row.id === excludeProductId)) {
+      return candidateSlug;
+    }
+    candidateSlug = `${baseSlug}-${counter}`;
+    counter++;
+  }
 }
 
 export const productDb = {
@@ -101,7 +117,8 @@ export const productDb = {
     const nowIso = new Date().toISOString();
     const cleanCode = String(productData.code).trim().toUpperCase();
     const id = productData.id || `prod_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const slug = productData.slug || generateProductSlug(cleanCode, productData.category);
+    const baseSlug = productData.slug || generateProductSlug(cleanCode, productData.category);
+    const slug = ensureUniqueSlug(baseSlug);
 
     const stmt = db.prepare(`
       INSERT INTO products (
@@ -195,9 +212,18 @@ export const productDb = {
     const nowIso = new Date().toISOString();
     const merged = { ...existing, ...updates };
 
+    const codeChanged = merged.code !== existing.code;
+    const categoryChanged = merged.category !== existing.category;
+    let targetSlug = existing.slug || generateProductSlug(merged.code, merged.category);
+
+    if (codeChanged || categoryChanged || !existing.slug) {
+      const baseSlug = generateProductSlug(merged.code, merged.category);
+      targetSlug = ensureUniqueSlug(baseSlug, id);
+    }
+
     db.prepare(`
       UPDATE products SET
-        code = ?, category = ?, name_fa = ?, name_en = ?,
+        code = ?, slug = ?, category = ?, name_fa = ?, name_en = ?,
         description_fa = ?, description_en = ?, in_stock = ?, featured = ?,
         d_inner = ?, d_outer = ?, b_width = ?, weight_kg = ?,
         cr_kn = ?, cor_kn = ?, speed_grease_rpm = ?, speed_oil_rpm = ?,
@@ -213,6 +239,7 @@ export const productDb = {
       WHERE id = ?;
     `).run(
       merged.code,
+      targetSlug,
       merged.category,
       merged.nameFa,
       merged.nameEn,
@@ -279,7 +306,8 @@ export const productDb = {
     }
 
     const newId = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const newSlug = generateProductSlug(candidateCode, existing.category);
+    const baseSlug = generateProductSlug(candidateCode, existing.category);
+    const newSlug = ensureUniqueSlug(baseSlug);
 
     const clonedData: any = {
       ...existing,
@@ -289,7 +317,7 @@ export const productDb = {
       nameFa: `${existing.nameFa} (کپی)`,
       nameEn: `${existing.nameEn} (Copy)`,
       featured: false,
-      isArchived: false,
+      isArchived: true,
       inStock: false,
     };
 

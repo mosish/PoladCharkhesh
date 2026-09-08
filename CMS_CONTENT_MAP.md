@@ -11,12 +11,14 @@ All CMS content records are stored in the authoritative SQLite `cms_content` tab
 
 ```sql
 CREATE TABLE IF NOT EXISTS cms_content (
-  id TEXT PRIMARY KEY,           -- section or page identifier (e.g., 'main', 'about', 'contact')
-  content_json TEXT NOT NULL,    -- serialized typed JSON payload
-  updated_by TEXT,               -- admin username or 'system'
-  updated_at TEXT NOT NULL       -- ISO 8601 timestamp
+  id TEXT PRIMARY KEY,           -- section or page identifier (e.g., 'main')
+  data TEXT NOT NULL,            -- serialized typed JSON payload
+  updated_at TEXT NOT NULL,      -- ISO 8601 timestamp
+  updated_by TEXT                -- admin username or 'system'
 );
 ```
+
+> **Schema Notice:** The production SQLite schema strictly uses the column name `data` (NOT `content_json`). All queries, migrations, and service handlers must interface with `data`.
 
 For modular expansion in Phase 7.2, sections may be retrieved individually or aggregated into the central store.
 
@@ -25,35 +27,37 @@ For modular expansion in Phase 7.2, sections may be retrieved individually or ag
 ## Comprehensive Content Map
 
 ### 1. Global Brand & Identity (`site_global`)
-| Field Key | Type | Description | Default / Example |
+| Field Key | Type | Description | Canonical / Runtime Value |
 | :--- | :--- | :--- | :--- |
-| `companyNameFa` | `string` | Official Persian brand name | پولاد چرخِش |
-| `companyNameEn` | `string` | Official English brand name | Polad Charkhesh |
-| `taglineFa` | `string` | Main Persian slogan | مرجع تخصصی تأمین بلبرینگ و رولبرینگ صنعتی |
-| `taglineEn` | `string` | Main English slogan | Industrial Bearings & Engineering Solutions |
+| `companyNameFa` | `string` | Official Persian brand name | بازرگانی مهندسی پولاد چرخِش |
+| `companyNameEn` | `string` | Official English brand name | Polad Charkhesh Engineering & Trading |
+| `taglineFa` | `string` | Main Persian slogan | مرجع تخصصی محاسبات و تأمین بلبرینگ و رولبرینگ صنعتی |
+| `taglineEn` | `string` | Main English slogan | Industrial Bearings & Engineering Calculations |
 | `logoUrl` | `string` | Main website logo path | `/logo.png` |
 | `faviconUrl` | `string` | Site favicon path | `/icon.png` |
 | `copyrightFa` | `string` | Footer copyright text | تمامی حقوق متعلق به شرکت بازرگانی مهندسی پولاد چرخِش است. |
-| `nationalId` | `string` | Commercial registration / national ID | شناسه ملی شرکت |
-| `economicCode` | `string` | Economic tax registration code | کد اقتصادی |
+| `nationalId` | `string` | Commercial registration / national ID | [EXAMPLE ONLY — DO NOT SEED] `14000000000` |
+| `economicCode` | `string` | Economic tax registration code | [EXAMPLE ONLY — DO NOT SEED] `411000000000` |
 
 ---
 
 ### 2. Contact & Communication Hub (`contact_info`)
-| Field Key | Type | Description | Default / Example |
+> **Runtime Rule:** Do not seed fake or placeholder phone numbers, emails, addresses, or working hours into production or runtime database state. The table below provides canonical contact values from `src/data/company.ts` alongside explicitly marked speculative fields.
+
+| Field Key | Type | Description | Value / Specification |
 | :--- | :--- | :--- | :--- |
-| `landlinePhones` | `string[]` | Central office landline numbers | `['021-33900000', '021-33910000']` |
-| `directWhatsApp` | `string` | Direct WhatsApp inquiry phone number | `+989120000000` |
-| `telegramHandle` | `string` | Official Telegram channel / username | `@PoladCharkhesh` |
-| `inquiryEmail` | `string` | Primary commercial inquiry email | `info@poladcharkhesh.com` |
-| `technicalEmail`| `string` | Engineering consultation email | `tech@poladcharkhesh.com` |
-| `officeAddressFa` | `string` | Central Tehran office address | تهران، خیابان سعدی جنوبی، کوچه ناظم‌الاطباء... |
-| `officeAddressEn` | `string` | English office address | Saadi South St., Tehran, Iran |
-| `warehouseAddressFa` | `string` | Industrial warehouse address | تهران، شورآباد، انبار مرکزی پولاد چرخِش |
-| `workingHoursWeekdays` | `string` | Working hours Saturday to Wednesday | شنبه تا چهارشنبه ۸:۳۰ الی ۱۷:۳۰ |
-| `workingHoursThursday` | `string` | Working hours Thursday | پنجشنبه‌ها ۸:۳۰ الی ۱۳:۳۰ |
-| `workingHoursFriday` | `string` | Weekend note | روزهای جمعه و تعطیلات رسمی: تعطیل |
-| `geoCoordinates` | `object` | Map latitude and longitude for office | `{ lat: 35.6892, lng: 51.3890 }` |
+| `landlinePhones` | `string[]` | Central office landline numbers | Canonical: `['021-77209117']` |
+| `directWhatsApp` | `string` | Direct WhatsApp inquiry phone number | Canonical: `+989127195313` |
+| `telegramHandle` | `string` | Official Telegram channel / username | [EXAMPLE ONLY — DO NOT SEED] `@PoladCharkhesh` |
+| `inquiryEmail` | `string` | Primary commercial inquiry email | Canonical: `info@poladcharkhesh.ir` |
+| `technicalEmail`| `string` | Engineering consultation email | Canonical: `tech@poladcharkhesh.ir` |
+| `officeAddressFa` | `string` | Central office address (Persian) | Canonical: `تهران، منطقه نارمک، خیابان دردشت، پلاک ۴۳۳` |
+| `officeAddressEn` | `string` | English office address | Canonical: `No. 433, Dardasht St, Narmak, Tehran, Iran` |
+| `warehouseAddressFa` | `string` | Industrial warehouse address | [EXAMPLE ONLY — DO NOT SEED] Optional secondary logistics site |
+| `workingHoursWeekdays` | `string` | Working hours Saturday to Wednesday | Canonical: `شنبه تا چهارشنبه: ۰۸:۰۰ الی ۱۶:۰۰` |
+| `workingHoursThursday` | `string` | Working hours Thursday | Canonical: `پنجشنبه: ۰۸:۰۰ الی ۱۲:۰۰` |
+| `workingHoursFriday` | `string` | Weekend note | Canonical: `جمعه و ایام تعطیل: تعطیل` |
+| `geoCoordinates` | `object` | Map latitude and longitude for office | Canonical: `{ lat: 35.7330, lng: 51.5120 }` |
 
 ---
 

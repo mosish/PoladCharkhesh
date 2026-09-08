@@ -35,7 +35,8 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
 
   useEffect(() => {
-    const unsubProducts = dataService.subscribeToProducts(setProducts);
+    dataService.refreshFromServer();
+    const unsubProducts = dataService.subscribeToAllProducts(setProducts);
     const unsubLogs = auditService.subscribe(setAuditLogs);
     return () => {
       unsubProducts();

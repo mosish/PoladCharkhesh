@@ -36,6 +36,7 @@ productRouter.get('/', (req: Request, res: Response) => {
 
 /**
  * GET /api/products/:idOrSlug
+ * Public detail endpoint. Archived products are hidden (404) unless requested by authenticated admin.
  */
 productRouter.get('/:idOrSlug', (req: Request, res: Response): void => {
   const idOrSlug = String(req.params.idOrSlug).trim();
@@ -44,6 +45,16 @@ productRouter.get('/:idOrSlug', (req: Request, res: Response): void => {
   if (!product) {
     res.status(404).json({ error: 'کالای مورد نظر یافت نشد.' });
     return;
+  }
+
+  // Public/anonymous requests must not expose archived products
+  if (product.isArchived) {
+    const token = req.cookies?.[CONFIG.COOKIE_NAME];
+    const isAdmin = token && verifySession(token).valid;
+    if (!isAdmin) {
+      res.status(404).json({ error: 'کالای مورد نظر یافت نشد.' });
+      return;
+    }
   }
 
   res.json({ product });
@@ -125,7 +136,7 @@ productRouter.put('/:id', requireAuth, (req: Request, res: Response): void => {
 
 /**
  * PATCH /api/products/:id/archive
- * Toggle archive/active status
+ * Explicit and idempotent archive status update: { isArchived: true | false }
  */
 productRouter.patch('/:id/archive', requireAuth, (req: Request, res: Response): void => {
   const id = String(req.params.id);
@@ -136,13 +147,18 @@ productRouter.patch('/:id/archive', requireAuth, (req: Request, res: Response): 
     return;
   }
 
-  const newArchived = !product.isArchived;
-  productDb.setProductArchive(id, newArchived, req.admin!.username);
+  if (typeof req.body?.isArchived !== 'boolean') {
+    res.status(400).json({ error: 'فیلد isArchived الزامی است و باید مقدار بولی (true یا false) داشته باشد.' });
+    return;
+  }
 
-  const actionName = newArchived ? 'PRODUCT_ARCHIVED' : 'PRODUCT_RESTORED';
-  logAudit(actionName, 'product', `${newArchived ? 'بایگانی' : 'بازیابی'} قطعه ${product.code}`, req, id);
+  const targetArchived = req.body.isArchived;
+  productDb.setProductArchive(id, targetArchived, req.admin!.username);
 
-  res.json({ success: true, isArchived: newArchived });
+  const actionName = targetArchived ? 'PRODUCT_ARCHIVED' : 'PRODUCT_RESTORED';
+  logAudit(actionName, 'product', `${targetArchived ? 'بایگانی' : 'بازیابی'} قطعه ${product.code}`, req, id);
+
+  res.json({ success: true, isArchived: targetArchived });
 });
 
 /**
@@ -210,9 +226,18 @@ productRouter.patch('/:id/stock', requireAuth, (req: Request, res: Response): vo
 
 /**
  * DELETE /api/products/:id
- * Delete product permanently
+ * Delete product permanently (Requires authenticated session + superadmin role).
+ * Product must already be archived before permanent deletion.
  */
 productRouter.delete('/:id', requireAuth, (req: Request, res: Response): void => {
+  if (req.admin?.role !== 'superadmin') {
+    res.status(403).json({
+      error: 'سطح دسترسی شما برای حذف دائم کافی نمی‌باشد. فقط مدیر ارشد (Superadmin) مجاز به حذف دائمی است.',
+      code: 'FORBIDDEN',
+    });
+    return;
+  }
+
   const id = String(req.params.id);
   const product = productDb.getProductByIdOrSlug(id);
 
@@ -221,8 +246,18 @@ productRouter.delete('/:id', requireAuth, (req: Request, res: Response): void =>
     return;
   }
 
+  if (!product.isArchived) {
+    res.status(400).json({
+      error: 'جهت جلوگیری از خطای سهوی، حذف دائم فقط پس از بایگانی کردن قطعه امکان‌پذیر است. لطفاً ابتدا کالا را بایگانی نمایید.',
+      code: 'MUST_BE_ARCHIVED',
+    });
+    return;
+  }
+
   productDb.deleteProduct(id);
-  logAudit('PRODUCT_DELETED', 'product', `حذف دائم قطعه ${product.code} از سیستم`, req, id);
+  logAudit('PRODUCT_DELETED', 'product', `حذف دائم قطعه ${product.code} از سیستم توسط مدیر ارشد`, req, id, {
+    deletedBy: req.admin.username,
+  });
 
   res.json({ success: true, message: `قطعه ${product.code} با موفقیت حذف گردید.` });
 });
