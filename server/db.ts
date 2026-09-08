@@ -194,6 +194,23 @@ export function initSchema(db: DatabaseSync): void {
       snapshot_data TEXT NOT NULL
     );
   `);
+
+  // Safe schema migrations for extended bearing technical attributes
+  const safeAddColumn = (table: string, column: string, typeDef: string) => {
+    try {
+      const info = db.prepare(`PRAGMA table_info(${table});`).all() as any[];
+      if (!info.some((c) => c.name === column)) {
+        db.prepare(`ALTER TABLE ${table} ADD COLUMN ${column} ${typeDef};`).run();
+      }
+    } catch {
+      // Ignored if column already exists
+    }
+  };
+
+  safeAddColumn('products', 'speed_reference_type', 'TEXT');
+  safeAddColumn('products', 'contact_angle', 'TEXT');
+  safeAddColumn('products', 'calculation_factor_x', 'REAL');
+  safeAddColumn('products', 'keywords', 'TEXT');
 }
 
 /**

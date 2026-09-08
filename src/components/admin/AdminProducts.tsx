@@ -17,7 +17,9 @@ import {
   Filter,
   Layers,
   ArrowUpDown,
-  Calculator
+  Calculator,
+  Copy,
+  Star
 } from 'lucide-react';
 
 interface AdminProductsProps {
@@ -98,6 +100,23 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
     if (window.confirm(isFa ? `⚠️ هشدار امنیتی: آیا از حذف دائمی قطعه ${code} اطمینان کامل دارید؟` : `⚠️ Are you sure you want to permanently delete product ${code}?`)) {
       dataService.deleteProduct(id, 'admin');
     }
+  };
+
+  const handleDuplicate = async (id: string, code: string) => {
+    if (window.confirm(isFa ? `آیا می‌خواهید یک نسخه رونوشت مهندسی از قطعه ${code} ایجاد شود؟` : `Duplicate product ${code}?`)) {
+      const res = await dataService.duplicateProduct(id, 'admin');
+      if (!res.success) {
+        alert(isFa ? `خطا در کپی محصول: ${res.error || 'خطای نامشخص'}` : `Failed to duplicate: ${res.error || 'Unknown error'}`);
+      }
+    }
+  };
+
+  const handleToggleFeatured = async (id: string) => {
+    await dataService.toggleFeaturedProduct(id, 'admin');
+  };
+
+  const handleToggleStock = async (id: string) => {
+    await dataService.toggleStockProduct(id, 'admin');
   };
 
   return (
@@ -256,11 +275,18 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
                           <span className="font-mono font-bold text-white text-sm">
                             {product.code}
                           </span>
-                          {product.featured && (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-bold">
-                              Featured
-                            </span>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFeatured(product.id)}
+                            title={product.featured ? (isFa ? 'حذف از کالاهای شاخص' : 'Remove from featured') : (isFa ? 'نشانه‌گذاری به عنوان شاخص' : 'Mark as featured')}
+                            className={`p-0.5 rounded transition-colors ${
+                              product.featured 
+                                ? 'text-amber-400 hover:text-amber-300' 
+                                : 'text-slate-600 hover:text-slate-400'
+                            }`}
+                          >
+                            <Star className={`w-3.5 h-3.5 ${product.featured ? 'fill-amber-400' : ''}`} />
+                          </button>
                         </div>
                         <span className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
                           {isFa ? product.nameFa : product.nameEn}
@@ -327,15 +353,26 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
                             <Archive className="w-3 h-3" />
                             <span>{isFa ? 'بایگانی' : 'Archived'}</span>
                           </span>
-                        ) : product.inStock ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>{isFa ? 'موجود' : 'In Stock'}</span>
-                          </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
-                            <span>{isFa ? 'استعلامی' : 'Inquiry'}</span>
-                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStock(product.id)}
+                            title={isFa ? 'تغییر وضعیت موجودی' : 'Toggle Stock Status'}
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors ${
+                              product.inStock 
+                                ? 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30' 
+                                : 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
+                            }`}
+                          >
+                            {product.inStock ? (
+                              <>
+                                <CheckCircle2 className="w-3 h-3" />
+                                <span>{isFa ? 'موجود' : 'In Stock'}</span>
+                              </>
+                            ) : (
+                              <span>{isFa ? 'استعلامی' : 'Inquiry'}</span>
+                            )}
+                          </button>
                         )}
                       </td>
 
@@ -350,6 +387,15 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
                             title={isFa ? 'ویرایش مشخصات فنی' : 'Edit specs'}
                           >
                             <Edit className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Duplicate Button */}
+                          <button
+                            onClick={() => handleDuplicate(product.id, product.code)}
+                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600/30 text-slate-300 hover:text-indigo-300 border border-slate-700 transition-colors"
+                            title={isFa ? 'ایجاد رونوشت / کپی محصول' : 'Duplicate product'}
+                          >
+                            <Copy className="w-3.5 h-3.5" />
                           </button>
 
                           {/* Archive/Restore */}

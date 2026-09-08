@@ -38,6 +38,7 @@ export function rowToProduct(r: any): BearingProduct {
     speedGreaseRpm: Number(r.speed_grease_rpm),
     speedOilRpm: Number(r.speed_oil_rpm),
     thermalSpeedRatingRpm: r.thermal_speed_rating_rpm !== null && r.thermal_speed_rating_rpm !== undefined ? Number(r.thermal_speed_rating_rpm) : undefined,
+    speedReferenceType: r.speed_reference_type || undefined,
     cageMaterialFa: r.cage_material_fa || '',
     cageMaterialEn: r.cage_material_en || '',
     sealingFa: r.sealing_fa || '',
@@ -45,11 +46,13 @@ export function rowToProduct(r: any): BearingProduct {
     clearanceOptions: safeJsonParse<string[]>(r.clearance_options, ['Normal', 'C3']),
     schematicType: r.schematic_type || 'tapered',
     rMin: r.r_min !== null && r.r_min !== undefined ? Number(r.r_min) : undefined,
+    contactAngle: r.contact_angle || undefined,
     calculationFactorE: r.calculation_factor_e !== null && r.calculation_factor_e !== undefined ? Number(r.calculation_factor_e) : undefined,
     calculationFactorY: r.calculation_factor_y !== null && r.calculation_factor_y !== undefined ? Number(r.calculation_factor_y) : undefined,
     calculationFactorY0: r.calculation_factor_y0 !== null && r.calculation_factor_y0 !== undefined ? Number(r.calculation_factor_y0) : undefined,
     calculationFactorY1: r.calculation_factor_y1 !== null && r.calculation_factor_y1 !== undefined ? Number(r.calculation_factor_y1) : undefined,
     calculationFactorY2: r.calculation_factor_y2 !== null && r.calculation_factor_y2 !== undefined ? Number(r.calculation_factor_y2) : undefined,
+    calculationFactorX: r.calculation_factor_x !== null && r.calculation_factor_x !== undefined ? Number(r.calculation_factor_x) : undefined,
     calculationFactorF0: r.calculation_factor_f0 !== null && r.calculation_factor_f0 !== undefined ? Number(r.calculation_factor_f0) : undefined,
     imageUrl: r.image_url || '/icon.png',
     images: safeJsonParse<string[]>(r.images, [r.image_url || '/icon.png']),
@@ -63,6 +66,7 @@ export function rowToProduct(r: any): BearingProduct {
     metaTitleEn: r.meta_title_en || undefined,
     metaDescriptionFa: r.meta_description_fa || undefined,
     metaDescriptionEn: r.meta_description_en || undefined,
+    keywords: safeJsonParse<string[]>(r.keywords, []),
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     updatedBy: r.updated_by || undefined,
@@ -103,25 +107,25 @@ export const productDb = {
       INSERT INTO products (
         id, code, slug, category, name_fa, name_en, description_fa, description_en,
         in_stock, featured, is_archived, d_inner, d_outer, b_width, weight_kg,
-        cr_kn, cor_kn, speed_grease_rpm, speed_oil_rpm, thermal_speed_rating_rpm,
+        cr_kn, cor_kn, speed_grease_rpm, speed_oil_rpm, thermal_speed_rating_rpm, speed_reference_type,
         cage_material_fa, cage_material_en, sealing_fa, sealing_en,
-        clearance_options, schematic_type, r_min,
+        clearance_options, schematic_type, r_min, contact_angle,
         calculation_factor_e, calculation_factor_y, calculation_factor_y0,
-        calculation_factor_y1, calculation_factor_y2, calculation_factor_f0,
+        calculation_factor_y1, calculation_factor_y2, calculation_factor_x, calculation_factor_f0,
         image_url, images, pdf_url, brands, applications_fa, applications_en,
         industry_ids, technical_sources, meta_title_fa, meta_title_en,
-        meta_description_fa, meta_description_en, created_at, updated_at, updated_by
+        meta_description_fa, meta_description_en, keywords, created_at, updated_at, updated_by
       ) VALUES (
         ?, ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?,
-        ?, ?, ?, ?,
-        ?, ?, ?,
-        ?, ?, ?,
-        ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?,
-        ?, ?, ?, ?, ?
+        ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?
       );
     `);
 
@@ -146,6 +150,7 @@ export const productDb = {
       Number(productData.speedGreaseRpm || 0),
       Number(productData.speedOilRpm || productData.speedGreaseRpm || 0),
       productData.thermalSpeedRatingRpm !== undefined && productData.thermalSpeedRatingRpm !== null ? Number(productData.thermalSpeedRatingRpm) : null,
+      productData.speedReferenceType || null,
       productData.cageMaterialFa || '',
       productData.cageMaterialEn || '',
       productData.sealingFa || '',
@@ -153,11 +158,13 @@ export const productDb = {
       JSON.stringify(productData.clearanceOptions || ['Normal', 'C3']),
       productData.schematicType || 'tapered',
       productData.rMin !== undefined && productData.rMin !== null ? Number(productData.rMin) : null,
+      productData.contactAngle || null,
       productData.calculationFactorE !== undefined && productData.calculationFactorE !== null ? Number(productData.calculationFactorE) : null,
       productData.calculationFactorY !== undefined && productData.calculationFactorY !== null ? Number(productData.calculationFactorY) : null,
       productData.calculationFactorY0 !== undefined && productData.calculationFactorY0 !== null ? Number(productData.calculationFactorY0) : null,
       productData.calculationFactorY1 !== undefined && productData.calculationFactorY1 !== null ? Number(productData.calculationFactorY1) : null,
       productData.calculationFactorY2 !== undefined && productData.calculationFactorY2 !== null ? Number(productData.calculationFactorY2) : null,
+      productData.calculationFactorX !== undefined && productData.calculationFactorX !== null ? Number(productData.calculationFactorX) : null,
       productData.calculationFactorF0 !== undefined && productData.calculationFactorF0 !== null ? Number(productData.calculationFactorF0) : null,
       productData.imageUrl || '/icon.png',
       JSON.stringify(productData.images || [productData.imageUrl || '/icon.png']),
@@ -171,6 +178,7 @@ export const productDb = {
       productData.metaTitleEn || null,
       productData.metaDescriptionFa || null,
       productData.metaDescriptionEn || null,
+      JSON.stringify(productData.keywords || []),
       nowIso,
       nowIso,
       username
@@ -193,14 +201,14 @@ export const productDb = {
         description_fa = ?, description_en = ?, in_stock = ?, featured = ?,
         d_inner = ?, d_outer = ?, b_width = ?, weight_kg = ?,
         cr_kn = ?, cor_kn = ?, speed_grease_rpm = ?, speed_oil_rpm = ?,
-        thermal_speed_rating_rpm = ?, cage_material_fa = ?, cage_material_en = ?,
+        thermal_speed_rating_rpm = ?, speed_reference_type = ?, cage_material_fa = ?, cage_material_en = ?,
         sealing_fa = ?, sealing_en = ?, clearance_options = ?, schematic_type = ?,
-        r_min = ?, calculation_factor_e = ?, calculation_factor_y = ?,
+        r_min = ?, contact_angle = ?, calculation_factor_e = ?, calculation_factor_y = ?,
         calculation_factor_y0 = ?, calculation_factor_y1 = ?, calculation_factor_y2 = ?,
-        calculation_factor_f0 = ?, image_url = ?, images = ?, pdf_url = ?,
+        calculation_factor_x = ?, calculation_factor_f0 = ?, image_url = ?, images = ?, pdf_url = ?,
         brands = ?, applications_fa = ?, applications_en = ?, industry_ids = ?,
         technical_sources = ?, meta_title_fa = ?, meta_title_en = ?,
-        meta_description_fa = ?, meta_description_en = ?,
+        meta_description_fa = ?, meta_description_en = ?, keywords = ?,
         updated_at = ?, updated_by = ?
       WHERE id = ?;
     `).run(
@@ -221,6 +229,7 @@ export const productDb = {
       Number(merged.speedGreaseRpm),
       Number(merged.speedOilRpm || merged.speedGreaseRpm),
       merged.thermalSpeedRatingRpm !== undefined && merged.thermalSpeedRatingRpm !== null ? Number(merged.thermalSpeedRatingRpm) : null,
+      merged.speedReferenceType || null,
       merged.cageMaterialFa || '',
       merged.cageMaterialEn || '',
       merged.sealingFa || '',
@@ -228,11 +237,13 @@ export const productDb = {
       JSON.stringify(merged.clearanceOptions || ['Normal', 'C3']),
       merged.schematicType || 'tapered',
       merged.rMin !== undefined && merged.rMin !== null ? Number(merged.rMin) : null,
+      merged.contactAngle || null,
       merged.calculationFactorE !== undefined && merged.calculationFactorE !== null ? Number(merged.calculationFactorE) : null,
       merged.calculationFactorY !== undefined && merged.calculationFactorY !== null ? Number(merged.calculationFactorY) : null,
       merged.calculationFactorY0 !== undefined && merged.calculationFactorY0 !== null ? Number(merged.calculationFactorY0) : null,
       merged.calculationFactorY1 !== undefined && merged.calculationFactorY1 !== null ? Number(merged.calculationFactorY1) : null,
       merged.calculationFactorY2 !== undefined && merged.calculationFactorY2 !== null ? Number(merged.calculationFactorY2) : null,
+      merged.calculationFactorX !== undefined && merged.calculationFactorX !== null ? Number(merged.calculationFactorX) : null,
       merged.calculationFactorF0 !== undefined && merged.calculationFactorF0 !== null ? Number(merged.calculationFactorF0) : null,
       merged.imageUrl || '/icon.png',
       JSON.stringify(merged.images || [merged.imageUrl || '/icon.png']),
@@ -246,6 +257,7 @@ export const productDb = {
       merged.metaTitleEn || null,
       merged.metaDescriptionFa || null,
       merged.metaDescriptionEn || null,
+      JSON.stringify(merged.keywords || []),
       nowIso,
       username,
       id
@@ -254,12 +266,60 @@ export const productDb = {
     return this.getProductByIdOrSlug(id);
   },
 
+  duplicateProduct(id: string, username: string): BearingProduct | null {
+    const existing = this.getProductByIdOrSlug(id);
+    if (!existing) return null;
+
+    const db = getDatabase();
+    let candidateCode = `${existing.code}-COPY`;
+    let counter = 2;
+    while (db.prepare('SELECT id FROM products WHERE UPPER(code) = ?;').get(candidateCode.toUpperCase())) {
+      candidateCode = `${existing.code}-COPY-${counter}`;
+      counter++;
+    }
+
+    const newId = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const newSlug = generateProductSlug(candidateCode, existing.category);
+
+    const clonedData: any = {
+      ...existing,
+      id: newId,
+      code: candidateCode,
+      slug: newSlug,
+      nameFa: `${existing.nameFa} (کپی)`,
+      nameEn: `${existing.nameEn} (Copy)`,
+      featured: false,
+      isArchived: false,
+      inStock: false,
+    };
+
+    return this.createProduct(clonedData, username);
+  },
+
   setProductArchive(id: string, isArchived: boolean, username: string): boolean {
     const db = getDatabase();
     const nowIso = new Date().toISOString();
     const res = db.prepare(
       'UPDATE products SET is_archived = ?, updated_at = ?, updated_by = ? WHERE id = ?;'
     ).run(isArchived ? 1 : 0, nowIso, username, id);
+    return res.changes > 0;
+  },
+
+  setProductFeatured(id: string, featured: boolean, username: string): boolean {
+    const db = getDatabase();
+    const nowIso = new Date().toISOString();
+    const res = db.prepare(
+      'UPDATE products SET featured = ?, updated_at = ?, updated_by = ? WHERE id = ?;'
+    ).run(featured ? 1 : 0, nowIso, username, id);
+    return res.changes > 0;
+  },
+
+  setProductStock(id: string, inStock: boolean, username: string): boolean {
+    const db = getDatabase();
+    const nowIso = new Date().toISOString();
+    const res = db.prepare(
+      'UPDATE products SET in_stock = ?, updated_at = ?, updated_by = ? WHERE id = ?;'
+    ).run(inStock ? 1 : 0, nowIso, username, id);
     return res.changes > 0;
   },
 

@@ -57,6 +57,27 @@ export const productService = {
   },
 
   /**
+   * Duplicate an existing product with a unique technical code and slug.
+   */
+  async duplicateProduct(id: string): Promise<ApiResponse<{ success: boolean; product: AdminProductItem }>> {
+    return apiClient.post<{ success: boolean; product: AdminProductItem }>(`/api/products/${encodeURIComponent(id)}/duplicate`);
+  },
+
+  /**
+   * Toggle or set featured status for catalog highlight.
+   */
+  async setFeaturedStatus(id: string, featured?: boolean): Promise<ApiResponse<{ success: boolean; featured: boolean }>> {
+    return apiClient.patch<{ success: boolean; featured: boolean }>(`/api/products/${encodeURIComponent(id)}/featured`, { featured });
+  },
+
+  /**
+   * Toggle or set stock/inquiry status.
+   */
+  async setStockStatus(id: string, inStock?: boolean): Promise<ApiResponse<{ success: boolean; inStock: boolean }>> {
+    return apiClient.patch<{ success: boolean; inStock: boolean }>(`/api/products/${encodeURIComponent(id)}/stock`, { inStock });
+  },
+
+  /**
    * Permanently delete product from database (Superadmin only).
    */
   async deleteProduct(id: string): Promise<ApiResponse<{ success: boolean; message: string }>> {

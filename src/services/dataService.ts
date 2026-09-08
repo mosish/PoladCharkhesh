@@ -343,6 +343,59 @@ class DataService {
     return { success: true, isArchived: res.data.isArchived };
   }
 
+  public async duplicateProduct(
+    id: string,
+    _user?: AdminUser | string
+  ): Promise<{ success: boolean; product?: BearingProduct; error?: string }> {
+    const res = await productService.duplicateProduct(id);
+    if (!res.success) {
+      return { success: false, error: res.error.message };
+    }
+
+    const cloned = res.data.product;
+    this.products.unshift(cloned);
+    this.notifyListeners();
+    return { success: true, product: cloned };
+  }
+
+  public async toggleFeaturedProduct(
+    id: string,
+    _user?: AdminUser | string
+  ): Promise<{ success: boolean; featured?: boolean }> {
+    const product = this.products.find((p) => p.id === id);
+    const newFeatured = !Boolean(product?.featured);
+
+    const res = await productService.setFeaturedStatus(id, newFeatured);
+    if (!res.success) {
+      return { success: false };
+    }
+
+    if (product) {
+      product.featured = res.data.featured;
+    }
+    this.notifyListeners();
+    return { success: true, featured: res.data.featured };
+  }
+
+  public async toggleStockProduct(
+    id: string,
+    _user?: AdminUser | string
+  ): Promise<{ success: boolean; inStock?: boolean }> {
+    const product = this.products.find((p) => p.id === id);
+    const newStock = !Boolean(product?.inStock);
+
+    const res = await productService.setStockStatus(id, newStock);
+    if (!res.success) {
+      return { success: false };
+    }
+
+    if (product) {
+      product.inStock = res.data.inStock;
+    }
+    this.notifyListeners();
+    return { success: true, inStock: res.data.inStock };
+  }
+
   // ==========================================
   // COMPANY & CMS & SEO
   // ==========================================

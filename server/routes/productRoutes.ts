@@ -146,6 +146,69 @@ productRouter.patch('/:id/archive', requireAuth, (req: Request, res: Response): 
 });
 
 /**
+ * POST /api/products/:id/duplicate
+ * Duplicate an existing bearing product
+ */
+productRouter.post('/:id/duplicate', requireAuth, (req: Request, res: Response): void => {
+  const id = String(req.params.id);
+  const duplicated = productDb.duplicateProduct(id, req.admin!.username);
+
+  if (!duplicated) {
+    res.status(404).json({ success: false, error: 'کالای مبدا یافت نشد.' });
+    return;
+  }
+
+  logAudit('PRODUCT_DUPLICATED', 'product', `کالای ${duplicated.code} از روی شناسه ${id} تکثیر گردید.`, req, duplicated.id, {
+    originalId: id,
+    newCode: duplicated.code,
+  });
+
+  res.status(201).json({ success: true, product: duplicated });
+});
+
+/**
+ * PATCH /api/products/:id/featured
+ * Toggle or set featured status
+ */
+productRouter.patch('/:id/featured', requireAuth, (req: Request, res: Response): void => {
+  const id = String(req.params.id);
+  const product = productDb.getProductByIdOrSlug(id);
+
+  if (!product) {
+    res.status(404).json({ error: 'کالا یافت نشد.' });
+    return;
+  }
+
+  const newFeatured = typeof req.body?.featured === 'boolean' ? req.body.featured : !product.featured;
+  productDb.setProductFeatured(id, newFeatured, req.admin!.username);
+
+  logAudit('PRODUCT_FEATURED_TOGGLED', 'product', `وضعیت کالا منتخب برای ${product.code} به ${newFeatured} تغییر یافت.`, req, id);
+
+  res.json({ success: true, featured: newFeatured });
+});
+
+/**
+ * PATCH /api/products/:id/stock
+ * Toggle or set stock/inquiry status
+ */
+productRouter.patch('/:id/stock', requireAuth, (req: Request, res: Response): void => {
+  const id = String(req.params.id);
+  const product = productDb.getProductByIdOrSlug(id);
+
+  if (!product) {
+    res.status(404).json({ error: 'کالا یافت نشد.' });
+    return;
+  }
+
+  const newStock = typeof req.body?.inStock === 'boolean' ? req.body.inStock : !product.inStock;
+  productDb.setProductStock(id, newStock, req.admin!.username);
+
+  logAudit('PRODUCT_STOCK_TOGGLED', 'product', `وضعیت موجودی انبار برای ${product.code} به ${newStock} تغییر یافت.`, req, id);
+
+  res.json({ success: true, inStock: newStock });
+});
+
+/**
  * DELETE /api/products/:id
  * Delete product permanently
  */
