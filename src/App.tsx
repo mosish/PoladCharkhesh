@@ -349,14 +349,18 @@ export default function App() {
         onNavigateSection={handleSectionNavigate}
       />
 
-      {/* Controlled Degraded State Notice if SQLite backend is offline */}
+      {/* Controlled degraded-state notice if the authoritative SQLite backend is offline */}
       {syncState.status === 'degraded' && (
         <div id="backend-degraded-banner" className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-center text-xs text-amber-800 font-medium flex items-center justify-center gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
           <span>
-            {language === 'fa'
-              ? 'ارتباط با پایگاه داده برخط سرور در دسترس نیست؛ اطلاعات کاتالوگ در حالت مرجع آفلاین نمایش داده می‌شود.'
-              : 'Server database connection is currently offline; catalog is operating in offline reference mode.'}
+            {import.meta.env.DEV
+              ? (language === 'fa'
+                  ? 'ارتباط با پایگاه داده سرور در دسترس نیست؛ نسخه توسعه در حالت مرجع آفلاین اجرا می‌شود.'
+                  : 'Server database connection is unavailable; the development build is using offline reference data.')
+              : (language === 'fa'
+                  ? 'ارتباط با کاتالوگ زنده سرور در دسترس نیست؛ برای جلوگیری از نمایش داده استاتیک قدیمی، نسخه مرجع جایگزین به‌عنوان کاتالوگ جاری نمایش داده نمی‌شود.'
+                  : 'The live server catalog is unavailable. To avoid presenting stale bundled data as current, the static reference catalog is not used as a production fallback.')}
           </span>
         </div>
       )}

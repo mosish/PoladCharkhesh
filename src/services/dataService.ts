@@ -94,8 +94,10 @@ export interface DataSyncState {
 }
 
 class DataService {
-  // Authoritative runtime dataset (sourced directly from SQLite backend API)
-  private products: BearingProduct[] = [...canonicalProducts];
+  // Runtime authority is the SQLite-backed API.
+  // Static canonical products are permitted only as an explicit development reference fallback.
+  // Production must never silently present bundled product data as the current catalog.
+  private products: BearingProduct[] = import.meta.env.PROD ? [] : [...canonicalProducts];
   private companyInfo: CompanyContactInfo = { ...canonicalCompanyInfo };
   private pageContent: CmsPageContent = { ...DEFAULT_PAGE_CONTENT };
   private seoConfig: SiteSeoConfig = { ...DEFAULT_SEO_CONFIG };
