@@ -333,10 +333,14 @@ export interface MediaUploadInput {
   mimeType: string;
   sizeBytes: number;
   url: string;
+  filename?: string;
   altTextFa?: string;
   altTextEn?: string;
   category?: MediaCategory;
+  associatedProductCodes?: string[];
 }
+
+export type MediaUpdateInput = Partial<MediaUploadInput>;
 
 // ==========================================
 // 8. PRODUCT CONTRACTS & INPUTS
