@@ -1,6 +1,7 @@
 import React from 'react';
 import { Language } from '../types';
-import { translations, teamMembers } from '../data/translations';
+import { translations } from '../data/translations';
+import { usePageContent, useCompanyInfo } from '../services/dataService';
 import { 
   Users, 
   Phone, 
@@ -13,6 +14,9 @@ interface TeamMembersProps {
 
 export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
   const t = translations[language];
+  const pageContent = usePageContent();
+  const company = useCompanyInfo();
+  const content = pageContent.team;
 
   return (
     <section id="team" className="py-16 sm:py-24 relative">
@@ -22,19 +26,19 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
             <Users className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{t.team.tag}</span>
+            <span>{language === 'fa' ? content.tagFa : content.tagEn}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {t.team.title}
+            {language === 'fa' ? content.titleFa : content.titleEn}
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600">
-            {t.team.subtitle}
+            {language === 'fa' ? content.subtitleFa : content.subtitleEn}
           </p>
         </div>
 
         {/* Team Grid (Apple Liquid Glass Cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {teamMembers.map((member) => (
+          {content.members.map((member) => (
             <div
               key={member.id}
               className="glass-card rounded-3xl overflow-hidden flex flex-col justify-between group"
@@ -80,14 +84,14 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
                 {/* Direct Contact Button */}
                 <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
                   <a
-                    href={`tel:${member.phone}`}
+                    href={`tel:${member.phone || company.primaryPhone}`}
                     className="flex items-center gap-1.5 text-slate-700 hover:text-[#232c86] font-mono-spec font-semibold glass-pill px-2.5 py-1 rounded-full shadow-sm"
                   >
                     <Phone className="w-3.5 h-3.5 text-[#232c86]" />
-                    <span>{member.phone}</span>
+                    <span>{member.phone || company.primaryPhone}</span>
                   </a>
                   <a
-                    href={`https://wa.me/98${member.phone?.startsWith('0') ? member.phone.slice(1) : member.phone}`}
+                    href={member.phone ? `https://wa.me/98${member.phone.startsWith('0') ? member.phone.slice(1) : member.phone}` : company.whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-full bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors shadow-sm"
