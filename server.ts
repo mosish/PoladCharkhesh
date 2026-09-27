@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import fs from 'node:fs';
 import { createServer as createViteServer } from 'vite';
 import { CONFIG } from './server/config';
 import { getDatabase } from './server/db';
@@ -44,6 +45,14 @@ async function startServer() {
   } catch (err) {
     console.error('Database startup initialization failed:', err);
   }
+
+  // Runtime media storage is persistent and served independently of the Vite build.
+  fs.mkdirSync(CONFIG.UPLOAD_DIR, { recursive: true });
+  app.use('/uploads', express.static(CONFIG.UPLOAD_DIR, {
+    index: false,
+    fallthrough: true,
+    maxAge: CONFIG.isProduction ? '7d' : 0,
+  }));
 
   // 4. API Endpoints
   app.get('/api/health', (req, res) => {
