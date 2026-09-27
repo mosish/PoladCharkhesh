@@ -29,7 +29,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
   ];
 
   return (
-    <section id="about" className="py-16 sm:py-24 relative">
+    <section id="about" className="site-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -58,11 +58,11 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
                 <Target className="w-6 h-6" />
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-                {t.about.missionTitle}
+                {language === 'fa' ? aboutContent.missionTitleFa : aboutContent.missionTitleEn}
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              {t.about.missionText}
+              {language === 'fa' ? aboutContent.missionTextFa : aboutContent.missionTextEn}
             </p>
           </div>
 
@@ -73,18 +73,18 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
                 <Award className="w-6 h-6" />
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-                {t.about.visionTitle}
+                {language === 'fa' ? aboutContent.visionTitleFa : aboutContent.visionTitleEn}
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              {t.about.visionText}
+              {language === 'fa' ? aboutContent.visionTextFa : aboutContent.visionTextEn}
             </p>
           </div>
         </div>
 
         {/* 4 Pillars Grid (Apple Liquid Glass Cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {t.about.features.map((feat, idx) => (
+          {aboutContent.features.map((feat, idx) => (
             <div
               key={idx}
               className="p-6 sm:p-7 glass-card rounded-3xl group"
@@ -93,10 +93,10 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
                 {featureIcons[idx]}
               </div>
               <h4 className="text-sm sm:text-base font-bold text-slate-900 mb-2">
-                {feat.title}
+                {language === 'fa' ? feat.titleFa : feat.titleEn}
               </h4>
               <p className="text-xs text-slate-500 leading-relaxed">
-                {feat.desc}
+                {language === 'fa' ? feat.descriptionFa : feat.descriptionEn}
               </p>
             </div>
           ))}
