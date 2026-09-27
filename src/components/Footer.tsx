@@ -138,13 +138,13 @@ export const Footer: React.FC<FooterProps> = ({
               {t.footer.quickLinks}
             </h4>
             <ul className="space-y-2 text-slate-400">
-              <li><a href="#about" onClick={(e) => handleLinkClick(e, 'about')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.about}</a></li>
-              <li><a href="#catalog" onClick={(e) => handleLinkClick(e, 'catalog')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.products}</a></li>
-              <li><a href="#tools" onClick={(e) => handleLinkClick(e, 'tools')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.tools}</a></li>
-              <li><a href="#why-us" onClick={(e) => handleLinkClick(e, 'why-us')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.whyUs}</a></li>
-              <li><a href="#industries" onClick={(e) => handleLinkClick(e, 'industries')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.industries}</a></li>
-              <li><a href="#team" onClick={(e) => handleLinkClick(e, 'team')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.team}</a></li>
-              <li><a href="#contact" onClick={(e) => handleLinkClick(e, 'contact')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.contact}</a></li>
+              {pageContent.visibility.about && <li><a href="#about" onClick={(e) => handleLinkClick(e, 'about')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.about}</a></li>}
+              {pageContent.visibility.catalog && <li><a href="#catalog" onClick={(e) => handleLinkClick(e, 'catalog')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.products}</a></li>}
+              {pageContent.visibility.tools && <li><a href="#tools" onClick={(e) => handleLinkClick(e, 'tools')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.tools}</a></li>}
+              {pageContent.visibility.whyUs && <li><a href="#why-us" onClick={(e) => handleLinkClick(e, 'why-us')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.whyUs}</a></li>}
+              {pageContent.visibility.industries && <li><a href="#industries" onClick={(e) => handleLinkClick(e, 'industries')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.industries}</a></li>}
+              {pageContent.visibility.team && <li><a href="#team" onClick={(e) => handleLinkClick(e, 'team')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.team}</a></li>}
+              {pageContent.visibility.contact && <li><a href="#contact" onClick={(e) => handleLinkClick(e, 'contact')} className="hover:text-blue-400 transition-colors cursor-pointer">{t.nav.contact}</a></li>}
             </ul>
           </div>
 
@@ -186,7 +186,10 @@ export const Footer: React.FC<FooterProps> = ({
       {/* Bottom Copyright */}
       <div className="border-t border-slate-900 py-6 bg-slate-950 text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-start">
-          <p>{t.footer.allRights}</p>
+          <div className="space-y-1">
+            <p>{language === 'fa' ? pageContent.footer.copyrightFa : pageContent.footer.copyrightEn}</p>
+            <p className="text-[10px] text-slate-600 max-w-2xl">{language === 'fa' ? pageContent.footer.disclaimerFa : pageContent.footer.disclaimerEn}</p>
+          </div>
           <div className="flex items-center gap-4">
             <p className="font-mono-spec text-[11px]">{t.footer.designedFor}</p>
             <a
