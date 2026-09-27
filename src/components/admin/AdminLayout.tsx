@@ -67,10 +67,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-[#232c86] selection:text-white" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen text-slate-100 flex flex-col font-sans selection:bg-[#232c86] selection:text-white bg-[radial-gradient(circle_at_top_left,rgba(35,44,134,0.22),transparent_32%),linear-gradient(180deg,#020617_0%,#0f172a_55%,#020617_100%)]" dir={language === 'fa' ? 'rtl' : 'ltr'}>
       
       {/* Top App Bar */}
-      <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 py-3">
+      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-2xl border-b border-slate-800/80 px-4 sm:px-6 py-3 shadow-[0_12px_40px_-28px_rgba(0,0,0,0.9)]">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
           {/* Brand / Logo */}
@@ -92,7 +92,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
                   {language === 'fa' ? 'پنل مدیریت پولاد چرخِش' : 'Polad Charkhesh Admin'}
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">
-                  v2.0 • Data Management Engine
+                  CMS • SQLite Authority • Production Control
                 </span>
               </div>
             </div>
@@ -149,7 +149,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           lg:w-64 lg:block flex-shrink-0
           ${mobileMenuOpen ? 'block' : 'hidden'}
         `}>
-          <div className="bg-slate-950/80 rounded-2xl p-3 border border-slate-800 sticky top-20 space-y-1">
+          <div className="admin-card p-3 sticky top-20 space-y-1">
             <div className="px-3 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">
               {language === 'fa' ? 'ماژول‌های مدیریت' : 'Management Modules'}
             </div>
@@ -188,8 +188,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         </aside>
 
         {/* Dynamic Content Panel */}
-        <main className="flex-1 min-w-0">
-          {children}
+        <main className="flex-1 min-w-0 pb-10">
+          <div className="max-w-full">
+            {children}
+          </div>
         </main>
       </div>
 
