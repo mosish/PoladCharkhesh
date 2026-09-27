@@ -233,16 +233,15 @@ export function validateProductCandidate(body: any, isUpdate = false): Validatio
 // ==========================================
 
 const ALLOWED_COMPANY_FIELDS = [
-  'nameFa', 'nameEn', 'brandNameFa', 'brandNameEn', 'tradeNameFa', 'tradeNameEn',
-  'registrationNumber', 'economicCode', 'nationalId', 'ceoNameFa', 'ceoNameEn',
-  'phone', 'phoneRaw', 'phones', 'fax', 'mobile', 'mobileRaw', 'whatsapp', 'email',
-  'supportEmail', 'salesEmail', 'addressFa', 'addressEn', 'postalCode',
-  'mapCoordinates', 'coordinates', 'workingHoursFa', 'workingHoursEn',
-  'workingHoursShortFa', 'workingHoursShortEn', 'whatsappUrl', 'telegramUrl',
-  'linkedinUrl', 'instagramUrl', 'socialMedia', 'socialLinks', 'certifications',
-  'establishedYear', 'maps', 'provinceFa', 'provinceEn', 'cityFa', 'cityEn',
-  'districtFa', 'districtEn', 'streetFa', 'streetEn', 'plate',
-  'sloganFa', 'sloganEn', 'emergencyContact', 'showEmergencySupport'
+  'nameFa', 'nameEn', 'legalNameFa', 'legalNameEn', 'sloganFa', 'sloganEn',
+  'website', 'email',
+  'primaryPhone', 'primaryPhoneDisplayFa', 'primaryPhoneDisplayEn', 'primaryPhoneTel',
+  'landlinePhone', 'landlinePhoneDisplayFa', 'landlinePhoneDisplayEn', 'landlinePhoneTel',
+  'whatsappNumber', 'whatsappUrl',
+  'addressFa', 'addressEn', 'cityFa', 'cityEn', 'districtFa', 'districtEn',
+  'streetFa', 'streetEn', 'plate',
+  'workingHoursFa', 'workingHoursEn', 'workingHoursShortFa', 'workingHoursShortEn',
+  'maps'
 ];
 
 export function validateCompanyPayload(body: any): ValidationResult<Record<string, any>> {
