@@ -6,6 +6,7 @@ export interface AppConfig {
   NODE_ENV: string;
   isProduction: boolean;
   DATABASE_PATH: string;
+  UPLOAD_DIR: string;
   SESSION_SECRET: string;
   COOKIE_SECRET: string;
   SESSION_TTL_HOURS: number;
@@ -90,6 +91,7 @@ export function validateAndLoadConfig(env: NodeJS.ProcessEnv = process.env): App
     NODE_ENV: nodeEnv,
     isProduction,
     DATABASE_PATH: env.DATABASE_PATH || path.resolve(process.cwd(), 'data', 'poladcharkhesh.db'),
+    UPLOAD_DIR: env.UPLOAD_DIR || path.resolve(process.cwd(), 'data', 'uploads'),
     SESSION_SECRET: isProduction ? sessionSecretEnv! : devSessionSecret,
     COOKIE_SECRET: isProduction ? cookieSecretEnv! : devCookieSecret,
     SESSION_TTL_HOURS: Number(env.SESSION_TTL_HOURS) || 12,
