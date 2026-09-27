@@ -91,7 +91,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
   };
 
   return (
-    <section id="contact" className="py-16 sm:py-24 relative">
+    <section id="contact" className="site-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
