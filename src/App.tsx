@@ -78,14 +78,15 @@ function parseCurrentRoute(): RouteState {
 
 function getInitialLanguage(): Language {
   if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname.toLowerCase();
-    // poladcharkhesh.com or English subdomains default to English
-    if (hostname.endsWith('.com') || hostname.startsWith('en.')) {
-      return 'en';
-    }
+    // Explicit user choice wins. Domain only provides the initial default.
     const saved = localStorage.getItem('polad_preferred_language');
     if (saved === 'fa' || saved === 'en') {
       return saved as Language;
+    }
+
+    const hostname = window.location.hostname.toLowerCase();
+    if (hostname.endsWith('.com') || hostname.startsWith('en.')) {
+      return 'en';
     }
   }
   // poladcharkhesh.ir & standard default is Persian
