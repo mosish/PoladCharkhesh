@@ -44,6 +44,9 @@ async function startServer() {
     seedDatabase(false);
   } catch (err) {
     console.error('Database startup initialization failed:', err);
+    if (CONFIG.isProduction) {
+      throw err;
+    }
   }
 
   // Runtime media storage is persistent and served independently of the Vite build.
