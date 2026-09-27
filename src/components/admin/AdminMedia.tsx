@@ -1,242 +1,406 @@
-import React, { useState, useEffect } from 'react';
-import { Language, BearingProduct } from '../../types';
-import { AdminProductItem } from '../../types/admin';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Language } from '../../types';
+import { AdminProductItem, MediaCategory, MediaMetadata, MediaUploadInput } from '../../types/admin';
 import { dataService } from '../../services/dataService';
-import { 
-  Image as ImageIcon, 
-  Search, 
-  Edit, 
-  CheckCircle2, 
-  Upload, 
-  ExternalLink, 
-  Layers, 
-  Cpu,
-  Sparkles
+import { mediaService } from '../../services/mediaService';
+import {
+  Image as ImageIcon,
+  Search,
+  Plus,
+  Save,
+  Trash2,
+  Edit,
+  ExternalLink,
+  FileText,
+  Link2,
+  Star,
+  X,
+  RefreshCw,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface AdminMediaProps {
   language: Language;
 }
 
+const categories: Array<{ id: MediaCategory; fa: string; en: string }> = [
+  { id: 'product_photo', fa: 'تصویر محصول', en: 'Product Photo' },
+  { id: 'cad_schematic', fa: 'شماتیک / CAD', en: 'CAD / Schematic' },
+  { id: 'datasheet_pdf', fa: 'دیتاشیت PDF', en: 'Datasheet PDF' },
+  { id: 'company_photo', fa: 'تصویر شرکت', en: 'Company Photo' },
+];
+
+const emptyDraft: MediaUploadInput = {
+  originalName: '',
+  mimeType: 'image/webp',
+  sizeBytes: 0,
+  url: '',
+  altTextFa: '',
+  altTextEn: '',
+  category: 'product_photo',
+  associatedProductCodes: [],
+};
+
+const fieldClass =
+  'w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none';
+
 export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
   const isFa = language === 'fa';
+  const [media, setMedia] = useState<MediaMetadata[]>([]);
   const [products, setProducts] = useState<AdminProductItem[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState<AdminProductItem | null>(null);
-  const [newImageUrl, setNewImageUrl] = useState('');
-  const [savedSuccess, setSavedSuccess] = useState(false);
-  const [saveError, setSaveError] = useState('');
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | MediaCategory>('all');
+  const [selectedMedia, setSelectedMedia] = useState<MediaMetadata | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [draft, setDraft] = useState<MediaUploadInput>({ ...emptyDraft });
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [status, setStatus] = useState<{ ok?: boolean; message?: string }>({});
+
+  const refresh = async () => {
+    const result = await mediaService.getMediaList();
+    if (result.success) setMedia(result.data.media);
+  };
 
   useEffect(() => {
+    refresh();
     const unsub = dataService.subscribeToAllProducts(setProducts);
     return () => unsub();
   }, []);
 
-  const filteredProducts = products.filter((p) => {
-    if (!searchTerm.trim()) return true;
-    const q = searchTerm.toLowerCase();
-    return p.code.toLowerCase().includes(q) || (p.nameFa || '').toLowerCase().includes(q);
-  });
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return media.filter((item) => {
+      if (categoryFilter !== 'all' && item.category !== categoryFilter) return false;
+      if (!q) return true;
+      return [
+        item.originalName,
+        item.filename,
+        item.url,
+        item.altTextFa,
+        item.altTextEn,
+        ...(item.associatedProductCodes || []),
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(q));
+    });
+  }, [media, search, categoryFilter]);
 
-  const handleSelectToEdit = (p: AdminProductItem) => {
-    setSelectedProduct(p);
-    setNewImageUrl(p.imageUrl || '/icon.png');
-    setSavedSuccess(false);
-    setSaveError('');
+  const selectedProduct = products.find((p) => p.id === selectedProductId) || null;
+
+  const startCreate = () => {
+    setSelectedMedia(null);
+    setDraft({ ...emptyDraft, associatedProductCodes: [] });
+    setUploadFile(null);
+    setIsEditing(true);
+    setStatus({});
   };
 
-  const handleSaveImage = async (e: React.FormEvent) => {
+  const startEdit = (item: MediaMetadata) => {
+    setSelectedMedia(item);
+    setUploadFile(null);
+    setDraft({
+      originalName: item.originalName,
+      filename: item.filename,
+      mimeType: item.mimeType,
+      sizeBytes: item.sizeBytes,
+      url: item.url,
+      altTextFa: item.altTextFa || '',
+      altTextEn: item.altTextEn || '',
+      category: item.category || 'product_photo',
+      associatedProductCodes: [...(item.associatedProductCodes || [])],
+    });
+    setIsEditing(true);
+    setStatus({});
+  };
+
+  const saveMedia = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProduct) return;
-
-    setSavedSuccess(false);
-    setSaveError('');
     setIsSaving(true);
-
-    const nextPrimary = newImageUrl.trim() || '/icon.png';
-    const existingImages = selectedProduct.images && selectedProduct.images.length > 0
-      ? selectedProduct.images
-      : [selectedProduct.imageUrl || '/icon.png'];
-    const nextImages = [nextPrimary, ...existingImages.filter((url) => url !== nextPrimary)];
-
+    setStatus({});
     try {
-      const result = await dataService.updateProduct(
-        selectedProduct.id,
-        {
-          imageUrl: nextPrimary,
-          images: nextImages,
-        },
-        'admin'
-      );
+      const payload: MediaUploadInput = {
+        ...draft,
+        originalName: draft.originalName.trim(),
+        filename: draft.filename?.trim() || draft.originalName.trim(),
+        mimeType: draft.mimeType.trim(),
+        url: draft.url.trim(),
+        altTextFa: draft.altTextFa?.trim(),
+        altTextEn: draft.altTextEn?.trim(),
+        associatedProductCodes: (draft.associatedProductCodes || []).map((v) => v.trim()).filter(Boolean),
+      };
+
+      const result = selectedMedia
+        ? await mediaService.updateMedia(selectedMedia.id, payload)
+        : uploadFile
+          ? await mediaService.uploadFile(uploadFile, {
+              filename: payload.filename,
+              altTextFa: payload.altTextFa,
+              altTextEn: payload.altTextEn,
+              category: payload.category,
+              associatedProductCodes: payload.associatedProductCodes,
+            })
+          : await mediaService.createMedia(payload);
 
       if (!result.success) {
-        setSaveError(result.errors?.join(' ') || (isFa ? 'ذخیره تصویر ناموفق بود.' : 'Failed to save image.'));
+        setStatus({ ok: false, message: result.error.message });
         return;
       }
 
-      setSelectedProduct((prev) => prev ? { ...prev, imageUrl: nextPrimary, images: nextImages } : prev);
-      setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
-    } catch {
-      setSaveError(isFa ? 'خطای ارتباط با سرور هنگام ذخیره تصویر.' : 'Server communication error while saving the image.');
+      await refresh();
+      setSelectedMedia(result.data.media);
+      setIsEditing(false);
+      setStatus({ ok: true, message: isFa ? 'رسانه با موفقیت ذخیره شد.' : 'Media saved successfully.' });
     } finally {
       setIsSaving(false);
     }
   };
 
+  const deleteMedia = async (item: MediaMetadata) => {
+    if (!window.confirm(isFa ? `رسانه «${item.originalName}» حذف شود؟` : `Delete “${item.originalName}”? `)) return;
+    const result = await mediaService.deleteMedia(item.id);
+    if (!result.success) {
+      setStatus({ ok: false, message: result.error.message });
+      return;
+    }
+    if (selectedMedia?.id === item.id) setSelectedMedia(null);
+    await refresh();
+    setStatus({ ok: true, message: isFa ? 'رسانه حذف شد.' : 'Media deleted.' });
+  };
+
+  const addToProductGallery = async (setPrimary: boolean) => {
+    if (!selectedMedia || !selectedProduct) return;
+    const existing = selectedProduct.images && selectedProduct.images.length > 0
+      ? selectedProduct.images
+      : [selectedProduct.imageUrl || '/icon.png'];
+    const nextImages = [selectedMedia.url, ...existing.filter((url) => url !== selectedMedia.url)];
+    const result = await dataService.updateProduct(
+      selectedProduct.id,
+      {
+        images: nextImages,
+        imageUrl: setPrimary ? selectedMedia.url : (selectedProduct.imageUrl || nextImages[0]),
+        pdfUrl: selectedMedia.category === 'datasheet_pdf' ? selectedMedia.url : selectedProduct.pdfUrl,
+      },
+      'admin'
+    );
+
+    if (!result.success) {
+      setStatus({ ok: false, message: result.errors?.join(' ') || (isFa ? 'اتصال رسانه به محصول ناموفق بود.' : 'Failed to attach media to product.') });
+      return;
+    }
+
+    const codes = Array.from(new Set([...(selectedMedia.associatedProductCodes || []), selectedProduct.code]));
+    await mediaService.updateMedia(selectedMedia.id, { associatedProductCodes: codes });
+    await refresh();
+    setStatus({ ok: true, message: isFa ? 'رسانه به محصول متصل شد.' : 'Media attached to product.' });
+  };
+
+  const removeFromProductGallery = async () => {
+    if (!selectedMedia || !selectedProduct) return;
+    const remaining = (selectedProduct.images || []).filter((url) => url !== selectedMedia.url);
+    const nextPrimary = selectedProduct.imageUrl === selectedMedia.url
+      ? (remaining[0] || '/icon.png')
+      : selectedProduct.imageUrl;
+
+    const result = await dataService.updateProduct(
+      selectedProduct.id,
+      {
+        images: remaining,
+        imageUrl: nextPrimary,
+        pdfUrl: selectedProduct.pdfUrl === selectedMedia.url ? undefined : selectedProduct.pdfUrl,
+      },
+      'admin'
+    );
+
+    if (!result.success) {
+      setStatus({ ok: false, message: result.errors?.join(' ') || 'Update failed' });
+      return;
+    }
+
+    const codes = (selectedMedia.associatedProductCodes || []).filter((code) => code !== selectedProduct.code);
+    await mediaService.updateMedia(selectedMedia.id, { associatedProductCodes: codes });
+    await refresh();
+    setStatus({ ok: true, message: isFa ? 'رسانه از محصول جدا شد.' : 'Media detached from product.' });
+  };
+
+  const isImage = (item: MediaMetadata) => item.mimeType.startsWith('image/') || item.category === 'product_photo' || item.category === 'cad_schematic';
+
   return (
     <div className="space-y-6">
-      
-      {/* Header */}
-      <div className="bg-slate-950/60 p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="admin-card p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+          <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
             <ImageIcon className="w-6 h-6 text-indigo-400" />
-            <span>{isFa ? 'مدیریت رسانه و تصاویر محصولات' : 'Product Media & Image Management'}</span>
+            <span>{isFa ? 'کتابخانه پیشرفته رسانه' : 'Advanced Media Library'}</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            {isFa 
-              ? 'مشاهده و جایگزینی تصاویر قطعات کاتالوگ و پیوندهای شماتیک سه‌بعدی بدون نیاز به تغییر کد منبع' 
-              : 'Manage product gallery assets and 3D schematics without modifying React components'}
+            {isFa ? 'تصاویر، شماتیک‌ها و PDFها را ثبت، دسته‌بندی و به محصولات متصل کنید.' : 'Register, classify, edit, and attach images, schematics, and PDFs to products.'}
           </p>
         </div>
+        <div className="flex gap-2">
+          <button type="button" onClick={refresh} className="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <button type="button" onClick={startCreate} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold">
+            <Plus className="w-4 h-4" />
+            {isFa ? 'رسانه جدید' : 'New Media'}
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left: Product Media Gallery Grid */}
-        <div className="lg:col-span-8 space-y-4">
-          
-          {/* Search bar */}
-          <div className="relative">
-            <Search className={`w-4 h-4 text-slate-400 absolute ${isFa ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2`} />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={isFa ? 'جستجوی تصویر بر اساس کد فنی...' : 'Search media by product code...'}
-              className={`w-full bg-slate-950 border border-slate-700 rounded-xl py-2 text-xs text-white placeholder-slate-500 font-mono ${isFa ? 'pr-10 pl-3.5' : 'pl-10 pr-3.5'}`}
-            />
-          </div>
+      {status.message && (
+        <div className={`px-4 py-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
+          status.ok ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+        }`}>
+          {status.ok && <CheckCircle2 className="w-4 h-4" />}
+          {status.message}
+        </div>
+      )}
 
-          {/* Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 max-h-[600px] overflow-y-auto pr-1">
-            {filteredProducts.map((product) => {
-              const isSelected = selectedProduct?.id === product.id;
-              return (
-                <div
-                  key={product.id}
-                  onClick={() => handleSelectToEdit(product)}
-                  className={`
-                    p-3 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center
-                    ${isSelected 
-                      ? 'bg-indigo-950/40 border-indigo-500 ring-2 ring-indigo-500/50 shadow-lg' 
-                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/60'}
-                  `}
-                >
-                  <div className="w-20 h-20 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden mb-2">
-                    <img
-                      src={product.imageUrl || '/icon.png'}
-                      alt={product.code}
-                      className="w-full h-full object-contain p-2"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/icon.png';
-                      }}
-                    />
+      <div className="admin-card p-4 grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div className="md:col-span-8 relative">
+          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} className={`${fieldClass} pl-9`} placeholder={isFa ? 'جستجو در نام، URL، alt text یا کد محصول...' : 'Search name, URL, alt text, or product code...'} />
+        </div>
+        <div className="md:col-span-4">
+          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value as any)} className={fieldClass}>
+            <option value="all">{isFa ? 'همه دسته‌ها' : 'All Categories'}</option>
+            {categories.map((cat) => <option key={cat.id} value={cat.id}>{isFa ? cat.fa : cat.en}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div className="xl:col-span-8 admin-card p-4">
+          {filtered.length === 0 ? (
+            <div className="py-16 text-center text-slate-500 text-sm">{isFa ? 'رسانه‌ای یافت نشد.' : 'No media found.'}</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filtered.map((item) => (
+                <div key={item.id} className={`rounded-2xl border overflow-hidden transition-all ${
+                  selectedMedia?.id === item.id ? 'border-indigo-500 bg-indigo-950/20' : 'border-slate-800 bg-slate-950/60'
+                }`}>
+                  <button type="button" onClick={() => setSelectedMedia(item)} className="block w-full text-start">
+                    <div className="aspect-[16/10] bg-slate-900 flex items-center justify-center overflow-hidden">
+                      {isImage(item) ? (
+                        <img src={item.url} alt={language === 'fa' ? item.altTextFa || item.originalName : item.altTextEn || item.originalName} className="w-full h-full object-contain" />
+                      ) : (
+                        <FileText className="w-10 h-10 text-rose-400" />
+                      )}
+                    </div>
+                    <div className="p-3 space-y-1">
+                      <div className="font-bold text-white text-xs truncate">{item.originalName}</div>
+                      <div className="text-[10px] text-slate-500 font-mono truncate">{item.url}</div>
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {item.category && <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 text-[10px]">{item.category}</span>}
+                        {(item.associatedProductCodes || []).slice(0, 2).map((code) => <span key={code} className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[10px] font-mono">{code}</span>)}
+                      </div>
+                    </div>
+                  </button>
+                  <div className="px-3 pb-3 flex gap-2">
+                    <button type="button" onClick={() => startEdit(item)} className="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
+                    <a href={item.url} target="_blank" rel="noreferrer" className="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white"><ExternalLink className="w-3.5 h-3.5" /></a>
+                    <button type="button" onClick={() => deleteMedia(item)} className="p-2 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
-                  <span className="font-mono font-bold text-white text-xs block truncate w-full">
-                    {product.code}
-                  </span>
-                  <span className="text-[10px] text-slate-400 capitalize block truncate w-full mt-0.5">
-                    {product.schematicType}
-                  </span>
                 </div>
-              );
-            })}
-          </div>
-
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Right: Media Editor Inspector */}
-        <div className="lg:col-span-4">
-          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 sticky top-24 space-y-5">
-            <h3 className="text-sm font-bold text-white border-b border-slate-800 pb-3 flex items-center gap-2">
-              <Edit className="w-4 h-4 text-indigo-400" />
-              <span>{isFa ? 'ویرایشگر آدرس رسانه' : 'Media Inspector'}</span>
-            </h3>
-
-            {selectedProduct ? (
-              <form onSubmit={handleSaveImage} className="space-y-4">
-                
-                {/* Large Preview */}
-                <div className="w-full h-44 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center overflow-hidden p-4">
-                  <img
-                    src={newImageUrl || '/icon.png'}
-                    alt="Preview"
-                    className="max-h-full max-w-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/icon.png';
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-white mb-0.5 font-mono">
-                    {selectedProduct.code}
-                  </label>
-                  <span className="text-[11px] text-slate-400 block">
-                    {isFa ? selectedProduct.nameFa : selectedProduct.nameEn}
-                  </span>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    {isFa ? 'آدرس URL تصویر (Image URL)' : 'Image Asset URL'}
+        <div className="xl:col-span-4 space-y-5">
+          {isEditing ? (
+            <form onSubmit={saveMedia} className="admin-card p-5 space-y-4 sticky top-24">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white">{selectedMedia ? (isFa ? 'ویرایش رسانه' : 'Edit Media') : (isFa ? 'ثبت رسانه جدید' : 'New Media')}</h3>
+                <button type="button" onClick={() => setIsEditing(false)} className="p-1.5 text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
+              </div>
+              {!selectedMedia && (
+                <div className="rounded-xl border border-dashed border-slate-700 bg-slate-950/70 p-3 space-y-2">
+                  <label className="block text-[11px] font-bold text-slate-300">
+                    {isFa ? 'آپلود فایل از کامپیوتر (حداکثر ۱۰MB)' : 'Upload from computer (max 10MB)'}
                   </label>
                   <input
-                    type="text"
-                    value={newImageUrl}
-                    onChange={(e) => setNewImageUrl(e.target.value)}
-                    placeholder="/icon.png or https://..."
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:border-indigo-500 focus:outline-none"
-                    required
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setUploadFile(file);
+                      if (file) {
+                        setDraft((prev) => ({
+                          ...prev,
+                          originalName: file.name,
+                          mimeType: file.type,
+                          sizeBytes: file.size,
+                          url: '',
+                          category: file.type === 'application/pdf' ? 'datasheet_pdf' : prev.category,
+                        }));
+                      }
+                    }}
+                    className="block w-full text-[11px] text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-indigo-500"
                   />
+                  {uploadFile && <div className="text-[10px] text-emerald-400 font-mono">{uploadFile.name} — {(uploadFile.size / 1024 / 1024).toFixed(2)} MB</div>}
                 </div>
-
-                {savedSuccess && (
-                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>{isFa ? 'تصویر با موفقیت به‌روزرسانی شد.' : 'Image updated successfully.'}</span>
-                  </div>
-                )}
-                {saveError && (
-                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
-                    {saveError}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 disabled:opacity-60 disabled:cursor-wait text-white text-xs font-bold shadow-md transition-all"
-                >
-                  {isSaving ? (isFa ? 'در حال ذخیره...' : 'Saving...') : (isFa ? 'ذخیره آدرس تصویر' : 'Save Image URL')}
-                </button>
-              </form>
-            ) : (
-              <div className="py-12 text-center text-slate-500 text-xs leading-relaxed">
-                {isFa 
-                  ? 'جهت ویرایش تصویر، یکی از محصولات را از لیست سمت چپ انتخاب فرمایید.' 
-                  : 'Select a product from the list on the left to inspect or update its media.'}
+              )}
+              <input className={fieldClass} value={draft.originalName} onChange={(e) => setDraft({ ...draft, originalName: e.target.value })} placeholder={isFa ? 'نام فایل / عنوان' : 'Original name / title'} required />
+              <input
+                className={fieldClass}
+                value={draft.url}
+                onChange={(e) => setDraft({ ...draft, url: e.target.value })}
+                placeholder={uploadFile ? (isFa ? 'برای آپلود مستقیم خالی بماند' : 'Leave empty for direct upload') : 'https://... or /uploads/...'}
+                required={!uploadFile}
+                disabled={Boolean(uploadFile)}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <input className={fieldClass} value={draft.mimeType} onChange={(e) => setDraft({ ...draft, mimeType: e.target.value })} placeholder="image/webp" />
+                <input className={fieldClass} type="number" min="0" value={draft.sizeBytes} onChange={(e) => setDraft({ ...draft, sizeBytes: Number(e.target.value) || 0 })} placeholder="Bytes" />
               </div>
-            )}
-
-          </div>
+              <select className={fieldClass} value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value as MediaCategory })}>
+                {categories.map((cat) => <option key={cat.id} value={cat.id}>{isFa ? cat.fa : cat.en}</option>)}
+              </select>
+              <input className={fieldClass} value={draft.altTextFa || ''} onChange={(e) => setDraft({ ...draft, altTextFa: e.target.value })} placeholder="Alt text فارسی" dir="rtl" />
+              <input className={fieldClass} value={draft.altTextEn || ''} onChange={(e) => setDraft({ ...draft, altTextEn: e.target.value })} placeholder="English alt text" dir="ltr" />
+              <textarea className={fieldClass} rows={2} value={(draft.associatedProductCodes || []).join(', ')} onChange={(e) => setDraft({ ...draft, associatedProductCodes: e.target.value.split(',').map((v) => v.trim()).filter(Boolean) })} placeholder={isFa ? 'کد محصولات مرتبط، با کاما جدا شود' : 'Associated product codes, comma separated'} />
+              <button disabled={isSaving} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-xs font-bold">
+                <Save className="w-4 h-4" />
+                {isSaving ? (isFa ? 'در حال ذخیره...' : 'Saving...') : (isFa ? 'ذخیره رسانه' : 'Save Media')}
+              </button>
+            </form>
+          ) : selectedMedia ? (
+            <div className="admin-card p-5 space-y-4 sticky top-24">
+              <div>
+                <h3 className="font-bold text-white text-sm">{selectedMedia.originalName}</h3>
+                <p className="text-[10px] text-slate-500 font-mono mt-1 break-all">{selectedMedia.url}</p>
+              </div>
+              <select value={selectedProductId} onChange={(e) => setSelectedProductId(e.target.value)} className={fieldClass}>
+                <option value="">{isFa ? 'یک محصول انتخاب کنید...' : 'Select a product...'}</option>
+                {products.map((p) => <option key={p.id} value={p.id}>{p.code} — {isFa ? p.nameFa : p.nameEn}</option>)}
+              </select>
+              {selectedProduct && (
+                <div className="space-y-2">
+                  <button type="button" onClick={() => addToProductGallery(false)} className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold">
+                    <Link2 className="w-4 h-4" /> {isFa ? 'افزودن به گالری محصول' : 'Add to Product Gallery'}
+                  </button>
+                  <button type="button" onClick={() => addToProductGallery(true)} className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/20 text-xs font-bold">
+                    <Star className="w-4 h-4" /> {isFa ? 'تنظیم به‌عنوان تصویر اصلی' : 'Set as Primary Image'}
+                  </button>
+                  <button type="button" onClick={removeFromProductGallery} className="w-full px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-bold">
+                    {isFa ? 'حذف از گالری محصول' : 'Remove from Product Gallery'}
+                  </button>
+                </div>
+              )}
+              <button type="button" onClick={() => startEdit(selectedMedia)} className="w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold">
+                {isFa ? 'ویرایش Metadata' : 'Edit Metadata'}
+              </button>
+            </div>
+          ) : (
+            <div className="admin-card p-8 text-center text-slate-500 text-xs">
+              {isFa ? 'برای مشاهده عملیات، یک رسانه را انتخاب کنید.' : 'Select a media item to manage it.'}
+            </div>
+          )}
         </div>
-
       </div>
-
     </div>
   );
 };
