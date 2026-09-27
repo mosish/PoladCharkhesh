@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Language } from '../../types';
 import { AdminProductItem, AuditLog } from '../../types/admin';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync, usePageContent } from '../../services/dataService';
 import { auditService } from '../../services/auditService';
 import { validateProductDataset } from '../../utils/productValidation';
 import { 
@@ -33,6 +33,8 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
 }) => {
   const [products, setProducts] = useState<AdminProductItem[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const syncState = useDataSync();
+  const pageContent = usePageContent();
 
   useEffect(() => {
     dataService.refreshFromServer();
@@ -61,15 +63,19 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
   // Integrity Report
   const integrityReport = validateProductDataset(products);
 
-  const handleExportBackup = () => {
-    const snapshot = dataService.exportSnapshot();
-    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `poladcharkhesh-dataset-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExportBackup = async () => {
+    try {
+      const snapshot = await dataService.exportSnapshot();
+      const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `poladcharkhesh-dataset-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Backup export failed:', error);
+    }
   };
 
   return (
@@ -183,6 +189,31 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
           </div>
         </div>
 
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`admin-card p-4 border ${
+          syncState.isAuthoritative ? 'border-emerald-500/30' : 'border-amber-500/30'
+        }`}>
+          <div className="text-[11px] text-slate-500 mb-1">{isFa ? 'وضعیت Backend' : 'Backend Authority'}</div>
+          <div className={`text-sm font-black ${
+            syncState.isAuthoritative ? 'text-emerald-300' : 'text-amber-300'
+          }`}>
+            {syncState.isAuthoritative ? (isFa ? 'SQLite همگام و مرجع' : 'SQLite Synced & Authoritative') : (isFa ? 'حالت Degraded' : 'Degraded Mode')}
+          </div>
+        </div>
+        <div className="admin-card p-4">
+          <div className="text-[11px] text-slate-500 mb-1">{isFa ? 'سکشن‌های فعال سایت' : 'Visible Site Sections'}</div>
+          <div className="text-sm font-black text-white">
+            {Object.values(pageContent.visibility).filter(Boolean).length} / {Object.keys(pageContent.visibility).length}
+          </div>
+        </div>
+        <div className="admin-card p-4">
+          <div className="text-[11px] text-slate-500 mb-1">{isFa ? 'آمادگی انتشار' : 'Launch Readiness'}</div>
+          <div className={`text-sm font-black ${integrityReport.isValid && syncState.isAuthoritative ? 'text-emerald-300' : 'text-amber-300'}`}>
+            {integrityReport.isValid && syncState.isAuthoritative ? (isFa ? 'آماده بررسی نهایی' : 'Ready for Final Review') : (isFa ? 'نیازمند بررسی' : 'Review Required')}
+          </div>
+        </div>
       </div>
 
       {/* Dataset Integrity Banner */}
