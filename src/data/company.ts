@@ -119,7 +119,7 @@ export function createWhatsAppInquiryUrl(params?: {
   customMessage?: string;
   language?: 'fa' | 'en';
 }): string {
-  const base = params?.baseUrl || COMPANY_INFO.whatsappUrl || 'https://wa.me/989127195313';
+  const base = params?.baseUrl || COMPANY_INFO.whatsappUrl;
   if (!params) {
     return base;
   }
