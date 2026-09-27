@@ -87,11 +87,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [speedOilRpm, setSpeedOilRpm] = useState<number | string>(6000);
   const [thermalSpeedRatingRpm, setThermalSpeedRatingRpm] = useState<number | string>('');
   const [speedReferenceType, setSpeedReferenceType] = useState<'limiting' | 'thermal' | 'both'>('limiting');
-  const [rMin, setRMin] = useState<number | string>(1.5);
-  const [cageMaterialFa, setCageMaterialFa] = useState('فولاد پرسکاری شده حرارتی');
-  const [cageMaterialEn, setCageMaterialEn] = useState('Stamped steel cage');
-  const [sealingFa, setSealingFa] = useState('طراحی باز (نیاز به گریس/روغن)');
-  const [sealingEn, setSealingEn] = useState('Open design');
+  const [rMin, setRMin] = useState<number | string>('');
+  const [cageMaterialFa, setCageMaterialFa] = useState('');
+  const [cageMaterialEn, setCageMaterialEn] = useState('');
+  const [sealingFa, setSealingFa] = useState('');
+  const [sealingEn, setSealingEn] = useState('');
 
   // Tab 3: Calculation Factors & Geometry
   const [calculationFactorE, setCalculationFactorE] = useState<number | string>('');
@@ -103,7 +103,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [calculationFactorF0, setCalculationFactorF0] = useState<number | string>('');
   const [contactAngle, setContactAngle] = useState('');
   const [schematicType, setSchematicType] = useState<BearingSchematicType>('tapered');
-  const [clearanceOptions, setClearanceOptions] = useState<string[]>(['Normal', 'C3']);
+  const [clearanceOptions, setClearanceOptions] = useState<string[]>([]);
   const [newClearanceInput, setNewClearanceInput] = useState('');
 
   // Tab 4: Media & Gallery
@@ -113,14 +113,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [pdfUrl, setPdfUrl] = useState('');
 
   // Tab 5: Brands & Tags
-  const [brands, setBrands] = useState<string[]>(['SKF', 'FAG', 'TIMKEN']);
+  const [brands, setBrands] = useState<string[]>([]);
   const [newBrandInput, setNewBrandInput] = useState('');
-  const [applicationsFa, setApplicationsFa] = useState<string[]>(['صنایع معدنی', 'گیربکس‌های صنعتی']);
+  const [applicationsFa, setApplicationsFa] = useState<string[]>([]);
   const [newAppFaInput, setNewAppFaInput] = useState('');
 
   // Tab 6: Technical Source & SEO
-  const [sourceManufacturer, setSourceManufacturer] = useState('SKF Rolling Bearings Master Catalog');
-  const [sourceReference, setSourceReference] = useState('Official ISO Engineering Data Table');
+  const [sourceManufacturer, setSourceManufacturer] = useState('');
+  const [sourceReference, setSourceReference] = useState('');
   const [metaTitleFa, setMetaTitleFa] = useState('');
   const [metaDescriptionFa, setMetaDescriptionFa] = useState('');
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -177,8 +177,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         setSourceManufacturer(product.technicalSources[0].manufacturer || '');
         setSourceReference(product.technicalSources[0].reference || '');
       } else {
-        setSourceManufacturer('SKF Rolling Bearings Master Catalog');
-        setSourceReference('Official ISO Engineering Data Table');
+        setSourceManufacturer('');
+        setSourceReference('');
       }
 
       setMetaTitleFa(product.metaTitleFa || '');
@@ -204,11 +204,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setSpeedOilRpm('');
       setThermalSpeedRatingRpm('');
       setSpeedReferenceType('limiting');
-      setRMin('1.5');
-      setCageMaterialFa('فولاد پرسکاری شده حرارتی');
-      setCageMaterialEn('Stamped steel cage');
-      setSealingFa('طراحی باز (نیاز به گریس/روغن)');
-      setSealingEn('Open design');
+      setRMin('');
+      setCageMaterialFa('');
+      setCageMaterialEn('');
+      setSealingFa('');
+      setSealingEn('');
       setCalculationFactorE('');
       setCalculationFactorY('');
       setCalculationFactorY0('');
@@ -218,12 +218,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setCalculationFactorF0('');
       setContactAngle('');
       setSchematicType('tapered');
-      setClearanceOptions(['Normal', 'C3']);
+      setClearanceOptions([]);
       setImageUrl('/icon.png');
       setImages(['/icon.png']);
       setPdfUrl('');
-      setBrands(['SKF', 'FAG', 'TIMKEN']);
-      setApplicationsFa(['صنایع سنگین']);
+      setBrands([]);
+      setApplicationsFa([]);
       setSourceManufacturer('SKF Rolling Bearings Master Catalog');
       setSourceReference('Official ISO Engineering Data Table');
       setMetaTitleFa('');
@@ -323,7 +323,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const BVal = Number(B);
   const isPhysicalImpossibility = !isNaN(dVal) && !isNaN(DVal) && dVal > 0 && DVal > 0 && DVal <= dVal;
   const hasNegativeDimensions = (dVal < 0) || (DVal < 0) || (BVal < 0);
-  const isCatalogVerified = Boolean(sourceManufacturer && sourceManufacturer.trim().length > 3);
+  const isCatalogVerified = Boolean(product?.technicalSources?.some((source) => Boolean(source.verifiedAt)));
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -344,14 +344,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       crKn: Number(crKn),
       corKn: Number(corKn),
       speedGreaseRpm: Number(speedGreaseRpm),
-      speedOilRpm: Number(speedOilRpm) || Number(speedGreaseRpm),
+      speedOilRpm: speedOilRpm !== '' ? Number(speedOilRpm) : 0,
       thermalSpeedRatingRpm: thermalSpeedRatingRpm !== '' ? Number(thermalSpeedRatingRpm) : undefined,
       speedReferenceType,
-      rMin: rMin ? Number(rMin) : undefined,
-      cageMaterialFa,
-      cageMaterialEn,
-      sealingFa,
-      sealingEn,
+      rMin: rMin !== '' ? Number(rMin) : undefined,
+      cageMaterialFa: cageMaterialFa.trim(),
+      cageMaterialEn: cageMaterialEn.trim(),
+      sealingFa: sealingFa.trim(),
+      sealingEn: sealingEn.trim(),
       clearanceOptions,
       contactAngle: contactAngle.trim() || undefined,
       calculationFactorE: calculationFactorE !== '' ? Number(calculationFactorE) : undefined,
@@ -367,15 +367,27 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       pdfUrl: pdfUrl.trim() || undefined,
       brands,
       applicationsFa,
-      applicationsEn: ['Industrial Machinery'],
-      technicalSources: [
-        {
-          manufacturer: sourceManufacturer || 'Engineering Catalog',
-          sourceType: 'official_catalog',
-          reference: sourceReference || 'ISO Technical Table',
-          verifiedAt: new Date().toISOString().split('T')[0],
-        },
-      ],
+      applicationsEn: product?.applicationsEn ? [...product.applicationsEn] : [],
+      technicalSources: (() => {
+        const existingSources = product?.technicalSources ? [...product.technicalSources] : [];
+        const manufacturer = sourceManufacturer.trim();
+        const reference = sourceReference.trim();
+
+        if (!manufacturer && !reference) {
+          return existingSources;
+        }
+
+        const currentFirst = existingSources[0];
+        const updatedFirst = {
+          manufacturer,
+          sourceType: currentFirst?.sourceType || 'official_catalog' as const,
+          reference,
+          // Editing/adding a source is not the same as independently verifying it.
+          verifiedAt: currentFirst?.verifiedAt || '',
+        };
+
+        return [updatedFirst, ...existingSources.slice(1)];
+      })(),
       metaTitleFa: metaTitleFa || undefined,
       metaDescriptionFa: metaDescriptionFa || undefined,
       keywords: keywords.length > 0 ? keywords : undefined,
