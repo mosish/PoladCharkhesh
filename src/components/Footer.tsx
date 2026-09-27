@@ -1,7 +1,7 @@
 import React from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { useCompanyInfo } from '../services/dataService';
+import { useCompanyInfo, usePageContent } from '../services/dataService';
 import { 
   RotateCw, 
   Phone, 
@@ -25,6 +25,7 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigateProduct,
 }) => {
   const company = useCompanyInfo();
+  const pageContent = usePageContent();
   const t = translations[language];
 
   const scrollToTop = () => {
@@ -106,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <p className="text-slate-400 leading-relaxed text-xs">
-              {t.footer.description}
+              {language === 'fa' ? pageContent.footer.descriptionFa : pageContent.footer.descriptionEn}
             </p>
 
             <div className="pt-2 flex flex-col gap-2">
