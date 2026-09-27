@@ -63,7 +63,7 @@ export const Industries: React.FC<IndustriesProps> = ({
             >
               <div>
                 <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/10 w-fit mb-5 shadow-sm group-hover:scale-105 transition-transform">
-                  {getIcon(ind.icon)}
+                  {getIcon(ind.icon || 'Factory')}
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2.5">
                   {language === 'fa' ? ind.titleFa : ind.titleEn}
