@@ -10,3 +10,6 @@ coverage/
 *.db-shm
 .env*
 !.env.example
+
+# Runtime uploaded media
+data/uploads/
