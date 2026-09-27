@@ -22,6 +22,8 @@ export const AdminSeo: React.FC<AdminSeoProps> = ({ language }) => {
   const isFa = language === 'fa';
   const [seo, setSeo] = useState<SeoConfig>(dataService.getSeoConfig());
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const [newKeywordInput, setNewKeywordInput] = useState('');
 
   useEffect(() => {
@@ -50,11 +52,26 @@ export const AdminSeo: React.FC<AdminSeoProps> = ({ language }) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dataService.updateSeoConfig(seo, 'admin');
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    setSaveError('');
+    setSavedSuccess(false);
+    setIsSaving(true);
+
+    try {
+      const { canonicalBaseUrl: _systemControlled, ...editableSeo } = seo;
+      const result = await dataService.updateSeoConfig(editableSeo, 'admin');
+      if (!result.success) {
+        setSaveError(isFa ? 'ذخیره تنظیمات سئو ناموفق بود. لطفاً اتصال سرور و داده‌های ورودی را بررسی کنید.' : 'Failed to save SEO settings. Check the server connection and submitted data.');
+        return;
+      }
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch {
+      setSaveError(isFa ? 'خطای ارتباط با سرور هنگام ذخیره تنظیمات سئو.' : 'Server communication error while saving SEO settings.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -74,12 +91,19 @@ export const AdminSeo: React.FC<AdminSeoProps> = ({ language }) => {
           </p>
         </div>
 
-        {savedSuccess && (
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold animate-fade-in">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>{isFa ? 'تنظیمات سئو ذخیره شد.' : 'SEO config saved.'}</span>
-          </div>
-        )}
+        <div className="flex flex-col items-start sm:items-end gap-2">
+          {savedSuccess && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold animate-fade-in">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{isFa ? 'تنظیمات سئو ذخیره شد.' : 'SEO config saved.'}</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="px-4 py-2 rounded-xl bg-rose-500/15 text-rose-300 border border-rose-500/30 text-xs font-semibold">
+              {saveError}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -125,14 +149,12 @@ export const AdminSeo: React.FC<AdminSeoProps> = ({ language }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  {isFa ? 'آدرس کانونیکال پایه (Canonical Base URL)' : 'Canonical Base URL'}
+                  {isFa ? 'دامنه‌های کانونیکال (کنترل‌شده توسط سیستم)' : 'Canonical Domains (System Controlled)'}
                 </label>
-                <input
-                  type="text"
-                  value={seo.canonicalBaseUrl}
-                  onChange={(e) => handleChange('canonicalBaseUrl', e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white font-mono focus:border-indigo-500 focus:outline-none"
-                />
+                <div className="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3.5 py-2 text-[11px] text-slate-300 font-mono leading-6">
+                  <div>FA → https://poladcharkhesh.ir</div>
+                  <div>EN → https://poladcharkhesh.com</div>
+                </div>
               </div>
 
               <div>
@@ -194,9 +216,10 @@ export const AdminSeo: React.FC<AdminSeoProps> = ({ language }) => {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 text-white text-xs font-bold shadow-lg transition-all"
+            disabled={isSaving}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 disabled:opacity-60 disabled:cursor-wait text-white text-xs font-bold shadow-lg transition-all"
           >
-            {isFa ? 'ذخیره تنظیمات سئو' : 'Save SEO Configuration'}
+            {isSaving ? (isFa ? 'در حال ذخیره...' : 'Saving...') : (isFa ? 'ذخیره تنظیمات سئو' : 'Save SEO Configuration')}
           </button>
 
         </form>
