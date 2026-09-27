@@ -46,7 +46,7 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
   ];
 
   return (
-    <section id="home" className="relative overflow-hidden pt-6 pb-14 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-24">
+    <section id="home" className="relative overflow-hidden pt-8 pb-16 sm:pt-12 sm:pb-24 lg:pt-16 lg:pb-28 border-b border-slate-200/60">
       {/* Background Engineering Grid */}
       <div className="absolute inset-0 pointer-events-none opacity-40 engineering-grid-light" />
 
@@ -72,6 +72,10 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
                 {language === 'fa' ? heroContent.titleSuffixFa : heroContent.titleSuffixEn}
               </span>
             </h1>
+
+            <p className="max-w-2xl mx-auto lg:mx-0 text-sm sm:text-base text-slate-600 leading-8">
+              {language === 'fa' ? heroContent.descriptionFa : heroContent.descriptionEn}
+            </p>
 
             {/* Fast Search Bar (Apple Liquid Glass Input Container) */}
             <form onSubmit={handleSearch} className="relative max-w-xl mx-auto lg:mx-0">
@@ -117,24 +121,18 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
               </a>
             </div>
 
-            {/* Key Metric Stats Grid (Apple Frosted Glass Cards) */}
+            {/* Key Metric Stats Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-start">
-              <div className="p-3.5 glass-card rounded-2xl">
-                <span className="text-xl sm:text-2xl font-black font-mono-spec text-[#232c86] block">{t.hero.stats.experienceNum}</span>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">{t.hero.stats.experienceLabel}</span>
-              </div>
-              <div className="p-3.5 glass-card rounded-2xl">
-                <span className="text-xl sm:text-2xl font-black font-mono-spec text-[#232c86] block">{t.hero.stats.inventoryNum}</span>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">{t.hero.stats.inventoryLabel}</span>
-              </div>
-              <div className="p-3.5 glass-card rounded-2xl">
-                <span className="text-xl sm:text-2xl font-black font-mono-spec text-emerald-600 block">{t.hero.stats.authenticityNum}</span>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">{t.hero.stats.authenticityLabel}</span>
-              </div>
-              <div className="p-3.5 glass-card rounded-2xl">
-                <span className="text-xl sm:text-2xl font-black font-mono-spec text-sky-600 block">{t.hero.stats.dispatchNum}</span>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">{t.hero.stats.dispatchLabel}</span>
-              </div>
+              {pageContent.about.stats.slice(0, 4).map((stat, index) => (
+                <div key={index} className="p-3.5 glass-card rounded-2xl">
+                  <span className="text-xl sm:text-2xl font-black font-mono-spec text-[#232c86] block">
+                    {language === 'fa' ? stat.valueFa : stat.valueEn}
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">
+                    {language === 'fa' ? stat.labelFa : stat.labelEn}
+                  </span>
+                </div>
+              ))}
             </div>
 
           </div>
