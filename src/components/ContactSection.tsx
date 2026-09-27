@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { dataService, useCompanyInfo } from '../services/dataService';
+import { dataService, useCompanyInfo, usePageContent } from '../services/dataService';
 import { 
   Phone, 
   MessageCircle, 
@@ -20,6 +20,8 @@ interface ContactSectionProps {
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
   const company = useCompanyInfo();
+  const pageContent = usePageContent();
+  const content = pageContent.contact;
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -31,10 +33,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
 
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const t = translations[language];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.phone.trim() || !formData.partList.trim()) {
       setFormError(
@@ -44,18 +47,28 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
       );
       return;
     }
-    setFormError('');
-    
-    // Record in central data service for Admin view
-    dataService.recordInquiry({
-      fullName: `${formData.name} (${formData.company || 'شخصی'})`,
-      phone: formData.phone,
-      message: `[فوریت: ${formData.urgency}] ${formData.partList}`,
-      company: formData.company,
-      email: formData.email,
-    });
 
-    setSubmitted(true);
+    setFormError('');
+    setIsSubmitting(true);
+    try {
+      const result = await dataService.recordInquiry({
+        fullName: formData.name.trim(),
+        phone: formData.phone.trim(),
+        message: `[${formData.urgency}] ${formData.partList.trim()}`,
+        company: formData.company.trim() || undefined,
+        email: formData.email.trim() || undefined,
+      });
+
+      if (!result.success) {
+        setFormError(result.error || (language === 'fa' ? 'ثبت پیام ناموفق بود.' : 'Failed to submit inquiry.'));
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setFormError(language === 'fa' ? 'خطای ارتباط با سرور هنگام ثبت پیام.' : 'Server connection error while submitting inquiry.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getWhatsAppInquiryUrl = () => {
@@ -73,7 +86,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         `⚡ Urgency: ${formData.urgency}\n` +
         `⚙️ Inquired Parts/Details:\n${formData.partList || 'General Inquiry'}`;
     
-    const baseUrl = company.whatsappUrl || 'https://wa.me/989127195313';
+    const baseUrl = company.whatsappUrl;
     return `${baseUrl}?text=${encodeURIComponent(text)}`;
   };
 
@@ -85,13 +98,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
             <Phone className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{t.contact.tag}</span>
+            <span>{language === 'fa' ? content.tagFa : content.tagEn}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {t.contact.title}
+            {language === 'fa' ? content.titleFa : content.titleEn}
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600">
-            {t.contact.subtitle}
+            {language === 'fa' ? content.subtitleFa : content.subtitleEn}
           </p>
         </div>
 
@@ -104,7 +117,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
             {/* Contact Details Card (Apple Liquid Glass) */}
             <div className="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
               <h3 className="text-base sm:text-lg font-bold text-slate-900 border-b border-slate-200/60 pb-4">
-                {t.contact.infoTitle}
+                {language === 'fa' ? content.infoTitleFa : content.infoTitleEn}
               </h3>
 
               <div className="space-y-4">
@@ -119,7 +132,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                       href={company.landlinePhoneTel}
                       className="text-base sm:text-lg font-black font-mono-spec text-slate-900 hover:text-[#232c86] transition-colors"
                     >
-                      {t.contact.info.phoneDisplay}
+                      {language === 'fa' ? company.landlinePhoneDisplayFa : company.landlinePhoneDisplayEn}
                     </a>
                   </div>
                 </div>
@@ -137,7 +150,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                       rel="noopener noreferrer"
                       className="text-base sm:text-lg font-black font-mono-spec text-emerald-700 hover:underline"
                     >
-                      {t.contact.info.mobileDisplay}
+                      {language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}
                     </a>
                   </div>
                 </div>
@@ -150,7 +163,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <div>
                     <span className="text-xs text-slate-500 block font-medium">{t.contact.info.hoursLabel}</span>
                     <p className="text-xs font-semibold text-slate-700 mt-0.5">
-                      {t.contact.info.hoursValue}
+                      {language === 'fa' ? company.workingHoursFa : company.workingHoursEn}
                     </p>
                   </div>
                 </div>
@@ -160,12 +173,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
               <div className="p-5 rounded-2xl bg-gradient-to-br from-[#232c86] to-[#171e5c] text-white space-y-2 shadow-lg shadow-blue-950/20 border border-white/10">
                 <div className="flex items-center gap-2 font-bold text-xs">
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>{language === 'fa' ? 'مشاوره فنی و استعلام تلفنی فوری' : 'Instant Technical & Supply Consultation'}</span>
+                  <span>{language === 'fa' ? content.consultationTitleFa : content.consultationTitleEn}</span>
                 </div>
                 <p className="text-[11px] text-blue-100 leading-relaxed font-normal">
-                  {language === 'fa' 
-                    ? 'کارشناسان ما آماده پاسخگویی به استعلامات فنی، معادل‌سازی کدها و ارائه مشاوره‌های روانکاری تخصصی هستند.'
-                    : 'Our engineering team is ready to assist with cross-referencing, lubricant calculations, and technical bearings specs.'}
+                  {language === 'fa' ? content.consultationTextFa : content.consultationTextEn}
                 </p>
               </div>
 
@@ -177,10 +188,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
           <div className="lg:col-span-7 glass-card p-6 sm:p-8 rounded-3xl">
             <div className="border-b border-slate-200/60 pb-4 mb-6 text-start">
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                {t.contact.form.title}
+                {language === 'fa' ? content.formTitleFa : content.formTitleEn}
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                {t.contact.form.subtitle}
+                {language === 'fa' ? content.formSubtitleFa : content.formSubtitleEn}
               </p>
             </div>
 
@@ -330,10 +341,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <button
                     id="submit-contact-form-btn"
                     type="submit"
-                    className="w-full sm:flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-full glass-btn-primary text-xs sm:text-sm shadow-md shadow-blue-900/20"
+                    disabled={isSubmitting}
+                    className="w-full sm:flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-full glass-btn-primary disabled:opacity-60 disabled:cursor-wait text-xs sm:text-sm shadow-md shadow-blue-900/20"
                   >
                     <Send className="w-4 h-4 text-amber-300" />
-                    <span>{t.contact.form.submitBtn}</span>
+                    <span>{isSubmitting ? (language === 'fa' ? 'در حال ارسال...' : 'Sending...') : t.contact.form.submitBtn}</span>
                   </button>
 
                   <a
