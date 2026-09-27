@@ -143,6 +143,17 @@ mediaRouter.delete('/:id', requireAuth, (req: Request, res: Response): void => {
   }
 
   mediaDb.deleteMediaRecord(id);
+
+  if (current.url.startsWith('/uploads/')) {
+    const storedName = path.basename(current.url);
+    const targetPath = path.join(CONFIG.UPLOAD_DIR, storedName);
+    try {
+      if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath);
+    } catch (error) {
+      console.warn('[Media] Failed to remove uploaded file:', error);
+    }
+  }
+
   logAudit('MEDIA_DELETED', 'media', `رسانه ${current.originalName} از کتابخانه حذف شد.`, req, id);
 
   res.json({ success: true });
