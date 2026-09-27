@@ -1,6 +1,6 @@
 import React from 'react';
 import { Language } from '../types';
-import { translations, industryApplications } from '../data/translations';
+import { usePageContent } from '../services/dataService';
 import { 
   Factory, 
   Car, 
@@ -20,7 +20,8 @@ export const Industries: React.FC<IndustriesProps> = ({
   language,
   onSelectBearingCode,
 }) => {
-  const t = translations[language];
+  const pageContent = usePageContent();
+  const content = pageContent.industries;
 
   const getIcon = (iconName: string) => {
     const iconClass = "w-5 h-5 text-[#232c86]";
@@ -36,33 +37,33 @@ export const Industries: React.FC<IndustriesProps> = ({
   };
 
   return (
-    <section id="industries" className="py-16 sm:py-24 relative">
+    <section id="industries" className="site-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
             <Factory className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{t.industries.tag}</span>
+            <span>{language === 'fa' ? content.tagFa : content.tagEn}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {t.industries.title}
+            {language === 'fa' ? content.titleFa : content.titleEn}
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600">
-            {t.industries.subtitle}
+            {language === 'fa' ? content.subtitleFa : content.subtitleEn}
           </p>
         </div>
 
         {/* 6 Industries Grid (Apple Liquid Glass Cards) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {industryApplications.map((ind) => (
+          {content.items.map((ind) => (
             <div
               key={ind.id}
               className="p-6 sm:p-8 rounded-3xl glass-card flex flex-col justify-between group"
             >
               <div>
                 <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/10 w-fit mb-5 shadow-sm group-hover:scale-105 transition-transform">
-                  {getIcon(ind.icon)}
+                  {getIcon(ind.icon || 'Factory')}
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2.5">
                   {language === 'fa' ? ind.titleFa : ind.titleEn}
