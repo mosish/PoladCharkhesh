@@ -53,6 +53,7 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
   const [selectedMedia, setSelectedMedia] = useState<MediaMetadata | null>(null);
   const [selectedProductId, setSelectedProductId] = useState('');
   const [draft, setDraft] = useState<MediaUploadInput>({ ...emptyDraft });
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<{ ok?: boolean; message?: string }>({});
@@ -91,12 +92,14 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
   const startCreate = () => {
     setSelectedMedia(null);
     setDraft({ ...emptyDraft, associatedProductCodes: [] });
+    setUploadFile(null);
     setIsEditing(true);
     setStatus({});
   };
 
   const startEdit = (item: MediaMetadata) => {
     setSelectedMedia(item);
+    setUploadFile(null);
     setDraft({
       originalName: item.originalName,
       filename: item.filename,
@@ -130,7 +133,15 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
 
       const result = selectedMedia
         ? await mediaService.updateMedia(selectedMedia.id, payload)
-        : await mediaService.createMedia(payload);
+        : uploadFile
+          ? await mediaService.uploadFile(uploadFile, {
+              filename: payload.filename,
+              altTextFa: payload.altTextFa,
+              altTextEn: payload.altTextEn,
+              category: payload.category,
+              associatedProductCodes: payload.associatedProductCodes,
+            })
+          : await mediaService.createMedia(payload);
 
       if (!result.success) {
         setStatus({ ok: false, message: result.error.message });
@@ -305,8 +316,42 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
                 <h3 className="text-sm font-bold text-white">{selectedMedia ? (isFa ? 'ویرایش رسانه' : 'Edit Media') : (isFa ? 'ثبت رسانه جدید' : 'New Media')}</h3>
                 <button type="button" onClick={() => setIsEditing(false)} className="p-1.5 text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
               </div>
+              {!selectedMedia && (
+                <div className="rounded-xl border border-dashed border-slate-700 bg-slate-950/70 p-3 space-y-2">
+                  <label className="block text-[11px] font-bold text-slate-300">
+                    {isFa ? 'آپلود فایل از کامپیوتر (حداکثر ۱۰MB)' : 'Upload from computer (max 10MB)'}
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setUploadFile(file);
+                      if (file) {
+                        setDraft((prev) => ({
+                          ...prev,
+                          originalName: file.name,
+                          mimeType: file.type,
+                          sizeBytes: file.size,
+                          url: '',
+                          category: file.type === 'application/pdf' ? 'datasheet_pdf' : prev.category,
+                        }));
+                      }
+                    }}
+                    className="block w-full text-[11px] text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-indigo-500"
+                  />
+                  {uploadFile && <div className="text-[10px] text-emerald-400 font-mono">{uploadFile.name} — {(uploadFile.size / 1024 / 1024).toFixed(2)} MB</div>}
+                </div>
+              )}
               <input className={fieldClass} value={draft.originalName} onChange={(e) => setDraft({ ...draft, originalName: e.target.value })} placeholder={isFa ? 'نام فایل / عنوان' : 'Original name / title'} required />
-              <input className={fieldClass} value={draft.url} onChange={(e) => setDraft({ ...draft, url: e.target.value })} placeholder="https://... or /media/..." required />
+              <input
+                className={fieldClass}
+                value={draft.url}
+                onChange={(e) => setDraft({ ...draft, url: e.target.value })}
+                placeholder={uploadFile ? (isFa ? 'برای آپلود مستقیم خالی بماند' : 'Leave empty for direct upload') : 'https://... or /uploads/...'}
+                required={!uploadFile}
+                disabled={Boolean(uploadFile)}
+              />
               <div className="grid grid-cols-2 gap-2">
                 <input className={fieldClass} value={draft.mimeType} onChange={(e) => setDraft({ ...draft, mimeType: e.target.value })} placeholder="image/webp" />
                 <input className={fieldClass} type="number" min="0" value={draft.sizeBytes} onChange={(e) => setDraft({ ...draft, sizeBytes: Number(e.target.value) || 0 })} placeholder="Bytes" />
