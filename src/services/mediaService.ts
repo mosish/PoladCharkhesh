@@ -21,6 +21,32 @@ export const mediaService = {
     return apiClient.get<{ media: MediaMetadata }>(`/api/media/${encodeURIComponent(id)}`);
   },
 
+  async uploadFile(
+    file: File,
+    metadata: Omit<MediaUploadInput, 'originalName' | 'mimeType' | 'sizeBytes' | 'url'>
+  ): Promise<ApiResponse<{ success: boolean; media: MediaMetadata }>> {
+    const dataBase64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.onload = () => {
+        const result = String(reader.result || '');
+        const comma = result.indexOf(',');
+        resolve(comma >= 0 ? result.slice(comma + 1) : result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    return apiClient.post<{ success: boolean; media: MediaMetadata }>('/api/media/upload', {
+      originalName: file.name,
+      mimeType: file.type,
+      dataBase64,
+      altTextFa: metadata.altTextFa,
+      altTextEn: metadata.altTextEn,
+      category: metadata.category,
+      associatedProductCodes: metadata.associatedProductCodes,
+    });
+  },
+
   async createMedia(input: MediaUploadInput): Promise<ApiResponse<{ success: boolean; media: MediaMetadata }>> {
     return apiClient.post<{ success: boolean; media: MediaMetadata }>('/api/media', input);
   },
