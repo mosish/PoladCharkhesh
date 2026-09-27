@@ -1,6 +1,7 @@
 import React from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
+import { usePageContent } from '../services/dataService';
 import { 
   ShieldCheck, 
   Truck, 
@@ -17,6 +18,8 @@ interface AboutUsProps {
 
 export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
   const t = translations[language];
+  const pageContent = usePageContent();
+  const aboutContent = pageContent.about;
 
   const featureIcons = [
     <ShieldCheck className="w-5 h-5 text-[#232c86]" key="0" />,
@@ -33,16 +36,16 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
             <Compass className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{t.about.tag}</span>
+            <span>{language === 'fa' ? aboutContent.tagFa : aboutContent.tagEn}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-            {t.about.title}
+            {language === 'fa' ? aboutContent.titleFa : aboutContent.titleEn}
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-            {t.about.p1}
+            {language === 'fa' ? aboutContent.paragraph1Fa : aboutContent.paragraph1En}
           </p>
           <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-            {t.about.p2}
+            {language === 'fa' ? aboutContent.paragraph2Fa : aboutContent.paragraph2En}
           </p>
         </div>
 
