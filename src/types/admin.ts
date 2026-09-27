@@ -268,6 +268,7 @@ export interface ProductCreateInput {
   speedGreaseRpm: number;
   speedOilRpm: number;
   thermalSpeedRatingRpm?: number;
+  speedReferenceType?: 'limiting' | 'thermal' | 'both';
   cageMaterialFa?: string;
   cageMaterialEn?: string;
   sealingFa?: string;
@@ -275,11 +276,13 @@ export interface ProductCreateInput {
   clearanceOptions?: string[];
   schematicType?: BearingSchematicType;
   rMin?: number;
+  contactAngle?: string;
   calculationFactorE?: number;
   calculationFactorY?: number;
   calculationFactorY0?: number;
   calculationFactorY1?: number;
   calculationFactorY2?: number;
+  calculationFactorX?: number;
   calculationFactorF0?: number;
   imageUrl?: string;
   images?: string[];
@@ -293,6 +296,7 @@ export interface ProductCreateInput {
   metaTitleEn?: string;
   metaDescriptionFa?: string;
   metaDescriptionEn?: string;
+  keywords?: string[];
 }
 
 export type ProductUpdateInput = Partial<ProductCreateInput> & {
