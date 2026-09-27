@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Language, BearingProduct } from './types';
-import { dataService, useDataSync } from './services/dataService';
+import { dataService, useDataSync, usePageContent } from './services/dataService';
 import { authService } from './services/authService';
 import { AlertCircle } from 'lucide-react';
 import { AdminTab, AdminLayout } from './components/admin/AdminLayout';
@@ -101,6 +101,7 @@ export default function App() {
 
   // Synchronization status with authoritative SQLite backend
   const syncState = useDataSync();
+  const pageContent = usePageContent();
 
   // Live products dataset subscribed from central dataService
   const [allProducts, setAllProducts] = useState<BearingProduct[]>(dataService.getActiveProducts());
@@ -390,38 +391,44 @@ export default function App() {
           )
         ) : (
           <>
-            <Hero
-              language={language}
-              onSearchSubmit={(q) => {
-                setCatalogSearch(q);
-                const catalogEl = document.getElementById('catalog');
-                if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
-              }}
-            />
+            {pageContent.visibility.hero && (
+              <Hero
+                language={language}
+                onSearchSubmit={(q) => {
+                  setCatalogSearch(q);
+                  const catalogEl = document.getElementById('catalog');
+                  if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
+            )}
 
-            <AboutUs language={language} />
+            {pageContent.visibility.about && <AboutUs language={language} />}
 
-            <ProductCatalog
-              products={allProducts}
-              language={language}
-              selectedBearingCode={catalogSearch}
-              initialCategory={catalogCategory}
-              onSelectProduct={(p) => setSelectedProduct(p)}
-              onNavigateProduct={navigateToProduct}
-            />
+            {pageContent.visibility.catalog && (
+              <ProductCatalog
+                products={allProducts}
+                language={language}
+                selectedBearingCode={catalogSearch}
+                initialCategory={catalogCategory}
+                onSelectProduct={(p) => setSelectedProduct(p)}
+                onNavigateProduct={navigateToProduct}
+              />
+            )}
 
-            <BearingCalculator language={language} />
+            {pageContent.visibility.tools && <BearingCalculator language={language} />}
 
-            <WhyChooseUs language={language} />
+            {pageContent.visibility.whyUs && <WhyChooseUs language={language} />}
 
-            <Industries
-              language={language}
-              onSelectBearingCode={handleSelectBearingCode}
-            />
+            {pageContent.visibility.industries && (
+              <Industries
+                language={language}
+                onSelectBearingCode={handleSelectBearingCode}
+              />
+            )}
 
-            <TeamMembers language={language} />
+            {pageContent.visibility.team && <TeamMembers language={language} />}
 
-            <ContactSection language={language} />
+            {pageContent.visibility.contact && <ContactSection language={language} />}
           </>
         )}
       </main>
