@@ -24,6 +24,8 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
   const isFa = language === 'fa';
   const [company, setCompany] = useState<CompanyInfo>(dataService.getCompanyInfo());
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const unsub = dataService.subscribeToCompany(setCompany);
@@ -34,11 +36,25 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
     setCompany((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dataService.updateCompanyInfo(company, 'admin');
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    setSaveError('');
+    setSavedSuccess(false);
+    setIsSaving(true);
+
+    try {
+      const result = await dataService.updateCompanyInfo(company, 'admin');
+      if (!result.success) {
+        setSaveError(isFa ? 'ذخیره اطلاعات شرکت ناموفق بود. لطفاً اتصال سرور و داده‌های ورودی را بررسی کنید.' : 'Failed to save company information. Check the server connection and submitted data.');
+        return;
+      }
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch {
+      setSaveError(isFa ? 'خطای ارتباط با سرور هنگام ذخیره اطلاعات شرکت.' : 'Server communication error while saving company information.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -58,12 +74,19 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
           </p>
         </div>
 
-        {savedSuccess && (
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold animate-fade-in">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>{isFa ? 'تغییرات با موفقیت ذخیره شدند.' : 'Changes saved successfully.'}</span>
-          </div>
-        )}
+        <div className="flex flex-col items-start sm:items-end gap-2">
+          {savedSuccess && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold animate-fade-in">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{isFa ? 'تغییرات با موفقیت ذخیره شدند.' : 'Changes saved successfully.'}</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="px-4 py-2 rounded-xl bg-rose-500/15 text-rose-300 border border-rose-500/30 text-xs font-semibold">
+              {saveError}
+            </div>
+          )}
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -291,10 +314,11 @@ export const AdminCompany: React.FC<AdminCompanyProps> = ({ language }) => {
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-950 transition-all active:scale-[0.99]"
+            disabled={isSaving}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 disabled:opacity-60 disabled:cursor-wait text-white text-xs font-bold shadow-lg shadow-indigo-950 transition-all active:scale-[0.99]"
           >
             <Save className="w-4 h-4" />
-            <span>{isFa ? 'ذخیره مشخصات هویتی شرکت' : 'Save Company Profile'}</span>
+            <span>{isSaving ? (isFa ? 'در حال ذخیره...' : 'Saving...') : (isFa ? 'ذخیره مشخصات هویتی شرکت' : 'Save Company Profile')}</span>
           </button>
         </div>
 
