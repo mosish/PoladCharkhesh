@@ -25,6 +25,8 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
   const [selectedProduct, setSelectedProduct] = useState<AdminProductItem | null>(null);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const unsub = dataService.subscribeToAllProducts(setProducts);
@@ -41,23 +43,46 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
     setSelectedProduct(p);
     setNewImageUrl(p.imageUrl || '/icon.png');
     setSavedSuccess(false);
+    setSaveError('');
   };
 
-  const handleSaveImage = (e: React.FormEvent) => {
+  const handleSaveImage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduct) return;
 
-    dataService.updateProduct(
-      selectedProduct.id,
-      {
-        imageUrl: newImageUrl.trim() || '/icon.png',
-        images: [newImageUrl.trim() || '/icon.png'],
-      },
-      'admin'
-    );
+    setSavedSuccess(false);
+    setSaveError('');
+    setIsSaving(true);
 
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    const nextPrimary = newImageUrl.trim() || '/icon.png';
+    const existingImages = selectedProduct.images && selectedProduct.images.length > 0
+      ? selectedProduct.images
+      : [selectedProduct.imageUrl || '/icon.png'];
+    const nextImages = [nextPrimary, ...existingImages.filter((url) => url !== nextPrimary)];
+
+    try {
+      const result = await dataService.updateProduct(
+        selectedProduct.id,
+        {
+          imageUrl: nextPrimary,
+          images: nextImages,
+        },
+        'admin'
+      );
+
+      if (!result.success) {
+        setSaveError(result.errors?.join(' ') || (isFa ? 'ذخیره تصویر ناموفق بود.' : 'Failed to save image.'));
+        return;
+      }
+
+      setSelectedProduct((prev) => prev ? { ...prev, imageUrl: nextPrimary, images: nextImages } : prev);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch {
+      setSaveError(isFa ? 'خطای ارتباط با سرور هنگام ذخیره تصویر.' : 'Server communication error while saving the image.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -185,12 +210,18 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
                     <span>{isFa ? 'تصویر با موفقیت به‌روزرسانی شد.' : 'Image updated successfully.'}</span>
                   </div>
                 )}
+                {saveError && (
+                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+                    {saveError}
+                  </div>
+                )}
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 text-white text-xs font-bold shadow-md transition-all"
+                  disabled={isSaving}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 disabled:opacity-60 disabled:cursor-wait text-white text-xs font-bold shadow-md transition-all"
                 >
-                  {isFa ? 'ذخیره آدرس تصویر' : 'Save Image URL'}
+                  {isSaving ? (isFa ? 'در حال ذخیره...' : 'Saving...') : (isFa ? 'ذخیره آدرس تصویر' : 'Save Image URL')}
                 </button>
               </form>
             ) : (

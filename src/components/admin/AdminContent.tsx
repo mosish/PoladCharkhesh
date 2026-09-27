@@ -21,6 +21,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
   const isFa = language === 'fa';
   const [content, setContent] = useState<CmsContent>(dataService.getContent());
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<'hero' | 'about' | 'footer'>('hero');
 
   useEffect(() => {
@@ -58,11 +60,25 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dataService.updateContent(content, 'admin');
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    setSaveError('');
+    setSavedSuccess(false);
+    setIsSaving(true);
+
+    try {
+      const result = await dataService.updateContent(content, 'admin');
+      if (!result.success) {
+        setSaveError(isFa ? 'ذخیره محتوای سایت ناموفق بود. لطفاً اتصال سرور و داده‌های ورودی را بررسی کنید.' : 'Failed to save site content. Check the server connection and submitted data.');
+        return;
+      }
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch {
+      setSaveError(isFa ? 'خطای ارتباط با سرور هنگام ذخیره محتوای سایت.' : 'Server communication error while saving site content.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -82,12 +98,19 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
           </p>
         </div>
 
-        {savedSuccess && (
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold animate-fade-in">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>{isFa ? 'محتوا با موفقیت ذخیره شد.' : 'Content saved successfully.'}</span>
-          </div>
-        )}
+        <div className="flex flex-col items-start sm:items-end gap-2">
+          {savedSuccess && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold animate-fade-in">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{isFa ? 'محتوا با موفقیت ذخیره شد.' : 'Content saved successfully.'}</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="px-4 py-2 rounded-xl bg-rose-500/15 text-rose-300 border border-rose-500/30 text-xs font-semibold">
+              {saveError}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Sub Tabs */}
@@ -312,7 +335,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-950 transition-all active:scale-[0.99]"
+            disabled={isSaving}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 disabled:opacity-60 disabled:cursor-wait text-white text-xs font-bold shadow-lg shadow-indigo-950 transition-all active:scale-[0.99]"
           >
             <Save className="w-4 h-4" />
             <span>{isFa ? 'ذخیره تغییرات محتوای متنی' : 'Save Page Content'}</span>

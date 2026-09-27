@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { useCompanyInfo } from '../services/dataService';
+import { useCompanyInfo, usePageContent } from '../services/dataService';
 import { RealisticBearingViewer } from './RealisticBearingViewer';
 import { 
   Search, 
@@ -18,8 +18,10 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
   const company = useCompanyInfo();
+  const pageContent = usePageContent();
   const [searchInput, setSearchInput] = useState('');
   const t = translations[language];
+  const heroContent = pageContent.hero;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,17 +59,17 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
             {/* Top Badge (Apple Glass Pill) */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold shadow-sm">
               <ShieldCheck className="w-4 h-4 text-[#232c86] flex-shrink-0" />
-              <span>{t.hero.badge}</span>
+              <span>{language === 'fa' ? heroContent.badgeFa : heroContent.badgeEn}</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
               <span className="text-[#232c86] font-mono-spec">
-                {t.hero.titleHighlight}
+                {language === 'fa' ? heroContent.titleHighlightFa : heroContent.titleHighlightEn}
               </span>
               <br />
               <span className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-800 mt-2 block">
-                {t.hero.titleSuffix}
+                {language === 'fa' ? heroContent.titleSuffixFa : heroContent.titleSuffixEn}
               </span>
             </h1>
 
@@ -80,7 +82,7 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
                   type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder={t.hero.searchPlaceholder}
+                  placeholder={language === 'fa' ? heroContent.searchPlaceholderFa : heroContent.searchPlaceholderEn}
                   className="w-full pl-10 sm:pl-12 pr-28 sm:pr-32 py-2.5 sm:py-3 bg-transparent rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
                 />
                 
