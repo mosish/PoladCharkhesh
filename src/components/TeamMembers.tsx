@@ -19,7 +19,7 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
   const content = pageContent.team;
 
   return (
-    <section id="team" className="py-16 sm:py-24 relative">
+    <section id="team" className="site-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
