@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
+import { usePageContent } from '../services/dataService';
 import { MetricImperialConverter } from './MetricImperialConverter';
 import { BearingThermalEstimator } from './BearingThermalEstimator';
 import { BearingLifeCalculator } from './BearingLifeCalculator';
@@ -48,6 +49,8 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
   const [activeToolTab, setActiveToolTab] = useState<'clearance' | 'life' | 'thermal' | 'converter' | 'all'>('clearance');
 
   const t = translations[language];
+  const pageContent = usePageContent();
+  const cmsHeader = pageContent.tools;
 
   // Quick preset application handler
   const applyPreset = (type: 'motor' | 'kiln' | 'screen' | 'spindle') => {
@@ -245,7 +248,7 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
   }, [isoClearance]);
 
   return (
-    <section id="tools" className="py-16 sm:py-24 relative">
+    <section id="tools" className="site-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -253,13 +256,13 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
               <Wrench className="w-3.5 h-3.5 text-[#232c86]" />
-              <span>{t.tools.tag}</span>
+              <span>{language === 'fa' ? cmsHeader.tagFa : cmsHeader.tagEn}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              {t.tools.title}
+              {language === 'fa' ? cmsHeader.titleFa : cmsHeader.titleEn}
             </h2>
             <p className="mt-2.5 text-sm sm:text-base text-slate-600">
-              {t.tools.subtitle}
+              {language === 'fa' ? cmsHeader.subtitleFa : cmsHeader.subtitleEn}
             </p>
           </div>
 
