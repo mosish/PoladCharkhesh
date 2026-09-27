@@ -30,7 +30,7 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ language }) => {
   ];
 
   return (
-    <section id="why-us" className="py-16 sm:py-24 relative">
+    <section id="why-us" className="site-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
