@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Language, BearingProduct } from './types';
-import { dataService, useDataSync } from './services/dataService';
+import { dataService, useDataSync, usePageContent } from './services/dataService';
 import { authService } from './services/authService';
 import { AlertCircle } from 'lucide-react';
 import { AdminTab, AdminLayout } from './components/admin/AdminLayout';
@@ -79,17 +79,17 @@ function parseCurrentRoute(): RouteState {
 
 function getInitialLanguage(): Language {
   if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname.toLowerCase();
-    // poladcharkhesh.com or English subdomains default to English
-    if (hostname.endsWith('.com') || hostname.startsWith('en.')) {
-      return 'en';
-    }
+    // Explicit manual choice persists; domain is only the default for first visit.
     const saved = localStorage.getItem('polad_preferred_language');
     if (saved === 'fa' || saved === 'en') {
       return saved as Language;
     }
+
+    const hostname = window.location.hostname.toLowerCase();
+    if (hostname.endsWith('.com') || hostname.startsWith('en.')) {
+      return 'en';
+    }
   }
-  // poladcharkhesh.ir & standard default is Persian
   return 'fa';
 }
 
@@ -102,6 +102,7 @@ export default function App() {
 
   // Synchronization status with authoritative SQLite backend
   const syncState = useDataSync();
+  const pageContent = usePageContent();
 
   // Live products dataset subscribed from central dataService
   const [allProducts, setAllProducts] = useState<BearingProduct[]>(dataService.getActiveProducts());
@@ -395,38 +396,42 @@ export default function App() {
           )
         ) : (
           <>
-            <Hero
-              language={language}
-              onSearchSubmit={(q) => {
-                setCatalogSearch(q);
-                const catalogEl = document.getElementById('catalog');
-                if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
-              }}
-            />
+            {pageContent.visibility.hero && (
+              <Hero
+                language={language}
+                onSearchSubmit={(q) => {
+                  setCatalogSearch(q);
+                  const catalogEl = document.getElementById('catalog');
+                  if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
+            )}
 
-            <AboutUs language={language} />
+            {pageContent.visibility.about && <AboutUs language={language} />}
 
-            <ProductCatalog
-              products={allProducts}
-              language={language}
-              selectedBearingCode={catalogSearch}
-              initialCategory={catalogCategory}
-              onSelectProduct={(p) => setSelectedProduct(p)}
-              onNavigateProduct={navigateToProduct}
-            />
+            {pageContent.visibility.catalog && (
+              <ProductCatalog
+                products={allProducts}
+                language={language}
+                selectedBearingCode={catalogSearch}
+                initialCategory={catalogCategory}
+                onSelectProduct={(p) => setSelectedProduct(p)}
+                onNavigateProduct={navigateToProduct}
+              />
+            )}
 
-            <BearingCalculator language={language} />
+            {pageContent.visibility.tools && <BearingCalculator language={language} />}
+            {pageContent.visibility.whyUs && <WhyChooseUs language={language} />}
 
-            <WhyChooseUs language={language} />
+            {pageContent.visibility.industries && (
+              <Industries
+                language={language}
+                onSelectBearingCode={handleSelectBearingCode}
+              />
+            )}
 
-            <Industries
-              language={language}
-              onSelectBearingCode={handleSelectBearingCode}
-            />
-
-            <TeamMembers language={language} />
-
-            <ContactSection language={language} />
+            {pageContent.visibility.team && <TeamMembers language={language} />}
+            {pageContent.visibility.contact && <ContactSection language={language} />}
           </>
         )}
       </main>
