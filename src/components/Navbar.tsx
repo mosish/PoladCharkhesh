@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { useCompanyInfo } from '../services/dataService';
+import { useCompanyInfo, usePageContent } from '../services/dataService';
 import { Logo } from './Logo';
 
 interface NavbarProps {
@@ -29,6 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigateSection,
 }) => {
   const company = useCompanyInfo();
+  const pageContent = usePageContent();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = translations[language];
@@ -51,15 +52,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const navLinks = [
-    { href: '#home', label: t.nav.home },
-    { href: '#about', label: t.nav.about },
-    { href: '#catalog', label: t.nav.products },
-    { href: '#tools', label: t.nav.tools },
-    { href: '#why-us', label: t.nav.whyUs },
-    { href: '#industries', label: t.nav.industries },
-    { href: '#team', label: t.nav.team },
-    { href: '#contact', label: t.nav.contact },
-  ];
+    { href: '#home', label: t.nav.home, visible: true },
+    { href: '#about', label: t.nav.about, visible: pageContent.visibility.about },
+    { href: '#catalog', label: t.nav.products, visible: pageContent.visibility.catalog },
+    { href: '#tools', label: t.nav.tools, visible: pageContent.visibility.tools },
+    { href: '#why-us', label: t.nav.whyUs, visible: pageContent.visibility.whyUs },
+    { href: '#industries', label: t.nav.industries, visible: pageContent.visibility.industries },
+    { href: '#team', label: t.nav.team, visible: pageContent.visibility.team },
+    { href: '#contact', label: t.nav.contact, visible: pageContent.visibility.contact },
+  ].filter((item) => item.visible);
 
   return (
     <header className="sticky top-0 z-50 w-full transition-all duration-200">
