@@ -78,7 +78,9 @@ export type AuditAction =
   | 'COMPANY_UPDATED'
   | 'CONTENT_UPDATED'
   | 'SEO_UPDATED'
+  | 'MEDIA_CREATED'
   | 'MEDIA_UPDATED'
+  | 'MEDIA_DELETED'
   | 'BACKUP_EXPORTED'
   | 'BACKUP_IMPORTED'
   | 'SYSTEM_RESET';
@@ -108,6 +110,15 @@ export interface AuditLog {
 // 4. CMS & PAGE CONTENT CONTRACTS
 // ==========================================
 
+export interface CmsLocalizedCard {
+  id: string;
+  titleFa: string;
+  titleEn: string;
+  descriptionFa: string;
+  descriptionEn: string;
+  icon?: string;
+}
+
 export interface CmsHeroContent {
   badgeFa: string;
   badgeEn: string;
@@ -130,12 +141,76 @@ export interface CmsAboutContent {
   paragraph1En: string;
   paragraph2Fa: string;
   paragraph2En: string;
+  missionTitleFa: string;
+  missionTitleEn: string;
+  missionTextFa: string;
+  missionTextEn: string;
+  visionTitleFa: string;
+  visionTitleEn: string;
+  visionTextFa: string;
+  visionTextEn: string;
+  features: CmsLocalizedCard[];
   stats: Array<{
     valueFa: string;
     valueEn: string;
     labelFa: string;
     labelEn: string;
   }>;
+}
+
+export interface CmsSectionHeader {
+  tagFa: string;
+  tagEn: string;
+  titleFa: string;
+  titleEn: string;
+  subtitleFa?: string;
+  subtitleEn?: string;
+}
+
+export interface CmsWhyUsContent extends CmsSectionHeader {
+  cards: CmsLocalizedCard[];
+  commitmentFa: string;
+  commitmentEn: string;
+}
+
+export interface CmsIndustryItem extends CmsLocalizedCard {
+  recommendedBearings: string[];
+}
+
+export interface CmsIndustriesContent extends CmsSectionHeader {
+  items: CmsIndustryItem[];
+}
+
+export interface CmsTeamMember {
+  id: string;
+  nameFa: string;
+  nameEn: string;
+  roleFa: string;
+  roleEn: string;
+  experienceFa: string;
+  experienceEn: string;
+  specialtyFa: string;
+  specialtyEn: string;
+  phone?: string;
+  email?: string;
+  image: string;
+}
+
+export interface CmsTeamContent extends CmsSectionHeader {
+  members: CmsTeamMember[];
+}
+
+export interface CmsContactContent extends CmsSectionHeader {
+  infoTitleFa: string;
+  infoTitleEn: string;
+  consultationTitleFa: string;
+  consultationTitleEn: string;
+  consultationTextFa: string;
+  consultationTextEn: string;
+  formTitleFa: string;
+  formTitleEn: string;
+  formSubtitleFa: string;
+  formSubtitleEn: string;
 }
 
 export interface CmsFooterContent {
@@ -147,16 +222,41 @@ export interface CmsFooterContent {
   disclaimerEn: string;
 }
 
+export interface CmsVisibilityConfig {
+  hero: boolean;
+  about: boolean;
+  catalog: boolean;
+  tools: boolean;
+  whyUs: boolean;
+  industries: boolean;
+  team: boolean;
+  contact: boolean;
+}
+
 export interface CmsPageContent {
   hero: CmsHeroContent;
   about: CmsAboutContent;
+  catalog: CmsSectionHeader;
+  tools: CmsSectionHeader;
+  whyUs: CmsWhyUsContent;
+  industries: CmsIndustriesContent;
+  team: CmsTeamContent;
+  contact: CmsContactContent;
   footer: CmsFooterContent;
+  visibility: CmsVisibilityConfig;
 }
 
 export type CmsUpdateInput = Partial<{
   hero: Partial<CmsHeroContent>;
   about: Partial<CmsAboutContent>;
+  catalog: Partial<CmsSectionHeader>;
+  tools: Partial<CmsSectionHeader>;
+  whyUs: Partial<CmsWhyUsContent>;
+  industries: Partial<CmsIndustriesContent>;
+  team: Partial<CmsTeamContent>;
+  contact: Partial<CmsContactContent>;
   footer: Partial<CmsFooterContent>;
+  visibility: Partial<CmsVisibilityConfig>;
 }>;
 
 // ==========================================
@@ -235,10 +335,14 @@ export interface MediaUploadInput {
   mimeType: string;
   sizeBytes: number;
   url: string;
+  filename?: string;
   altTextFa?: string;
   altTextEn?: string;
   category?: MediaCategory;
+  associatedProductCodes?: string[];
 }
+
+export type MediaUpdateInput = Partial<MediaUploadInput>;
 
 // ==========================================
 // 8. PRODUCT CONTRACTS & INPUTS
