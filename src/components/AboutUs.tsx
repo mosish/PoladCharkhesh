@@ -29,7 +29,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
   ];
 
   return (
-    <section id="about" className="py-16 sm:py-24 relative">
+    <section id="about" className="site-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
