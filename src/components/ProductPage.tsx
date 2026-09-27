@@ -211,25 +211,29 @@ export const ProductPage: React.FC<ProductPageProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               {/* Primary Call */}
-              <a
-                href={company.primaryPhoneTel}
-                className="flex items-center justify-center gap-2 py-3.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm rounded-2xl transition-all shadow-md font-mono-spec cursor-pointer"
-                title="تماس مستقیم با واحد فنی"
-              >
-                <PhoneCall className="w-4 h-4 text-slate-950" />
-                <span>{isRtl ? `تماس: ${company.primaryPhoneDisplayFa}` : `Call: ${company.primaryPhoneDisplayEn}`}</span>
-              </a>
+              {company.phoneEnabled !== false && (
+                <a
+                  href={company.primaryPhoneTel}
+                  className="flex items-center justify-center gap-2 py-3.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm rounded-2xl transition-all shadow-md font-mono-spec cursor-pointer"
+                  title="تماس مستقیم با واحد فنی"
+                >
+                  <PhoneCall className="w-4 h-4 text-slate-950" />
+                  <span>{isRtl ? `تماس: ${company.primaryPhoneDisplayFa}` : `Call: ${company.primaryPhoneDisplayEn}`}</span>
+                </a>
+              )}
 
               {/* Fast WhatsApp Inquiry */}
-              <a
-                href={whatsappInquiryUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-2xl transition-all shadow-md cursor-pointer"
-              >
-                <MessageCircle className="w-4 h-4 text-white" />
-                <span>{isRtl ? 'استعلام در واتس‌اپ' : 'WhatsApp Inquiry'}</span>
-              </a>
+              {company.whatsappEnabled !== false && (
+                <a
+                  href={whatsappInquiryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-2xl transition-all shadow-md cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4 text-white" />
+                  <span>{isRtl ? 'استعلام در واتس‌اپ' : 'WhatsApp Inquiry'}</span>
+                </a>
+              )}
             </div>
 
             {/* PDF Export Button */}

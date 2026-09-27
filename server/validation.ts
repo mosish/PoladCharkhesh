@@ -233,21 +233,45 @@ export function validateProductCandidate(body: any, isUpdate = false): Validatio
 // ==========================================
 
 const ALLOWED_COMPANY_FIELDS = [
-  'nameFa', 'nameEn', 'brandNameFa', 'brandNameEn', 'tradeNameFa', 'tradeNameEn',
-  'registrationNumber', 'economicCode', 'nationalId', 'ceoNameFa', 'ceoNameEn',
-  'phone', 'phoneRaw', 'phones', 'fax', 'mobile', 'mobileRaw', 'whatsapp', 'email',
-  'supportEmail', 'salesEmail', 'addressFa', 'addressEn', 'postalCode',
-  'mapCoordinates', 'coordinates', 'workingHoursFa', 'workingHoursEn',
-  'workingHoursShortFa', 'workingHoursShortEn', 'whatsappUrl', 'telegramUrl',
-  'linkedinUrl', 'instagramUrl', 'socialMedia', 'socialLinks', 'certifications',
-  'establishedYear', 'maps', 'provinceFa', 'provinceEn', 'cityFa', 'cityEn',
-  'districtFa', 'districtEn', 'streetFa', 'streetEn', 'plate',
-  'sloganFa', 'sloganEn', 'emergencyContact', 'showEmergencySupport'
+  // Identity
+  'nameFa', 'nameEn', 'companyNameFa', 'companyNameEn',
+  'legalNameFa', 'legalNameEn',
+  'sloganFa', 'sloganEn', 'taglineFa', 'taglineEn',
+  'website', 'email', 'inquiryEmail', 'technicalEmail',
+
+  // Phone & Contacts
+  'primaryPhone', 'primaryMobile', 'secondaryMobile', 'landlinePhone', 'landlinePhones',
+  'primaryPhoneDisplayFa', 'primaryPhoneDisplayEn', 'primaryPhoneTel',
+  'landlinePhoneDisplayFa', 'landlinePhoneDisplayEn', 'landlinePhoneTel',
+  'whatsappNumber', 'whatsappUrl',
+
+  // Visibility & Toggles
+  'whatsappEnabled', 'phoneEnabled', 'contactCtaEnabled',
+  'socialLinks', 'maps',
+
+  // Address
+  'addressFa', 'addressEn', 'officeAddressFa', 'officeAddressEn',
+  'provinceFa', 'provinceEn', 'cityFa', 'cityEn',
+  'districtFa', 'districtEn', 'streetFa', 'streetEn', 'plate', 'postalCode',
+
+  // Working Hours
+  'workingHoursConfig', 'workingHoursFa', 'workingHoursEn',
+  'workingHoursShortFa', 'workingHoursShortEn',
+
+  // Global Website Settings
+  'defaultLanguage', 'showFloatingActions', 'showTopAnnouncement',
+  'announcementTextFa', 'announcementTextEn',
+  'contactCtaVisibility', 'whatsappVisibility', 'phoneVisibility'
 ];
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^[0-9+\s\-()]{5,30}$/;
+
 export function validateCompanyPayload(body: any): ValidationResult<Record<string, any>> {
+  const errors: string[] = [];
+
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
-    return { isValid: false, errors: ['داده نامعتبر است.'] };
+    return { isValid: false, errors: ['داده نامعتبر است (شیء JSON مورد انتظار است).'] };
   }
 
   if (containsForbiddenKeys(body)) {
@@ -255,24 +279,126 @@ export function validateCompanyPayload(body: any): ValidationResult<Record<strin
   }
 
   const sanitized: Record<string, any> = {};
+
   for (const field of ALLOWED_COMPANY_FIELDS) {
     if (body[field] !== undefined) {
-      // Basic type & bounds sanity
-      if (typeof body[field] === 'string') {
-        if (body[field].length > 1000) {
-          return { isValid: false, errors: [`طول فیلد ${field} بیش از حد مجاز است.`] };
+      const val = body[field];
+
+      // String validation & length capping
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+
+        if (field.includes('Name') && trimmed.length > 200) {
+          errors.push(`طول نام ${field} نمی‌تواند بیش از ۲۰۰ نویسه باشد.`);
+        } else if ((field.includes('slogan') || field.includes('tagline')) && trimmed.length > 500) {
+          errors.push(`طول شعار تجاری (${field}) نمی‌تواند بیش از ۵۰۰ نویسه باشد.`);
+        } else if (field.includes('Address') && trimmed.length > 1000) {
+          errors.push(`طول آدرس (${field}) نمی‌تواند بیش از ۱۰۰۰ نویسه باشد.`);
+        } else if (trimmed.length > 2000) {
+          errors.push(`طول فیلد ${field} بیش از حد مجاز است.`);
         }
-        sanitized[field] = body[field].trim();
+
+        // Email validation
+        if ((field === 'email' || field === 'inquiryEmail' || field === 'technicalEmail') && trimmed.length > 0) {
+          if (!EMAIL_REGEX.test(trimmed)) {
+            errors.push(`آدرس پست الکترونیکی در فیلد ${field} نامعتبر است.`);
+          }
+        }
+
+        // Phone validation
+        if ((field === 'primaryMobile' || field === 'primaryPhone' || field === 'secondaryMobile' || field === 'landlinePhone' || field === 'whatsappNumber') && trimmed.length > 0) {
+          if (!PHONE_REGEX.test(trimmed)) {
+            errors.push(`قالب شماره تماس در فیلد ${field} نامعتبر است.`);
+          }
+        }
+
+        sanitized[field] = trimmed;
+      } else if (typeof val === 'boolean') {
+        sanitized[field] = Boolean(val);
+      } else if (field === 'landlinePhones' && Array.isArray(val)) {
+        // Repeatable landline phone list
+        const cleanList: string[] = [];
+        for (const phoneItem of val.slice(0, 10)) {
+          if (typeof phoneItem === 'string' && phoneItem.trim()) {
+            const p = phoneItem.trim();
+            if (!PHONE_REGEX.test(p)) {
+              errors.push(`شماره تلفن «${p}» در لیست تلفن‌های ثابت نامعتبر است.`);
+            } else {
+              cleanList.push(p);
+            }
+          }
+        }
+        sanitized[field] = cleanList;
+      } else if (field === 'workingHoursConfig' && typeof val === 'object' && val !== null) {
+        // Structured working hours validation
+        const config = {
+          workDaysFa: String(val.workDaysFa || 'شنبه تا چهارشنبه').trim().slice(0, 100),
+          workDaysEn: String(val.workDaysEn || 'Sat - Wed').trim().slice(0, 100),
+          openTime: String(val.openTime || '08:00').trim().slice(0, 10),
+          closeTime: String(val.closeTime || '16:00').trim().slice(0, 10),
+          hasThursdayHours: Boolean(val.hasThursdayHours),
+          thursdayOpenTime: val.thursdayOpenTime ? String(val.thursdayOpenTime).trim().slice(0, 10) : '08:00',
+          thursdayCloseTime: val.thursdayCloseTime ? String(val.thursdayCloseTime).trim().slice(0, 10) : '13:00',
+          closedDaysFa: String(val.closedDaysFa || 'پنج‌شنبه و جمعه: تعطیل').trim().slice(0, 100),
+          closedDaysEn: String(val.closedDaysEn || 'Thu & Fri: Closed').trim().slice(0, 100),
+        };
+        sanitized[field] = config;
+      } else if (field === 'socialLinks' && Array.isArray(val)) {
+        sanitized[field] = val.slice(0, 15).map((item: any) => ({
+          platform: String(item.platform || '').trim().slice(0, 50),
+          url: String(item.url || '').trim().slice(0, 500),
+          titleFa: String(item.titleFa || '').trim().slice(0, 100),
+          titleEn: String(item.titleEn || '').trim().slice(0, 100),
+          enabled: Boolean(item.enabled),
+        }));
+      } else if (field === 'maps' && typeof val === 'object' && val !== null) {
+        sanitized[field] = {
+          google: String(val.google || '').trim().slice(0, 500),
+          neshan: String(val.neshan || '').trim().slice(0, 500),
+          balad: String(val.balad || '').trim().slice(0, 500),
+        };
+      } else if (field === 'defaultLanguage') {
+        const langVal = String(val).toLowerCase();
+        if (['fa', 'en', 'domain_based'].includes(langVal)) {
+          sanitized[field] = langVal;
+        } else {
+          errors.push('زبان پیش‌فرض باید یکی از موارد fa، en یا domain_based باشد.');
+        }
       } else {
-        sanitized[field] = body[field];
+        sanitized[field] = val;
       }
     }
   }
 
+  // Synchronize bidirectional aliases
+  if (sanitized.companyNameFa && !sanitized.nameFa) sanitized.nameFa = sanitized.companyNameFa;
+  if (sanitized.nameFa && !sanitized.companyNameFa) sanitized.companyNameFa = sanitized.nameFa;
+
+  if (sanitized.companyNameEn && !sanitized.nameEn) sanitized.nameEn = sanitized.companyNameEn;
+  if (sanitized.nameEn && !sanitized.companyNameEn) sanitized.companyNameEn = sanitized.nameEn;
+
+  if (sanitized.taglineFa && !sanitized.sloganFa) sanitized.sloganFa = sanitized.taglineFa;
+  if (sanitized.sloganFa && !sanitized.taglineFa) sanitized.taglineFa = sanitized.sloganFa;
+
+  if (sanitized.taglineEn && !sanitized.sloganEn) sanitized.sloganEn = sanitized.taglineEn;
+  if (sanitized.sloganEn && !sanitized.taglineEn) sanitized.taglineEn = sanitized.sloganEn;
+
+  if (sanitized.officeAddressFa && !sanitized.addressFa) sanitized.addressFa = sanitized.officeAddressFa;
+  if (sanitized.addressFa && !sanitized.officeAddressFa) sanitized.officeAddressFa = sanitized.addressFa;
+
+  if (sanitized.officeAddressEn && !sanitized.addressEn) sanitized.addressEn = sanitized.officeAddressEn;
+  if (sanitized.addressEn && !sanitized.officeAddressEn) sanitized.officeAddressEn = sanitized.addressEn;
+
+  if (sanitized.primaryMobile && !sanitized.primaryPhone) sanitized.primaryPhone = sanitized.primaryMobile;
+  if (sanitized.primaryPhone && !sanitized.primaryMobile) sanitized.primaryMobile = sanitized.primaryPhone;
+
+  if (sanitized.inquiryEmail && !sanitized.email) sanitized.email = sanitized.inquiryEmail;
+  if (sanitized.email && !sanitized.inquiryEmail) sanitized.inquiryEmail = sanitized.email;
+
   return {
-    isValid: true,
-    errors: [],
-    sanitized,
+    isValid: errors.length === 0,
+    errors,
+    sanitized: errors.length === 0 ? sanitized : undefined,
   };
 }
 

@@ -308,36 +308,53 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
   
   // Parse working hours dynamically from company configuration
   const matchHours = (company.workingHoursShortEn || company.workingHoursEn || '').match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
-  const opensTime = matchHours ? matchHours[1] : '08:00';
-  const closesTime = matchHours ? matchHours[2] : '16:00';
+  const opensTime = company.workingHoursConfig?.openTime || (matchHours ? matchHours[1] : '08:00');
+  const closesTime = company.workingHoursConfig?.closeTime || (matchHours ? matchHours[2] : '16:00');
 
-  const primaryTel = (company.primaryPhoneTel || company.primaryPhone || '').replace(/^tel:/, '');
+  const primaryTel = (company.primaryPhoneTel || company.primaryMobile || company.primaryPhone || '').replace(/^tel:/, '');
   const landlineTel = (company.landlinePhoneTel || company.landlinePhone || '').replace(/^tel:/, '');
+
+  const openingHoursSpec: Array<{
+    '@type': string;
+    dayOfWeek: string[];
+    opens: string;
+    closes: string;
+  }> = [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
+      opens: opensTime,
+      closes: closesTime,
+    },
+  ];
+
+  if (company.workingHoursConfig?.hasThursdayHours && company.workingHoursConfig.thursdayOpenTime && company.workingHoursConfig.thursdayCloseTime) {
+    openingHoursSpec.push({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Thursday'],
+      opens: company.workingHoursConfig.thursdayOpenTime,
+      closes: company.workingHoursConfig.thursdayCloseTime,
+    });
+  }
 
   const orgSchema = {
     '@context': 'https://schema.org',
     '@type': 'IndustrialBusiness',
     '@id': `${siteUrl}/#organization`,
-    'name': isPersian ? company.nameFa : company.nameEn,
+    'name': isPersian ? (company.companyNameFa || company.nameFa) : (company.companyNameEn || company.nameEn),
     'legalName': isPersian ? company.legalNameFa : company.legalNameEn,
     'alternateName': isPersian ? 'بازرگانی بلبرینگ پولاد چرخِش' : 'Polad Charkhesh Bearing Trading',
     'url': siteUrl,
-    'email': company.email,
+    'email': company.inquiryEmail || company.email,
     'telephone': primaryTel || landlineTel,
     'address': {
       '@type': 'PostalAddress',
-      'streetAddress': isPersian ? company.addressFa : company.addressEn,
+      'streetAddress': isPersian ? (company.officeAddressFa || company.addressFa) : (company.officeAddressEn || company.addressEn),
       'addressLocality': isPersian ? company.cityFa : company.cityEn,
+      'postalCode': company.postalCode || '1649714311',
       'addressCountry': 'IR',
     },
-    'openingHoursSpecification': [
-      {
-        '@type': 'OpeningHoursSpecification',
-        'dayOfWeek': ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
-        'opens': opensTime,
-        'closes': closesTime,
-      },
-    ],
+    'openingHoursSpecification': openingHoursSpec,
     'contactPoint': [
       {
         '@type': 'ContactPoint',

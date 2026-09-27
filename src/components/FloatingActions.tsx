@@ -27,6 +27,10 @@ export const FloatingActions: React.FC<FloatingActionsProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (company.showFloatingActions === false) {
+    return null;
+  }
+
   return (
     <div className={`fixed bottom-6 ${language === 'fa' ? 'left-6' : 'right-6'} z-40 flex flex-col items-center gap-3`}>
       
@@ -43,26 +47,30 @@ export const FloatingActions: React.FC<FloatingActionsProps> = ({
       )}
 
       {/* WhatsApp Direct Chat */}
-      <a
-        id="floating-whatsapp-btn"
-        href={company.whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-12 h-12 rounded-full bg-emerald-500/90 backdrop-blur-md hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-white/30"
-        title={language === 'fa' ? `گفتگو در واتس‌اپ: ${company.primaryPhone}` : `Chat on WhatsApp: ${company.primaryPhone}`}
-      >
-        <MessageCircle className="w-6 h-6" />
-      </a>
+      {company.whatsappEnabled !== false && (
+        <a
+          id="floating-whatsapp-btn"
+          href={company.whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-12 h-12 rounded-full bg-emerald-500/90 backdrop-blur-md hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-white/30"
+          title={language === 'fa' ? `گفتگو در واتس‌اپ: ${company.primaryPhone}` : `Chat on WhatsApp: ${company.primaryPhone}`}
+        >
+          <MessageCircle className="w-6 h-6" />
+        </a>
+      )}
 
       {/* Direct Phone Call */}
-      <a
-        id="floating-call-btn"
-        href={company.primaryPhoneTel}
-        className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#232c86] to-[#3a44ad] text-white shadow-xl shadow-blue-900/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-white/30"
-        title={language === 'fa' ? `تماس مستقیم: ${company.primaryPhoneDisplayFa}` : `Call: ${company.primaryPhoneDisplayEn}`}
-      >
-        <Phone className="w-6 h-6 text-amber-300" />
-      </a>
+      {company.phoneEnabled !== false && (
+        <a
+          id="floating-call-btn"
+          href={company.primaryPhoneTel}
+          className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#232c86] to-[#3a44ad] text-white shadow-xl shadow-blue-900/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-white/30"
+          title={language === 'fa' ? `تماس مستقیم: ${company.primaryPhoneDisplayFa}` : `Call: ${company.primaryPhoneDisplayEn}`}
+        >
+          <Phone className="w-6 h-6 text-amber-300" />
+        </a>
+      )}
 
     </div>
   );

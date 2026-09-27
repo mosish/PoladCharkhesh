@@ -115,15 +115,19 @@ export const Footer: React.FC<FooterProps> = ({
                 <MapPin className="w-4 h-4 text-amber-400 flex-shrink-0" />
                 <span>{language === 'fa' ? company.addressFa : company.addressEn}</span>
               </div>
-              <div className="flex items-center gap-4">
-                <a href={company.primaryPhoneTel} className="flex items-center gap-1.5 text-slate-300 hover:text-blue-400 font-mono-spec font-semibold">
-                  <Phone className="w-3.5 h-3.5 text-blue-400" />
-                  <span>{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
-                </a>
-                <a href={company.whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-emerald-400 hover:underline font-mono-spec font-semibold">
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>{company.primaryPhone}</span>
-                </a>
+              <div className="flex flex-wrap items-center gap-4">
+                {company.phoneEnabled !== false && (
+                  <a href={company.primaryPhoneTel} className="flex items-center gap-1.5 text-slate-300 hover:text-blue-400 font-mono-spec font-semibold">
+                    <Phone className="w-3.5 h-3.5 text-blue-400" />
+                    <span>{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
+                  </a>
+                )}
+                {company.whatsappEnabled !== false && (
+                  <a href={company.whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-emerald-400 hover:underline font-mono-spec font-semibold">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>{company.primaryPhone}</span>
+                  </a>
+                )}
               </div>
             </div>
           </div>

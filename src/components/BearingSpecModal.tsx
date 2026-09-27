@@ -333,26 +333,30 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
 
           {/* WhatsApp and Phone Inquiry Actions */}
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <a
-              id="spec-modal-whatsapp-link"
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex-1 sm:flex-initial"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>{t.specModal.inquireWhatsapp}</span>
-            </a>
+            {company.whatsappEnabled !== false && (
+              <a
+                id="spec-modal-whatsapp-link"
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex-1 sm:flex-initial"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>{t.specModal.inquireWhatsapp}</span>
+              </a>
+            )}
 
-            <a
-              id="spec-modal-phone-link"
-              href={company.primaryPhoneTel}
-              className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-slate-200/90 hover:bg-slate-300 text-slate-800 font-bold text-xs sm:text-sm transition-all"
-              title={t.specModal.directPhone}
-            >
-              <PhoneCall className="w-4 h-4 text-[#232c86]" />
-              <span className="hidden md:inline font-mono-spec">{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
-            </a>
+            {company.phoneEnabled !== false && (
+              <a
+                id="spec-modal-phone-link"
+                href={company.primaryPhoneTel}
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-slate-200/90 hover:bg-slate-300 text-slate-800 font-bold text-xs sm:text-sm transition-all"
+                title={t.specModal.directPhone}
+              >
+                <PhoneCall className="w-4 h-4 text-[#232c86]" />
+                <span className="hidden md:inline font-mono-spec">{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
+              </a>
+            )}
           </div>
         </div>
       </div>

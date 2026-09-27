@@ -64,47 +64,64 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-50 w-full transition-all duration-200">
       {/* Top Notification / Contact Bar */}
-      <div className="bg-[#1a226b] text-slate-100 text-xs py-1.5 px-3 sm:px-4 border-b border-blue-900 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          
-          <div className="flex items-center gap-2 overflow-hidden">
-            <span className="flex items-center gap-1.5 text-amber-300 font-medium text-[11px] sm:text-xs truncate whitespace-nowrap">
-              <Sparkles className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
-              <span className="truncate whitespace-nowrap">{t.topBar.announcement}</span>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-4 text-slate-200 text-[11px] font-mono-spec flex-shrink-0 whitespace-nowrap">
-            <span className="hidden md:flex items-center gap-1 text-blue-100 whitespace-nowrap">
-              <Clock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-              <span className="whitespace-nowrap">{language === 'fa' ? company.workingHoursFa.split('|')[0] : company.workingHoursShortEn}</span>
-            </span>
-            <div className="flex items-center gap-2 sm:gap-3 whitespace-nowrap">
-              <a 
-                href={company.primaryPhoneTel} 
-                className="flex items-center gap-1 text-white hover:text-amber-300 font-bold transition-colors whitespace-nowrap"
-                title={language === 'fa' ? 'تماس مستقیم با مدیریت فروش' : 'Direct Sales Call'}
-              >
-                <Phone className="w-3 h-3 text-amber-400 flex-shrink-0" />
-                <span className="whitespace-nowrap">{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
-              </a>
-              <span className="text-blue-400/70">|</span>
-              <a 
-                href={company.whatsappUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center gap-1 text-emerald-300 hover:text-emerald-200 font-semibold whitespace-nowrap"
-                title="واتس‌اپ پولاد چرخِش"
-              >
-                <MessageCircle className="w-3 h-3 flex-shrink-0" />
-                <span className="hidden sm:inline whitespace-nowrap">{company.primaryPhone}</span>
-                <span className="sm:hidden whitespace-nowrap">WhatsApp</span>
-              </a>
+      {company.showTopAnnouncement !== false && (
+        <div className="bg-[#1a226b] text-slate-100 text-xs py-1.5 px-3 sm:px-4 border-b border-blue-900 shadow-sm">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+            
+            <div className="flex items-center gap-2 overflow-hidden">
+              <span className="flex items-center gap-1.5 text-amber-300 font-medium text-[11px] sm:text-xs truncate whitespace-nowrap">
+                <Sparkles className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
+                <span className="truncate whitespace-nowrap">
+                  {language === 'fa' ? (company.announcementTextFa || t.topBar.announcement) : (company.announcementTextEn || t.topBar.announcement)}
+                </span>
+              </span>
             </div>
-          </div>
 
+            <div className="flex items-center gap-2 sm:gap-4 text-slate-200 text-[11px] font-mono-spec flex-shrink-0 whitespace-nowrap">
+              <span className="hidden md:flex items-center gap-1 text-blue-100 whitespace-nowrap">
+                <Clock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                <span className="whitespace-nowrap">
+                  {language === 'fa' 
+                    ? (company.workingHoursShortFa || company.workingHoursFa?.split('|')[0] || '')
+                    : (company.workingHoursShortEn || company.workingHoursEn?.split('|')[0] || '')}
+                </span>
+              </span>
+              
+              <div className="flex items-center gap-2 sm:gap-3 whitespace-nowrap">
+                {company.phoneEnabled !== false && (
+                  <a 
+                    href={company.primaryPhoneTel} 
+                    className="flex items-center gap-1 text-white hover:text-amber-300 font-bold transition-colors whitespace-nowrap"
+                    title={language === 'fa' ? 'تماس مستقیم با مدیریت فروش' : 'Direct Sales Call'}
+                  >
+                    <Phone className="w-3 h-3 text-amber-400 flex-shrink-0" />
+                    <span className="whitespace-nowrap">{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
+                  </a>
+                )}
+
+                {company.phoneEnabled !== false && company.whatsappEnabled !== false && (
+                  <span className="text-blue-400/70">|</span>
+                )}
+
+                {company.whatsappEnabled !== false && (
+                  <a 
+                    href={company.whatsappUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-1 text-emerald-300 hover:text-emerald-200 font-semibold whitespace-nowrap"
+                    title="واتس‌اپ پولاد چرخِش"
+                  >
+                    <MessageCircle className="w-3 h-3 flex-shrink-0" />
+                    <span className="hidden sm:inline whitespace-nowrap">{company.primaryPhone}</span>
+                    <span className="sm:hidden whitespace-nowrap">WhatsApp</span>
+                  </a>
+                )}
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Navigation Bar */}
       <nav className={`w-full transition-all duration-300 ${
@@ -160,14 +177,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {/* Direct Call & Inquiry CTA Button */}
-              <a
-                id="navbar-call-inquiry-btn"
-                href={company.primaryPhoneTel}
-                className="glass-btn-primary flex items-center gap-2 px-4 py-1.5 rounded-full text-white text-xs font-semibold active:scale-95 transition-all whitespace-nowrap"
-              >
-                <Phone className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
-                <span className="whitespace-nowrap">{t.nav.callAction}</span>
-              </a>
+              {company.contactCtaEnabled !== false && company.phoneEnabled !== false && (
+                <a
+                  id="navbar-call-inquiry-btn"
+                  href={company.primaryPhoneTel}
+                  className="glass-btn-primary flex items-center gap-2 px-4 py-1.5 rounded-full text-white text-xs font-semibold active:scale-95 transition-all whitespace-nowrap"
+                >
+                  <Phone className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{t.nav.callAction}</span>
+                </a>
+              )}
 
             </div>
 

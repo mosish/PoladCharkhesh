@@ -109,38 +109,42 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
 
               <div className="space-y-4">
                 {/* Landline */}
-                <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/15">
-                  <div className="p-3 rounded-2xl bg-blue-500/15 text-[#232c86] flex-shrink-0">
-                    <Phone className="w-5 h-5" />
+                {company.phoneEnabled !== false && (
+                  <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/15">
+                    <div className="p-3 rounded-2xl bg-blue-500/15 text-[#232c86] flex-shrink-0">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-500 block font-medium">{t.contact.info.phoneLabel}</span>
+                      <a
+                        href={company.landlinePhoneTel}
+                        className="text-base sm:text-lg font-black font-mono-spec text-slate-900 hover:text-[#232c86] transition-colors"
+                      >
+                        {language === 'fa' ? (company.landlinePhoneDisplayFa || company.landlinePhone) : (company.landlinePhoneDisplayEn || company.landlinePhone)}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-xs text-slate-500 block font-medium">{t.contact.info.phoneLabel}</span>
-                    <a
-                      href={company.landlinePhoneTel}
-                      className="text-base sm:text-lg font-black font-mono-spec text-slate-900 hover:text-[#232c86] transition-colors"
-                    >
-                      {t.contact.info.phoneDisplay}
-                    </a>
-                  </div>
-                </div>
+                )}
 
                 {/* Mobile & WhatsApp */}
-                <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/15">
-                  <div className="p-3 rounded-2xl bg-emerald-500/15 text-emerald-700 flex-shrink-0">
-                    <MessageCircle className="w-5 h-5" />
+                {company.whatsappEnabled !== false && (
+                  <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/15">
+                    <div className="p-3 rounded-2xl bg-emerald-500/15 text-emerald-700 flex-shrink-0">
+                      <MessageCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-500 block font-medium">{t.contact.info.mobileLabel}</span>
+                      <a
+                        href={company.whatsappUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base sm:text-lg font-black font-mono-spec text-emerald-700 hover:underline"
+                      >
+                        {language === 'fa' ? (company.primaryPhoneDisplayFa || company.primaryPhone) : (company.primaryPhoneDisplayEn || company.primaryPhone)}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-xs text-slate-500 block font-medium">{t.contact.info.mobileLabel}</span>
-                    <a
-                      href={company.whatsappUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-base sm:text-lg font-black font-mono-spec text-emerald-700 hover:underline"
-                    >
-                      {t.contact.info.mobileDisplay}
-                    </a>
-                  </div>
-                </div>
+                )}
 
                 {/* Hours */}
                 <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-100/60 border border-white/80">
@@ -149,11 +153,31 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   </div>
                   <div>
                     <span className="text-xs text-slate-500 block font-medium">{t.contact.info.hoursLabel}</span>
-                    <p className="text-xs font-semibold text-slate-700 mt-0.5">
-                      {t.contact.info.hoursValue}
+                    <p className="text-xs font-semibold text-slate-700 mt-0.5 leading-relaxed">
+                      {language === 'fa' ? company.workingHoursFa : company.workingHoursEn}
                     </p>
                   </div>
                 </div>
+
+                {/* Email */}
+                {(company.inquiryEmail || company.email) && (
+                  <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/15">
+                    <div className="p-3 rounded-2xl bg-sky-500/15 text-sky-800 flex-shrink-0">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-500 block font-medium">
+                        {language === 'fa' ? 'پست الکترونیکی استعلام:' : 'Inquiry Email:'}
+                      </span>
+                      <a
+                        href={`mailto:${company.inquiryEmail || company.email}`}
+                        className="text-xs sm:text-sm font-bold font-mono text-slate-800 hover:text-[#232c86]"
+                      >
+                        {company.inquiryEmail || company.email}
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Consultation Promise (Liquid Glass Highlight) */}

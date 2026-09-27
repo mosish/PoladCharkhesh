@@ -10,6 +10,7 @@ import { AdminProducts } from './components/admin/AdminProducts';
 import { AdminMedia } from './components/admin/AdminMedia';
 import { AdminCompany } from './components/admin/AdminCompany';
 import { AdminContact } from './components/admin/AdminContact';
+import { AdminSettings } from './components/admin/AdminSettings';
 import { AdminContent } from './components/admin/AdminContent';
 import { AdminSeo } from './components/admin/AdminSeo';
 import { AdminSystem } from './components/admin/AdminSystem';
@@ -298,12 +299,16 @@ export default function App() {
           <AdminMedia language={language} />
         )}
 
+        {adminTab === 'settings' && (
+          <AdminSettings language={language} initialSubTab="company" />
+        )}
+
         {adminTab === 'company' && (
-          <AdminCompany language={language} />
+          <AdminSettings language={language} initialSubTab="company" />
         )}
 
         {adminTab === 'contact' && (
-          <AdminContact language={language} />
+          <AdminSettings language={language} initialSubTab="contact" />
         )}
 
         {adminTab === 'content' && (

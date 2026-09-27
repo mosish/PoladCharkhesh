@@ -15,6 +15,7 @@ import {
   Languages, 
   Menu, 
   X,
+  SlidersHorizontal,
   Lock,
   UserCircle
 } from 'lucide-react';
@@ -23,6 +24,7 @@ export type AdminTab =
   | 'overview' 
   | 'products' 
   | 'media' 
+  | 'settings'
   | 'company' 
   | 'contact' 
   | 'content' 
@@ -53,8 +55,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { id: 'overview', labelFa: 'داشبورد و وضعیت', labelEn: 'Overview & Status', icon: LayoutDashboard },
     { id: 'products', labelFa: 'مدیریت محصولات (۶۸+)', labelEn: 'Product Catalog', icon: Package },
     { id: 'media', labelFa: 'رسانه و تصاویر', labelEn: 'Media & Images', icon: Image },
-    { id: 'company', labelFa: 'اطلاعات هویتی شرکت', labelEn: 'Company Identity', icon: Building2 },
-    { id: 'contact', labelFa: 'راه‌های ارتباط و استعلام', labelEn: 'Contact & Inquiries', icon: Phone },
+    { id: 'settings', labelFa: 'تنظیمات وب‌سایت (Settings)', labelEn: 'Website Settings', icon: SlidersHorizontal },
     { id: 'content', labelFa: 'محتوای متنی سایت (CMS)', labelEn: 'Page Content (CMS)', icon: FileText },
     { id: 'seo', labelFa: 'تنظیمات سئو و متاتگ‌ها', labelEn: 'SEO & Meta Tags', icon: Globe },
     { id: 'system', labelFa: 'امنیت، گزارشات و پشتیبان', labelEn: 'Security & Backup', icon: ShieldCheck },

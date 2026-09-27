@@ -26,7 +26,14 @@ companyRouter.put('/', requireAuth, (req: Request, res: Response): void => {
   }
 
   const updated = companyDb.updateCompanyInfo(validation.sanitized!, req.admin!.username);
-  logAudit('COMPANY_UPDATED', 'company', 'اطلاعات هویتی و تماس شرکت به‌روزرسانی شد.', req, 'main');
+  logAudit(
+    'COMPANY_UPDATED',
+    'company',
+    'اطلاعات هویتی، تماس و تنظیمات سراسری شرکت به‌روزرسانی شد.',
+    req,
+    'main',
+    { updatedFields: Object.keys(validation.sanitized || {}) }
+  );
 
   res.json({ success: true, company: updated });
 });
