@@ -280,7 +280,18 @@ export function validateCompanyPayload(body: any): ValidationResult<Record<strin
 // 3. CMS CONTENT VALIDATION
 // ==========================================
 
-const ALLOWED_CONTENT_SECTIONS = ['hero', 'about', 'footer'];
+const ALLOWED_CONTENT_SECTIONS = [
+  'hero',
+  'about',
+  'catalog',
+  'tools',
+  'whyUs',
+  'industries',
+  'team',
+  'contact',
+  'footer',
+  'visibility',
+];
 
 export function validateContentPayload(body: any): ValidationResult<Record<string, any>> {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
