@@ -1,7 +1,5 @@
 /**
  * POLAD CHARKHESH - MEDIA ASSET METADATA ROUTER
- * 
- * Domain boundary for media assets and technical diagrams.
  */
 
 import { Router, Request, Response } from 'express';
@@ -11,22 +9,14 @@ import { validateMediaPayload } from '../validation';
 
 export const mediaRouter = Router();
 
-/**
- * GET /api/media
- * Retrieve media metadata list
- */
 mediaRouter.get('/', (req: Request, res: Response) => {
   const category = req.query.category ? String(req.query.category) : undefined;
   const media = mediaDb.getMediaList(category);
   res.json({ count: media.length, media });
 });
 
-/**
- * GET /api/media/:id
- * Retrieve single media item metadata
- */
 mediaRouter.get('/:id', (req: Request, res: Response): void => {
-  const id = Array.isArray(req.params.id) ? req.params.id[0] : String(req.params.id);
+  const id = String(req.params.id);
   const item = mediaDb.getMediaById(id);
   if (!item) {
     res.status(404).json({ error: 'رسانه مورد نظر یافت نشد.' });
@@ -35,10 +25,6 @@ mediaRouter.get('/:id', (req: Request, res: Response): void => {
   res.json({ media: item });
 });
 
-/**
- * POST /api/media
- * Register new media metadata (Protected - editor / superadmin)
- */
 mediaRouter.post('/', requireAuth, (req: Request, res: Response): void => {
   const validation = validateMediaPayload(req.body);
   if (!validation.isValid) {
@@ -46,8 +32,44 @@ mediaRouter.post('/', requireAuth, (req: Request, res: Response): void => {
     return;
   }
 
-  const created = mediaDb.createMediaRecord(req.body, req.admin!.username);
-  logAudit('MEDIA_UPDATED', 'media', `رسانه جدید (${created.originalName}) ثبت گردید.`, req, created.id);
+  const created = mediaDb.createMediaRecord(validation.sanitized as any, req.admin!.username);
+  logAudit('MEDIA_CREATED', 'media', `رسانه جدید (${created.originalName}) ثبت شد.`, req, created.id, {
+    category: created.category,
+  });
 
   res.status(201).json({ success: true, media: created });
+});
+
+mediaRouter.put('/:id', requireAuth, (req: Request, res: Response): void => {
+  const id = String(req.params.id);
+  const current = mediaDb.getMediaById(id);
+  if (!current) {
+    res.status(404).json({ error: 'رسانه مورد نظر یافت نشد.' });
+    return;
+  }
+
+  const validation = validateMediaPayload(req.body, true);
+  if (!validation.isValid) {
+    res.status(400).json({ error: validation.errors[0], errors: validation.errors });
+    return;
+  }
+
+  const updated = mediaDb.updateMediaRecord(id, validation.sanitized || {});
+  logAudit('MEDIA_UPDATED', 'media', `اطلاعات رسانه ${current.originalName} به‌روزرسانی شد.`, req, id);
+
+  res.json({ success: true, media: updated });
+});
+
+mediaRouter.delete('/:id', requireAuth, (req: Request, res: Response): void => {
+  const id = String(req.params.id);
+  const current = mediaDb.getMediaById(id);
+  if (!current) {
+    res.status(404).json({ error: 'رسانه مورد نظر یافت نشد.' });
+    return;
+  }
+
+  mediaDb.deleteMediaRecord(id);
+  logAudit('MEDIA_DELETED', 'media', `رسانه ${current.originalName} از کتابخانه حذف شد.`, req, id);
+
+  res.json({ success: true });
 });
