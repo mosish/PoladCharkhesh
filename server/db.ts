@@ -211,6 +211,12 @@ export function initSchema(db: DatabaseSync): void {
   safeAddColumn('products', 'contact_angle', 'TEXT');
   safeAddColumn('products', 'calculation_factor_x', 'REAL');
   safeAddColumn('products', 'keywords', 'TEXT');
+
+  // Media library metadata migrations
+  safeAddColumn('media_metadata', 'alt_text_fa', 'TEXT');
+  safeAddColumn('media_metadata', 'alt_text_en', 'TEXT');
+  safeAddColumn('media_metadata', 'category', 'TEXT');
+  safeAddColumn('media_metadata', 'associated_product_codes', 'TEXT');
 }
 
 /**
