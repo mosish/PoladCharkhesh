@@ -14,7 +14,19 @@ export const contentDb = {
     const row = db.prepare('SELECT data FROM cms_content WHERE id = ?;').get('main') as any;
     if (row && row.data) {
       try {
-        return JSON.parse(row.data);
+        const parsed = JSON.parse(row.data) as Partial<CmsPageContent>;
+        return {
+          hero: { ...DEFAULT_PAGE_CONTENT.hero, ...(parsed.hero || {}) },
+          about: { ...DEFAULT_PAGE_CONTENT.about, ...(parsed.about || {}) },
+          catalog: { ...DEFAULT_PAGE_CONTENT.catalog, ...(parsed.catalog || {}) },
+          tools: { ...DEFAULT_PAGE_CONTENT.tools, ...(parsed.tools || {}) },
+          whyUs: { ...DEFAULT_PAGE_CONTENT.whyUs, ...(parsed.whyUs || {}) },
+          industries: { ...DEFAULT_PAGE_CONTENT.industries, ...(parsed.industries || {}) },
+          team: { ...DEFAULT_PAGE_CONTENT.team, ...(parsed.team || {}) },
+          contact: { ...DEFAULT_PAGE_CONTENT.contact, ...(parsed.contact || {}) },
+          footer: { ...DEFAULT_PAGE_CONTENT.footer, ...(parsed.footer || {}) },
+          visibility: { ...DEFAULT_PAGE_CONTENT.visibility, ...(parsed.visibility || {}) },
+        };
       } catch {
         return DEFAULT_PAGE_CONTENT;
       }
@@ -27,7 +39,14 @@ export const contentDb = {
     const merged: CmsPageContent = {
       hero: { ...current.hero, ...(sanitizedUpdates.hero || {}) },
       about: { ...current.about, ...(sanitizedUpdates.about || {}) },
+      catalog: { ...current.catalog, ...(sanitizedUpdates.catalog || {}) },
+      tools: { ...current.tools, ...(sanitizedUpdates.tools || {}) },
+      whyUs: { ...current.whyUs, ...(sanitizedUpdates.whyUs || {}) },
+      industries: { ...current.industries, ...(sanitizedUpdates.industries || {}) },
+      team: { ...current.team, ...(sanitizedUpdates.team || {}) },
+      contact: { ...current.contact, ...(sanitizedUpdates.contact || {}) },
       footer: { ...current.footer, ...(sanitizedUpdates.footer || {}) },
+      visibility: { ...current.visibility, ...(sanitizedUpdates.visibility || {}) },
     };
 
     const db = getDatabase();
