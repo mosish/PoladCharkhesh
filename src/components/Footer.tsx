@@ -182,7 +182,10 @@ export const Footer: React.FC<FooterProps> = ({
       {/* Bottom Copyright */}
       <div className="border-t border-slate-900 py-6 bg-slate-950 text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-start">
-          <p>{t.footer.allRights}</p>
+          <div className="space-y-1">
+            <p>{language === 'fa' ? pageContent.footer.copyrightFa : pageContent.footer.copyrightEn}</p>
+            <p className="text-[10px] text-slate-600 max-w-2xl">{language === 'fa' ? pageContent.footer.disclaimerFa : pageContent.footer.disclaimerEn}</p>
+          </div>
           <div className="flex items-center gap-4">
             <p className="font-mono-spec text-[11px]">{t.footer.designedFor}</p>
             <a
