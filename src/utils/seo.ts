@@ -94,6 +94,7 @@ function setJsonLd(id: string, schema: object) {
 export function updateDocumentSeo({ product, language, path, categoryLabel }: SeoUpdateOptions): void {
   const isPersian = language === 'fa';
   const siteUrl = getAuthoritativeDomain(language);
+  const seoConfig = dataService.getSeoConfig();
 
   if (product) {
     // --- INDIVIDUAL PRODUCT PAGE SEO ---
@@ -102,14 +103,16 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     const canonicalUrl = resolveAbsoluteSeoUrl(productPath, language);
     
     // Dynamic Localized Title
-    const title = isPersian
+    const generatedTitle = isPersian
       ? `بلبرینگ ${product.code} | مشخصات فنی، ابعاد و دیتاشیت مهندسی | پولاد چرخِش`
       : `${product.code} Bearing | Technical Specifications, Dimensions & Datasheet | Polad Charkhesh`;
+    const title = (isPersian ? product.metaTitleFa : product.metaTitleEn) || generatedTitle;
     
-    // Dynamic Localized Meta Description with genuine parameters
-    const description = isPersian
+    // Product-level SEO metadata is authoritative when present; otherwise use factual generated copy.
+    const generatedDescription = isPersian
       ? `مشخصات فنی ${product.nameFa} با شماره فنی ${product.code} شامل ابعاد d=${product.d}mm, D=${product.D}mm, B=${product.B}mm، ظرفیت بار دینامیک Cr=${product.crKn}kN، دور مجاز و برندهای قابل تأمین. استعلام و مشاوره فنی با پولاد چرخِش.`
       : `Technical specifications for ${product.nameEn} (${product.code}): d=${product.d}mm, D=${product.D}mm, B=${product.B}mm, Dynamic Load Cr=${product.crKn}kN, Static Cor=${product.corKn}kN, Limiting Speeds, and available industrial brands at Polad Charkhesh.`;
+    const description = (isPersian ? product.metaDescriptionFa : product.metaDescriptionEn) || generatedDescription;
 
     document.title = title;
     setMetaTag('description', description);
@@ -254,13 +257,8 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     // --- HOMEPAGE / CATALOG SEO ---
     const canonicalUrl = resolveAbsoluteSeoUrl(path === '/' ? '' : path, language);
     
-    const title = isPersian
-      ? 'پولاد چرخِش | تأمین و توزیع تخصصی انواع بیرینگ‌های صنایع نفت، معدن و فولاد'
-      : 'PoladCharkhesh | Supply & Distribution of Heavy Oil, Mining & Steel Bearings';
-    
-    const description = isPersian
-      ? 'پولاد چرخِش، مرکز تخصصی واردات، تأمین و توزیع بیرینگ‌ها و کاسه نمدهای صنعتی برندهای SKF, FAG, TIMKEN, NSK, NTN, KOYO با تضمین اصالت و مشاوره مهندسی تخصصی در تهران.'
-      : 'Polad Charkhesh specializes in the supply, engineering consultation, and distribution of premium industrial bearings, housings, and sealing systems (SKF, FAG, TIMKEN, NSK, NTN, KOYO, CORTECO).';
+    const title = isPersian ? seoConfig.defaultTitleFa : seoConfig.defaultTitleEn;
+    const description = isPersian ? seoConfig.defaultDescriptionFa : seoConfig.defaultDescriptionEn;
 
     document.title = title;
     setMetaTag('description', description);
@@ -271,7 +269,12 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     setMetaTag('og:description', description, true);
     setMetaTag('og:url', canonicalUrl, true);
     setMetaTag('og:type', 'website', true);
-    setMetaTag('og:site_name', isPersian ? 'پولاد چرخِش' : 'Polad Charkhesh', true);
+    setMetaTag('og:site_name', isPersian ? seoConfig.organizationNameFa : seoConfig.organizationNameEn, true);
+    if (seoConfig.ogImageUrl) {
+      const ogImage = seoConfig.ogImageUrl.startsWith('http') ? seoConfig.ogImageUrl : `${siteUrl}${seoConfig.ogImageUrl}`;
+      setMetaTag('og:image', ogImage, true);
+      setMetaTag('twitter:image', ogImage);
+    }
 
     setMetaTag('twitter:card', 'summary_large_image');
     setMetaTag('twitter:title', title);
@@ -320,7 +323,7 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     '@id': `${siteUrl}/#organization`,
     'name': isPersian ? company.nameFa : company.nameEn,
     'legalName': isPersian ? company.legalNameFa : company.legalNameEn,
-    'alternateName': isPersian ? 'بازرگانی بلبرینگ پولاد چرخِش' : 'Polad Charkhesh Bearing Trading',
+    'alternateName': isPersian ? company.sloganFa : company.sloganEn,
     'url': siteUrl,
     'email': company.email,
     'telephone': primaryTel || landlineTel,
