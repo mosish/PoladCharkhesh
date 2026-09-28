@@ -537,7 +537,7 @@ export function validateInquiryPayload(body: any): ValidationResult<{
 // 6. MEDIA METADATA VALIDATION
 // ==========================================
 
-export function validateMediaPayload(body: any): ValidationResult {
+export function validateMediaPayload(body: any, isUpdate = false): ValidationResult<Record<string, any>> {
   const errors: string[] = [];
 
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -548,15 +548,56 @@ export function validateMediaPayload(body: any): ValidationResult {
     return { isValid: false, errors: ['ورودی غیرمجاز شناسایی شد.'] };
   }
 
-  if (!body.originalName || typeof body.originalName !== 'string') {
-    errors.push('نام فایل الزامی است.');
+  const allowedCategories = ['product_photo', 'cad_schematic', 'datasheet_pdf', 'company_photo'];
+  const sanitized: Record<string, any> = {};
+
+  const stringFields = ['filename', 'originalName', 'mimeType', 'url', 'altTextFa', 'altTextEn'];
+  for (const field of stringFields) {
+    if (body[field] !== undefined) {
+      if (typeof body[field] !== 'string' || body[field].length > 2000) {
+        errors.push(`فیلد ${field} نامعتبر یا بیش از حد طولانی است.`);
+      } else {
+        sanitized[field] = body[field].trim();
+      }
+    }
   }
-  if (!body.url || typeof body.url !== 'string') {
-    errors.push('آدرس فایل الزامی است.');
+
+  if (!isUpdate && !sanitized.originalName) errors.push('نام فایل الزامی است.');
+  if (!isUpdate && !sanitized.url) errors.push('آدرس فایل الزامی است.');
+
+  if (body.sizeBytes !== undefined) {
+    const size = Number(body.sizeBytes);
+    if (!Number.isFinite(size) || size < 0 || size > 1024 * 1024 * 1024) {
+      errors.push('حجم فایل نامعتبر است.');
+    } else {
+      sanitized.sizeBytes = Math.round(size);
+    }
+  }
+
+  if (!isUpdate && sanitized.sizeBytes === undefined) sanitized.sizeBytes = 0;
+
+  if (body.category !== undefined) {
+    if (!allowedCategories.includes(body.category)) {
+      errors.push('دسته‌بندی رسانه نامعتبر است.');
+    } else {
+      sanitized.category = body.category;
+    }
+  }
+
+  if (body.associatedProductCodes !== undefined) {
+    if (!Array.isArray(body.associatedProductCodes)) {
+      errors.push('کدهای محصولات مرتبط باید آرایه باشند.');
+    } else {
+      sanitized.associatedProductCodes = body.associatedProductCodes
+        .slice(0, 100)
+        .map((code: any) => String(code || '').trim().slice(0, 80))
+        .filter(Boolean);
+    }
   }
 
   return {
     isValid: errors.length === 0,
     errors,
+    sanitized,
   };
 }
