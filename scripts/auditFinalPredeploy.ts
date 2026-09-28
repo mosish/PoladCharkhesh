@@ -135,4 +135,3 @@ await test('password change revokes other sessions and preserves the current ses
 } finally {server.close(); db.close();}
 console.log('Independent audit: '+failed+' failed checks');
 process.exitCode=failed?1:0;
-

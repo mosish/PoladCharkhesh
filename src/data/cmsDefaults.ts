@@ -131,4 +131,3 @@ export const DEFAULT_SEO_CONFIG: SiteSeoConfig = {
   organizationNameEn: 'Polad Charkhesh Industrial Trading Co.',
   googleSiteVerification: '',
 };
-

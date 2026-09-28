@@ -171,7 +171,8 @@ No synced `sources/` reference file was modified.
 
 ## GIT
 
-Commit message: `fix: harden audited predeploy paths and document remaining blockers`.
+Implementation commit: `b100571372c4ba2402883806645d9337d70a1642` — `fix: harden audited predeploy paths and document remaining blockers`.
+Final follow-up commit message: `chore: finalize audit evidence and whitespace`. This follow-up only trims trailing blank lines and records the implementation commit; runtime behavior is unchanged.
 The immutable final commit SHA is reported in the PR and completion message (a commit cannot contain its own SHA). Base and final main recheck are recorded above. No force-push, merge, deployment or unrelated branch modification.
 
 ## FINAL VERDICT
