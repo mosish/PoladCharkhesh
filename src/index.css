@@ -299,3 +299,154 @@
   content: '';
   pointer-events: none;
 }
+
+
+/* =========================================================
+   FINAL PRE-DEPLOY VISUAL POLISH
+   Consistent public/admin interaction, spacing and accessibility.
+   ========================================================= */
+
+@layer base {
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: #f8fafc;
+    color: #0f172a;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: rgba(35, 44, 134, 0.18);
+    color: #111827;
+  }
+
+  section[id] {
+    scroll-margin-top: 88px;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    outline: none;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.85);
+    outline-offset: 2px;
+  }
+}
+
+/* Slightly denser, more industrial glass system with stronger hierarchy */
+.glass-panel,
+.glass-card,
+.glass-card-static {
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.glass-panel {
+  box-shadow:
+    0 18px 48px -24px rgba(15, 23, 42, 0.22),
+    0 8px 22px -18px rgba(35, 44, 134, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+}
+
+.glass-card {
+  box-shadow:
+    0 14px 34px -24px rgba(15, 23, 42, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 22px 46px -24px rgba(35, 44, 134, 0.2),
+    0 0 0 1px rgba(35, 44, 134, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.glass-btn-primary,
+.glass-btn-secondary,
+.glass-pill,
+.glass-input {
+  border-radius: 0.9rem;
+}
+
+/* Public sections get a predictable visual rhythm without changing their content model. */
+main > section[id] {
+  isolation: isolate;
+}
+
+main > section[id]:nth-of-type(even)::before {
+  content: '';
+  position: absolute;
+  inset: 2rem max(1rem, calc((100vw - 90rem) / 2));
+  z-index: -1;
+  border-radius: 2.25rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.52), rgba(239,246,255,0.34));
+  border: 1px solid rgba(255,255,255,0.65);
+  pointer-events: none;
+}
+
+/* Better mobile density and touch targets */
+@media (max-width: 640px) {
+  main > section[id] {
+    padding-top: 3.25rem;
+    padding-bottom: 3.25rem;
+  }
+
+  button,
+  a[role="button"],
+  select {
+    min-height: 42px;
+  }
+
+  .glass-card:hover {
+    transform: none;
+  }
+}
+
+/* Admin surfaces: sharper, calmer contrast for long working sessions. */
+html.dark body {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  color-scheme: dark;
+}
+
+html.dark ::selection {
+  background: rgba(99, 102, 241, 0.45);
+  color: #fff;
+}
+
+/* Respect accessibility preferences and avoid unnecessary motion in production. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .glass-card:hover,
+  .glass-btn-primary:hover,
+  .glass-btn-secondary:hover {
+    transform: none;
+  }
+}
