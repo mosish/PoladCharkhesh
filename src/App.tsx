@@ -8,6 +8,7 @@ import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminOverview } from './components/admin/AdminOverview';
 import { AdminProducts } from './components/admin/AdminProducts';
 import { AdminMedia } from './components/admin/AdminMedia';
+import { AdminInquiries } from './components/admin/AdminInquiries';
 import { AdminCompany } from './components/admin/AdminCompany';
 import { AdminContact } from './components/admin/AdminContact';
 import { AdminSettings } from './components/admin/AdminSettings';
@@ -299,6 +300,10 @@ export default function App() {
 
         {adminTab === 'media' && (
           <AdminMedia language={language} />
+        )}
+
+        {adminTab === 'inquiries' && (
+          <AdminInquiries language={language} />
         )}
 
         {adminTab === 'settings' && (
