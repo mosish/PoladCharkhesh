@@ -13,7 +13,7 @@ export const PartMediaSlider: React.FC<PartMediaSliderProps> = ({ product, langu
   const [active, setActive] = useState(0);
   const [failed, setFailed] = useState<string[]>([]);
   const metadata = useMediaMetadata();
-  const photos = [...new Set([product.imageUrl, ...(product.images ?? [])].filter(Boolean))];
+  const photos = [...new Set([product.imageUrl, ...(product.images ?? [])].filter((url): url is string => typeof url === 'string' && url.length > 0))];
   const count = photos.length + 1;
   const t = translations[language];
   useEffect(() => { setActive(0); setFailed([]); }, [product.id, product.imageUrl, JSON.stringify(product.images)]);

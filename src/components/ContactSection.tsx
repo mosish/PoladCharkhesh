@@ -31,11 +31,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
   const t = useSiteCopy(language);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    if (isSubmitting) { e.preventDefault(); return; }
     e.preventDefault();
     if (!formData.name.trim() || !formData.phone.trim() || !formData.partList.trim()) {
       setFormError(
@@ -48,7 +50,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
     setFormError('');
     
     // Record in central data service for Admin view
-    dataService.recordInquiry({
+    setIsSubmitting(true);
+    const result = await dataService.recordInquiry({
       fullName: `${formData.name} (${formData.company || 'شخصی'})`,
       phone: formData.phone,
       message: `[فوریت: ${formData.urgency}] ${formData.partList}`,
@@ -56,6 +59,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
       email: formData.email,
     });
 
+    setIsSubmitting(false);
+    if (!result.success) { setFormError(result.error || (language === 'fa' ? 'ارسال پیام ناموفق بود؛ دوباره تلاش کنید.' : 'Message could not be sent. Please retry.')); return; }
     setSubmitted(true);
   };
 
@@ -74,7 +79,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         `⚡ Urgency: ${formData.urgency}\n` +
         `⚙️ Inquired Parts/Details:\n${formData.partList || 'General Inquiry'}`;
     
-    const baseUrl = company.whatsappUrl || 'https://wa.me/989127195313';
+    const baseUrl = company.whatsappUrl || ('https://wa.me/' + String(company.whatsappNumber || company.primaryPhone).replace(/\D/g, '').replace(/^0/, '98'));
     return `${baseUrl}?text=${encodeURIComponent(text)}`;
   };
 
@@ -355,10 +360,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <button
                     id="submit-contact-form-btn"
                     type="submit"
+                    disabled={isSubmitting}
                     className="w-full sm:flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-full glass-btn-primary text-xs sm:text-sm shadow-md shadow-blue-900/20"
                   >
                     <Send className="w-4 h-4 text-amber-300" />
-                    <span>{t.contact.form.submitBtn}</span>
+                    <span>{isSubmitting ? (language === 'fa' ? 'در حال ارسال…' : 'Sending…') : t.contact.form.submitBtn}</span>
                   </button>
 
                   <a
