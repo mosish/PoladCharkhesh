@@ -27,6 +27,12 @@ export const contentDb = {
     const merged: CmsPageContent = {
       hero: { ...current.hero, ...(sanitizedUpdates.hero || {}) },
       about: { ...current.about, ...(sanitizedUpdates.about || {}) },
+      catalog: { ...current.catalog, ...(sanitizedUpdates.catalog || {}) },
+      tools: { ...current.tools, ...(sanitizedUpdates.tools || {}) },
+      whyUs: { ...current.whyUs, ...(sanitizedUpdates.whyUs || {}) },
+      industries: { ...current.industries, ...(sanitizedUpdates.industries || {}) },
+      team: { ...current.team, ...(sanitizedUpdates.team || {}) },
+      contact: { ...current.contact, ...(sanitizedUpdates.contact || {}) },
       footer: { ...current.footer, ...(sanitizedUpdates.footer || {}) },
     };
 
