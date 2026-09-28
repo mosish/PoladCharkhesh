@@ -1,4 +1,4 @@
-import { BearingProduct, BearingCategory, BearingSchematicType, TechnicalSource } from '../types';
+import { BearingProduct, BearingCategory, BearingSchematicType, TechnicalSource, IndustryApplication, TeamMember } from '../types';
 import { CompanyContactInfo } from '../data/company';
 
 // ==========================================
@@ -147,15 +147,83 @@ export interface CmsFooterContent {
   disclaimerEn: string;
 }
 
+export interface CmsSectionHeader {
+  tagFa: string;
+  tagEn: string;
+  titleFa: string;
+  titleEn: string;
+  subtitleFa?: string;
+  subtitleEn?: string;
+}
+
+export interface CmsWhyUsContent extends CmsSectionHeader {
+  badgeFa: string;
+  badgeEn: string;
+  cards: Array<{
+    titleFa: string;
+    titleEn: string;
+    descriptionFa: string;
+    descriptionEn: string;
+  }>;
+}
+
+export interface CmsIndustriesContent extends CmsSectionHeader {
+  recommendedLabelFa: string;
+  recommendedLabelEn: string;
+  items: IndustryApplication[];
+}
+
+export interface CmsTeamContent extends CmsSectionHeader {
+  experienceLabelFa: string;
+  experienceLabelEn: string;
+  specialtyLabelFa: string;
+  specialtyLabelEn: string;
+  whatsappLabelFa: string;
+  whatsappLabelEn: string;
+  members: TeamMember[];
+}
+
+export interface CmsContactContent extends CmsSectionHeader {
+  infoTitleFa: string;
+  infoTitleEn: string;
+  consultationTitleFa: string;
+  consultationTitleEn: string;
+  consultationTextFa: string;
+  consultationTextEn: string;
+  formTitleFa: string;
+  formTitleEn: string;
+  formSubtitleFa: string;
+  formSubtitleEn: string;
+}
+
+export interface CmsCatalogContent extends CmsSectionHeader {
+  authenticityLabelFa: string;
+  authenticityLabelEn: string;
+}
+
+export interface CmsToolsContent extends CmsSectionHeader {}
+
 export interface CmsPageContent {
   hero: CmsHeroContent;
   about: CmsAboutContent;
+  catalog: CmsCatalogContent;
+  tools: CmsToolsContent;
+  whyUs: CmsWhyUsContent;
+  industries: CmsIndustriesContent;
+  team: CmsTeamContent;
+  contact: CmsContactContent;
   footer: CmsFooterContent;
 }
 
 export type CmsUpdateInput = Partial<{
   hero: Partial<CmsHeroContent>;
   about: Partial<CmsAboutContent>;
+  catalog: Partial<CmsCatalogContent>;
+  tools: Partial<CmsToolsContent>;
+  whyUs: Partial<CmsWhyUsContent>;
+  industries: Partial<CmsIndustriesContent>;
+  team: Partial<CmsTeamContent>;
+  contact: Partial<CmsContactContent>;
   footer: Partial<CmsFooterContent>;
 }>;
 
