@@ -200,23 +200,8 @@ export const COMPANY_INFO: CompanyContactInfo = {
   phoneEnabled: true,
   contactCtaEnabled: true,
 
-  // Social Links
-  socialLinks: [
-    {
-      platform: 'telegram',
-      url: 'https://t.me/poladcharkhesh',
-      titleFa: 'کانال تلگرام',
-      titleEn: 'Telegram Channel',
-      enabled: false,
-    },
-    {
-      platform: 'linkedin',
-      url: 'https://linkedin.com/company/poladcharkhesh',
-      titleFa: 'لینکدین',
-      titleEn: 'LinkedIn Profile',
-      enabled: false,
-    },
-  ],
+  // Social links intentionally start empty until verified and entered by an administrator.
+  socialLinks: [],
 
   // Central office & warehouse physical location
   addressFa: 'تهران، منطقه نارمک، خیابان دردشت، پلاک ۴۳۳',
@@ -228,7 +213,7 @@ export const COMPANY_INFO: CompanyContactInfo = {
   streetFa: 'خیابان دردشت',
   streetEn: 'Dardasht Street',
   plate: '۴۳۳',
-  postalCode: '1649714311',
+  postalCode: '',
 
   // Operational schedule (Standardized 08:00 - 16:00)
   workingHoursConfig: CANONICAL_WORKING_HOURS_CONFIG,
@@ -263,7 +248,8 @@ export function createWhatsAppInquiryUrl(params?: {
   customMessage?: string;
   language?: 'fa' | 'en';
 }): string {
-  const base = params?.baseUrl || COMPANY_INFO.whatsappUrl || 'https://wa.me/989127195313';
+  const base = params?.baseUrl || COMPANY_INFO.whatsappUrl;
+  if (!base) return '';
   if (!params) {
     return base;
   }
