@@ -79,6 +79,7 @@ export type AuditAction =
   | 'CONTENT_UPDATED'
   | 'SEO_UPDATED'
   | 'MEDIA_UPDATED'
+  | 'INQUIRY_STATUS_UPDATED'
   | 'BACKUP_EXPORTED'
   | 'BACKUP_IMPORTED'
   | 'SYSTEM_RESET';
@@ -90,6 +91,7 @@ export type AuditEntity =
   | 'content'
   | 'seo'
   | 'media'
+  | 'inquiry'
   | 'system';
 
 export interface AuditLog {
