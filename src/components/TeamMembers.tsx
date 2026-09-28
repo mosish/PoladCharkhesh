@@ -1,6 +1,6 @@
 import React from 'react';
 import { Language } from '../types';
-import { translations, teamMembers } from '../data/translations';
+import { usePageContent } from '../services/dataService';
 import { 
   Users, 
   Phone, 
@@ -12,7 +12,11 @@ interface TeamMembersProps {
 }
 
 export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
-  const t = translations[language];
+  const content = usePageContent().team;
+
+  if (!content.members.length) {
+    return null;
+  }
 
   return (
     <section id="team" className="py-16 sm:py-24 relative">
@@ -22,19 +26,19 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
             <Users className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{t.team.tag}</span>
+            <span>{language === 'fa' ? content.tagFa : content.tagEn}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {t.team.title}
+            {language === 'fa' ? content.titleFa : content.titleEn}
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600">
-            {t.team.subtitle}
+            {language === 'fa' ? content.subtitleFa : content.subtitleEn}
           </p>
         </div>
 
         {/* Team Grid (Apple Liquid Glass Cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {teamMembers.map((member) => (
+          {content.members.map((member) => (
             <div
               key={member.id}
               className="glass-card rounded-3xl overflow-hidden flex flex-col justify-between group"
@@ -64,14 +68,14 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
                 <div className="space-y-2">
                   <div className="text-xs text-slate-600 leading-relaxed font-normal">
                     <strong className="text-slate-900 block mb-0.5 font-semibold">
-                      {language === 'fa' ? 'سابقه و تجربه:' : 'Experience:'}
+                      {language === 'fa' ? content.experienceLabelFa : content.experienceLabelEn}
                     </strong>
                     {language === 'fa' ? member.experienceFa : member.experienceEn}
                   </div>
 
                   <div className="text-xs text-slate-500 pt-2.5 border-t border-slate-200/60 font-normal">
                     <strong className="text-[#232c86] block mb-0.5 font-semibold">
-                      {language === 'fa' ? 'تخصص کلیدی:' : 'Key Specialty:'}
+                      {language === 'fa' ? content.specialtyLabelFa : content.specialtyLabelEn}
                     </strong>
                     {language === 'fa' ? member.specialtyFa : member.specialtyEn}
                   </div>
@@ -91,7 +95,7 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-full bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors shadow-sm"
-                    title={language === 'fa' ? 'گفتگو در واتس‌اپ' : 'Chat on WhatsApp'}
+                    title={language === 'fa' ? content.whatsappLabelFa : content.whatsappLabelEn}
                   >
                     <MessageSquare className="w-4 h-4" />
                   </a>
