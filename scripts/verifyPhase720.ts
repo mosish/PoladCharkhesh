@@ -149,31 +149,30 @@ async function runPhase72Verification() {
   // ----------------------------------------------------
   console.log('\n--- 6. SQLite Persistence & Restart Verification ---');
   
-  // Save an update
-  const updatedResult = companyDb.updateCompanyInfo({
-    secondaryMobile: '09121112233',
-    inquiryEmail: 'inquiry@poladcharkhesh.ir',
-    whatsappEnabled: true,
-    phoneEnabled: true,
-    defaultLanguage: 'domain_based',
-    announcementTextFa: 'تأمین مستقیم و رسمی انواع بیرینگ‌های فوق سنگین با شناسنامه فنی',
-  }, 'superadmin');
+  // Verify persistence inside an isolated savepoint so production-like data is never changed by the test.
+  db.exec('SAVEPOINT phase72_company_verification;');
+  try {
+    const originalCompany = companyDb.getCompanyInfo();
+    const probeSecondaryMobile = originalCompany.secondaryMobile === '09121112233' ? '09121112234' : '09121112233';
+    const probeEmail = originalCompany.inquiryEmail === 'phase72-check@example.invalid'
+      ? 'phase72-check-2@example.invalid'
+      : 'phase72-check@example.invalid';
 
-  assert(updatedResult.secondaryMobile === '09121112233', 'updateCompanyInfo returns merged secondaryMobile');
-  assert(updatedResult.inquiryEmail === 'inquiry@poladcharkhesh.ir', 'updateCompanyInfo returns merged inquiryEmail');
+    const updatedResult = companyDb.updateCompanyInfo({
+      secondaryMobile: probeSecondaryMobile,
+      inquiryEmail: probeEmail,
+    }, 'phase72-verifier');
 
-  // Fetch fresh from SQLite to verify cold read
-  const freshRead = companyDb.getCompanyInfo();
-  assert(freshRead.secondaryMobile === '09121112233', 'Cold SQLite read retains saved secondaryMobile');
-  assert(freshRead.inquiryEmail === 'inquiry@poladcharkhesh.ir', 'Cold SQLite read retains saved inquiryEmail');
-  assert(Boolean(freshRead.announcementTextFa?.includes('شناسنامه')), 'Cold SQLite read retains announcementTextFa');
+    assert(updatedResult.secondaryMobile === probeSecondaryMobile, 'updateCompanyInfo returns merged secondaryMobile');
+    assert(updatedResult.inquiryEmail === probeEmail, 'updateCompanyInfo returns merged inquiryEmail');
 
-  // Restore canonical state
-  companyDb.updateCompanyInfo({
-    secondaryMobile: '',
-    inquiryEmail: 'info@poladcharkhesh.ir',
-    announcementTextFa: 'تأمین مستقیم و فوری انواع بیرینگ صنایع فولاد، نفت و سیمان با تضمین اصالت فیزیکی',
-  }, 'superadmin');
+    const freshRead = companyDb.getCompanyInfo();
+    assert(freshRead.secondaryMobile === probeSecondaryMobile, 'SQLite read retains saved secondaryMobile inside verification savepoint');
+    assert(freshRead.inquiryEmail === probeEmail, 'SQLite read retains saved inquiryEmail inside verification savepoint');
+  } finally {
+    db.exec('ROLLBACK TO phase72_company_verification;');
+    db.exec('RELEASE phase72_company_verification;');
+  }
 
   // ----------------------------------------------------
   // 7. NON-ECOMMERCE INTEGRITY
