@@ -95,6 +95,7 @@ try {
   await page.goto(base + '/product/' + product.slug);
   await page.getByRole('button', { name:/Real Part Photo 1/ }).first().click();
   await page.getByRole('img',{name:'Verified gallery image',exact:true}).waitFor();
+  await page.waitForFunction(() => [...document.images].some(img => img.alt === 'Verified gallery image' && img.complete && img.naturalWidth > 0));
 
   for (const language of ['en','fa']) {
     await page.evaluate(lang => localStorage.setItem('polad_preferred_language',lang),language);
