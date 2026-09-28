@@ -14,7 +14,21 @@ export const contentDb = {
     const row = db.prepare('SELECT data FROM cms_content WHERE id = ?;').get('main') as any;
     if (row && row.data) {
       try {
-        return JSON.parse(row.data);
+        const saved = JSON.parse(row.data) as Partial<CmsPageContent>;
+        // Backward-compatible read migration: older installations may only contain
+        // hero/about/footer. Merge every section with current defaults so a deploy
+        // never requires destructive reset or a manual CMS migration.
+        return {
+          hero: { ...DEFAULT_PAGE_CONTENT.hero, ...(saved.hero || {}) },
+          about: { ...DEFAULT_PAGE_CONTENT.about, ...(saved.about || {}) },
+          catalog: { ...DEFAULT_PAGE_CONTENT.catalog, ...(saved.catalog || {}) },
+          tools: { ...DEFAULT_PAGE_CONTENT.tools, ...(saved.tools || {}) },
+          whyUs: { ...DEFAULT_PAGE_CONTENT.whyUs, ...(saved.whyUs || {}) },
+          industries: { ...DEFAULT_PAGE_CONTENT.industries, ...(saved.industries || {}) },
+          team: { ...DEFAULT_PAGE_CONTENT.team, ...(saved.team || {}) },
+          contact: { ...DEFAULT_PAGE_CONTENT.contact, ...(saved.contact || {}) },
+          footer: { ...DEFAULT_PAGE_CONTENT.footer, ...(saved.footer || {}) },
+        };
       } catch {
         return DEFAULT_PAGE_CONTENT;
       }
