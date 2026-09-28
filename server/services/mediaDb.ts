@@ -2,7 +2,10 @@
  * POLAD CHARKHESH - MEDIA METADATA DATABASE ACCESS SERVICE
  */
 
-import { getDatabase } from '../db';
+import fs from 'node:fs';
+import path from 'node:path';
+import { CONFIG } from '../config';
+import { getDatabase, runTransaction } from '../db';
 import { MediaMetadata, MediaUploadInput, MediaUpdateInput } from '../../src/types/admin';
 
 function safeJsonParse<T>(value: string | null | undefined, fallback: T): T {
@@ -32,6 +35,102 @@ function rowToMedia(r: any): MediaMetadata {
 }
 
 export const mediaDb = {
+  getReferences(url: string): string[] {
+    const db = getDatabase();
+    const refs: string[] = [];
+    const prods = db.prepare('SELECT id, code, image_url, images, pdf_url FROM products').all() as any[];
+    for (const p of prods) {
+      const images: string[] = safeJsonParse(p.images, []);
+      if (p.image_url === url || images.includes(url) || p.pdf_url === url) {
+        refs.push(p.code);
+      }
+    }
+    for (const table of ['cms_content', 'company_info', 'seo_config']) {
+      try {
+        const row = db.prepare(`SELECT data FROM ${table} WHERE id='main'`).get() as any;
+        if (row && typeof row.data === 'string' && row.data.includes(url)) {
+          refs.push(table);
+        }
+      } catch {}
+    }
+    return [...new Set(refs)];
+  },
+
+  getProductMedia(productIdOrCode: string) {
+    const db = getDatabase();
+    const row = db.prepare('SELECT id, code, image_url, images, pdf_url FROM products WHERE id = ? OR code = ?').get(productIdOrCode, productIdOrCode) as any;
+    if (!row) return null;
+    const images = [...new Set<string>([row.image_url, ...safeJsonParse<string[]>(row.images, [])].filter(Boolean))];
+    return {
+      productId: row.id,
+      code: row.code,
+      imageUrl: row.image_url || images[0] || '',
+      images,
+      pdfUrl: row.pdf_url || '',
+    };
+  },
+
+  updateProductMediaGallery(
+    productIdOrCode: string,
+    input: {
+      action: 'attach' | 'detach' | 'primary' | 'move' | 'setPdf' | 'clearPdf';
+      mediaUrl?: string;
+      toIndex?: number;
+    },
+    username: string
+  ) {
+    return runTransaction((db) => {
+      const row = db.prepare('SELECT id, code, image_url, images, pdf_url FROM products WHERE id = ? OR code = ?').get(productIdOrCode, productIdOrCode) as any;
+      if (!row) throw new Error('Product not found');
+      let images: string[] = [...new Set<string>([row.image_url, ...safeJsonParse<string[]>(row.images, [])].filter(Boolean))];
+      let pdfUrl = row.pdf_url || '';
+      const url = input.mediaUrl || '';
+
+      switch (input.action) {
+        case 'attach':
+          if (url && !images.includes(url)) images.push(url);
+          break;
+        case 'detach':
+          images = images.filter((img) => img !== url);
+          break;
+        case 'primary':
+          if (url) {
+            images = [url, ...images.filter((img) => img !== url)];
+          }
+          break;
+        case 'move':
+          if (url && typeof input.toIndex === 'number' && input.toIndex >= 0 && input.toIndex < images.length) {
+            const idx = images.indexOf(url);
+            if (idx >= 0) {
+              images.splice(idx, 1);
+              images.splice(input.toIndex, 0, url);
+            }
+          }
+          break;
+        case 'setPdf':
+          pdfUrl = url;
+          break;
+        case 'clearPdf':
+          pdfUrl = '';
+          break;
+        default:
+          throw new Error('Invalid gallery action');
+      }
+
+      const primaryImage = images[0] || '';
+      db.prepare('UPDATE products SET image_url = ?, images = ?, pdf_url = ?, updated_at = ?, updated_by = ? WHERE id = ?')
+        .run(primaryImage, JSON.stringify(images), pdfUrl, new Date().toISOString(), username, row.id);
+
+      return {
+        productId: row.id,
+        code: row.code,
+        imageUrl: primaryImage,
+        images,
+        pdfUrl,
+      };
+    });
+  },
+
   getMediaList(category?: string): MediaMetadata[] {
     const db = getDatabase();
     const sql = category
@@ -120,9 +219,30 @@ export const mediaDb = {
     return this.getMediaById(id);
   },
 
-  deleteMediaRecord(id: string): boolean {
+  deleteMediaRecord(id: string): { success: boolean; inUse?: string[]; unlinked?: boolean } {
+    const current = this.getMediaById(id);
+    if (!current) return { success: false };
+
+    const inUse = this.getReferences(current.url);
+    if (inUse.length > 0) {
+      return { success: false, inUse };
+    }
+
     const db = getDatabase();
     const result = db.prepare('DELETE FROM media_metadata WHERE id = ?;').run(id);
-    return result.changes > 0;
+
+    let unlinked = false;
+    if (current.url.startsWith('/uploads/')) {
+      const filename = path.basename(current.url);
+      const filePath = path.join(path.dirname(CONFIG.DATABASE_PATH), 'uploads', filename);
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+          unlinked = true;
+        } catch {}
+      }
+    }
+
+    return { success: result.changes > 0, unlinked };
   },
 };

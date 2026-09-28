@@ -18,6 +18,8 @@ import {
   RefreshCw,
   Save,
   Link2,
+  Upload,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface AdminMediaProps {
@@ -52,6 +54,10 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
   const [categoryFilter, setCategoryFilter] = useState<'all' | MediaCategory>('all');
   const [selectedMedia, setSelectedMedia] = useState<MediaMetadata | null>(null);
   const [mediaForm, setMediaForm] = useState<MediaUploadInput>({ ...emptyMediaForm });
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const productImgInputRef = React.useRef<HTMLInputElement>(null);
+  const productPdfInputRef = React.useRef<HTMLInputElement>(null);
 
   // Product gallery state
   const [products, setProducts] = useState<AdminProductItem[]>([]);
@@ -125,6 +131,80 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
     setSelectedMedia(null);
     setMediaForm({ ...emptyMediaForm, associatedProductCodes: [] });
     setStatus({});
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    setStatus({});
+    try {
+      const result = await mediaService.uploadMedia(file);
+      if (result.success) {
+        await refreshMedia();
+        selectMedia(result.data.media);
+        setStatus({
+          success: isFa ? `فایل «${file.name}» با موفقیت بارگذاری شد.` : `File "${file.name}" uploaded successfully.`,
+        });
+      } else {
+        setStatus({ error: result.error.message });
+      }
+    } catch {
+      setStatus({ error: isFa ? 'خطا در بارگذاری فایل.' : 'Failed to upload file.' });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleProductImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedProduct) return;
+    setIsUploading(true);
+    setStatus({});
+    try {
+      const result = await mediaService.uploadMedia(file);
+      if (result.success) {
+        await refreshMedia();
+        const uploadedUrl = result.data.media.url;
+        setGalleryImages((prev) => [...prev, uploadedUrl]);
+        setStatus({
+          success: isFa ? `تصویر بارگذاری و به پیش‌نمایش گالری قطعه ${selectedProduct.code} افزوده شد.` : `Image uploaded and appended to ${selectedProduct.code} gallery.`,
+        });
+      } else {
+        setStatus({ error: result.error.message });
+      }
+    } catch {
+      setStatus({ error: isFa ? 'خطا در بارگذاری تصویر.' : 'Failed to upload image.' });
+    } finally {
+      setIsUploading(false);
+      if (productImgInputRef.current) productImgInputRef.current.value = '';
+    }
+  };
+
+  const handleProductPdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedProduct) return;
+    setIsUploading(true);
+    setStatus({});
+    try {
+      const result = await mediaService.uploadMedia(file);
+      if (result.success) {
+        await refreshMedia();
+        const uploadedUrl = result.data.media.url;
+        setPdfUrl(uploadedUrl);
+        setStatus({
+          success: isFa ? `دیتاشیت PDF بارگذاری و برای قطعه ${selectedProduct.code} تنظیم شد.` : `Datasheet PDF uploaded and set for ${selectedProduct.code}.`,
+        });
+      } else {
+        setStatus({ error: result.error.message });
+      }
+    } catch {
+      setStatus({ error: isFa ? 'خطا در بارگذاری دیتاشیت.' : 'Failed to upload datasheet.' });
+    } finally {
+      setIsUploading(false);
+      if (productPdfInputRef.current) productPdfInputRef.current.value = '';
+    }
   };
 
   const saveMedia = async (e: React.FormEvent) => {
@@ -299,7 +379,19 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
                 {categoryOptions.map((option) => <option key={option.value} value={option.value}>{isFa ? option.fa : option.en}</option>)}
               </select>
               <button type="button" onClick={refreshMedia} className="p-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800" title="Refresh"><RefreshCw className="w-4 h-4" /></button>
-              <button type="button" onClick={startNewMedia} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold"><Plus className="w-4 h-4" />{isFa ? 'رسانه جدید' : 'New Media'}</button>
+              <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold cursor-pointer transition-all shrink-0">
+                <Upload className="w-4 h-4" />
+                <span>{isUploading ? (isFa ? 'در حال بارگذاری...' : 'Uploading...') : (isFa ? 'بارگذاری فایل' : 'Upload File')}</span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
+                  onChange={handleFileUpload}
+                  disabled={isUploading}
+                  className="hidden"
+                />
+              </label>
+              <button type="button" onClick={startNewMedia} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold shrink-0"><Plus className="w-4 h-4" />{isFa ? 'رسانه جدید' : 'New Media'}</button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[650px] overflow-y-auto">
@@ -402,12 +494,38 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
 
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} placeholder={isFa ? 'URL تصویر جدید' : 'New image URL'} className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono" />
-                  <button type="button" onClick={addGalleryImage} className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"><Plus className="w-4 h-4" />{isFa ? 'افزودن' : 'Add'}</button>
+                  <button type="button" onClick={addGalleryImage} className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold"><Plus className="w-4 h-4" />{isFa ? 'افزودن URL' : 'Add URL'}</button>
+                  <label className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer transition-all shrink-0">
+                    <Upload className="w-4 h-4" />
+                    <span>{isUploading ? (isFa ? 'در حال بارگذاری...' : 'Uploading...') : (isFa ? 'بارگذاری تصویر' : 'Upload Image')}</span>
+                    <input
+                      ref={productImgInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleProductImageUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">{isFa ? 'آدرس دیتاشیت PDF محصول' : 'Product Datasheet PDF URL'}</label>
-                  <input value={pdfUrl} onChange={(e) => setPdfUrl(e.target.value)} placeholder="/datasheets/..." className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono" />
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input value={pdfUrl} onChange={(e) => setPdfUrl(e.target.value)} placeholder="/datasheets/... or /uploads/..." className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono" />
+                    <label className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold cursor-pointer transition-all shrink-0">
+                      <Upload className="w-4 h-4" />
+                      <span>{isUploading ? (isFa ? 'در حال بارگذاری...' : 'Uploading...') : (isFa ? 'بارگذاری PDF' : 'Upload PDF')}</span>
+                      <input
+                        ref={productPdfInputRef}
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleProductPdfUpload}
+                        disabled={isUploading}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 <button type="button" disabled={isSaving} onClick={saveProductGallery} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-xs font-bold">

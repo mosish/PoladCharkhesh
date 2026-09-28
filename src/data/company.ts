@@ -175,8 +175,8 @@ export const COMPANY_INFO: CompanyContactInfo = {
   // Primary phone number as designated for Polad Charkhesh
   primaryPhone: '09127195313',
   primaryMobile: '09127195313',
-  secondaryMobile: '',
-  landlinePhones: ['02177209117'],
+  secondaryMobile: '09126172282',
+  landlinePhones: ['02177209117', '02133939482'],
   primaryPhoneDisplayFa: '۰۹۱۲-۷۱۹۵۳۱۳',
   primaryPhoneDisplayEn: '0912-7195313',
   primaryPhoneTel: 'tel:+989127195313',

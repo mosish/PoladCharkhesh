@@ -1,6 +1,6 @@
 # Polad Charkhesh — پولاد چرخش
 
-> **Project status:** Final integration & launch-readiness stage  
+> **Project status:** Final integration & launch-readiness stage (Validated)  
 > **Source of truth:** `main` branch  
 > **Last status review:** 2026-09-28
 
@@ -14,7 +14,7 @@ This project is **not an e-commerce website**. There is no online pricing, shopp
 
 ## Current Project Status
 
-The project has moved beyond the main feature-development phase and is now primarily in:
+The project has completed the final integration phase and is now ready for deployment freeze:
 
 **Stabilize → Audit → Fix → Freeze → Deploy**
 
@@ -26,24 +26,24 @@ The project has moved beyond the main feature-development phase and is now prima
 | Responsive Persian/English public website | ✅ Complete |
 | Product catalog (68 canonical products) | ✅ Complete |
 | Engineering product data & calculations | ✅ Complete |
-| Product detail experience | ✅ Complete / final QA |
+| Product detail experience | ✅ Complete |
 | Express + SQLite backend | ✅ Complete |
 | Server-side admin authentication | ✅ Complete |
 | Product management | ✅ Complete |
 | Company & contact settings | ✅ Complete |
-| Full-site content CMS | 🟢 Substantially complete |
-| Repeatable public sections | 🟢 Substantially complete |
+| Full-site content CMS | ✅ Complete |
+| Repeatable public sections | ✅ Complete |
 | Customer inquiries | ✅ Complete |
 | SEO management | ✅ Complete |
-| Backup / restore | 🟢 Implemented / final integration QA |
+| Backup / restore | ✅ Complete |
 | Audit logs | ✅ Complete |
-| Media Library | 🟢 Implemented; physical file workflow needs final decision |
-| Admin responsive UX | 🟢 Complete / final QA |
-| Multi-agent development governance | 🟡 Pending |
-| Final integration/regression audit | 🟡 Pending |
-| Cross-browser/device QA | 🟡 Pending |
-| Production security/configuration audit | 🟡 Pending |
-| Deployment candidate freeze | ⬜ Pending |
+| Media Library & Physical Upload | ✅ Complete and verified |
+| Admin responsive UX | ✅ Complete |
+| Multi-agent development governance | ✅ Complete |
+| Final integration/regression audit | ✅ Complete |
+| Cross-browser/device QA | 🟢 Complete / verified |
+| Production security/configuration audit | 🟢 Complete / verified |
+| Deployment candidate freeze | 🟡 Ready for freeze |
 | VPS deployment | ⬜ Pending |
 | Production smoke test | ⬜ Pending |
 
@@ -89,15 +89,15 @@ The admin includes centralized management for:
 - Persian/English company identity
 - Company/legal names
 - Persian/English addresses
-- Mobile and landline numbers
+- Mobile and landline numbers (09127195313, 09126172282, 02177209117, 02133939482)
 - WhatsApp
 - Email/contact information
-- Structured working hours
+- Structured working hours (08:00 - 16:00)
 - Global website settings
 - CTA/contact visibility
 - Site-wide communication settings
 
-Public website components should consume this centralized source instead of duplicating contact data.
+Public website components consume this centralized source instead of duplicating contact data.
 
 ### Full-Site CMS
 
@@ -109,12 +109,12 @@ CMS coverage has been expanded across major public sections, including:
 - Engineering Tools headings/content
 - Benefits / Why Us
 - Industries
-- Team
+- Team (gracefully hidden when roster is unverified)
 - Contact
 - Footer
 - Other shared public content
 
-The goal remains that routine website content changes should be possible from Admin without editing source code.
+Routine website content changes are managed directly from Admin without editing source code.
 
 ### Customer Inquiries
 
@@ -128,29 +128,25 @@ Admins can search/filter inquiries and track customer follow-up.
 
 ### Media Library
 
-The Media module currently supports:
+The Media module provides complete media asset lifecycle management:
 
-- Media records and metadata
-- Search and category filtering
-- Persian/English alt text
-- Product associations
-- Product gallery management
-- Image ordering / primary image
-- Datasheet URL association
-
-**Launch-readiness note:** the current workflow includes metadata/URL management. The final project audit should confirm whether direct physical file upload/storage/delete is required before production deployment.
+- Physical file upload (JPEG, PNG, WebP, PDF up to 10 MB) with magic-byte verification and path-traversal prevention
+- Persistent storage in `data/uploads/` and static serving via `/uploads`
+- Media records, categories, and bilingual alt text in SQLite
+- Product associations and gallery management (attach, detach, primary, move, datasheet PDF)
+- Reference checking preventing accidental deletion of assets in active use
+- Safe unlinking of unreferenced assets upon deletion
 
 ### Backup, Security & Audit
 
 Admin/System functionality includes:
 
-- Password management
-- Dataset/database backup export
-- Backup restore
-- Audit logging
+- Password management (PBKDF2)
+- Dataset/database backup export (including products, company, CMS, SEO, media metadata, and inquiries)
+- Backup restore with automatic pre-restore safety snapshots
+- Factory Reset to the 68 canonical engineering items restricted to `superadmin` role
+- Immutable audit logging with IP tracking
 - Security/system management
-
-Media and inquiry data have also been integrated into the backup/restore direction.
 
 ---
 

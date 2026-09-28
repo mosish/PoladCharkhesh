@@ -176,7 +176,7 @@ class DataService {
   // Runtime authority is the SQLite-backed API.
   // Static canonical products are permitted only as an explicit development reference fallback.
   // Production must never silently present bundled product data as the current catalog.
-  private products: BearingProduct[] = import.meta.env.PROD ? [] : [...canonicalProducts];
+  private products: BearingProduct[] = (typeof import.meta !== 'undefined' && import.meta.env?.PROD) ? [] : [...canonicalProducts];
   private companyInfo: CompanyContactInfo = { ...canonicalCompanyInfo };
   private pageContent: CmsPageContent = { ...DEFAULT_PAGE_CONTENT };
   private seoConfig: SiteSeoConfig = { ...DEFAULT_SEO_CONFIG };
@@ -653,14 +653,19 @@ class DataService {
     }
   }
 
-  public async resetToCanonical(_user?: AdminUser | string): Promise<{ success: boolean }> {
-    // Note: factory reset requires username/password on the backend for superadmin verification
-    // Calling via systemService
+  public async resetToCanonical(_user?: AdminUser | string): Promise<{ success: boolean; error?: string }> {
     const currentUser = authService.getCurrentUser();
-    if (!currentUser) return { success: false };
+    if (!currentUser) return { success: false, error: 'Unauthorized: Authentication required' };
+    if (currentUser.role !== 'superadmin') {
+      return { success: false, error: 'Forbidden: Superadmin role required' };
+    }
 
-    // If caller needs credentials, systemService.factoryReset is used
-    return { success: false };
+    const res = await systemService.factoryReset({ username: currentUser.username, password: '' });
+    if (res.success) {
+      await this.refreshFromServer();
+      return { success: true };
+    }
+    return { success: false, error: res.error?.message || 'Factory reset failed' };
   }
 }
 

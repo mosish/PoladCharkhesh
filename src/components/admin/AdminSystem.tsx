@@ -43,6 +43,9 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
   const [logSearch, setLogSearch] = useState('');
   const [actionFilter, setActionFilter] = useState('ALL');
 
+  const currentUser = authService.getCurrentUser();
+  const isSuperadmin = currentUser?.role === 'superadmin';
+
   useEffect(() => {
     auditService.refreshFromServer();
     const unsub = auditService.subscribe(setLogs);
@@ -146,12 +149,20 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
 
   const handleFactoryReset = async () => {
     try {
-      await dataService.resetToCanonical();
+      const res = await dataService.resetToCanonical();
       setShowResetModal(false);
-      setImportStatus({
-        success: true,
-        message: isFa ? 'کاتالوگ به محصولات رسمی کاتالوگ بازگردانده شد.' : 'Reset to canonical products completed.',
-      });
+      if (res.success) {
+        setImportStatus({
+          success: true,
+          message: isFa ? 'کاتالوگ و تنظیمات به ۶۸ کالای استاندارد پایه بازنشانی گردید.' : 'Reset to canonical 68 products completed.',
+        });
+        await auditService.refreshFromServer();
+      } else {
+        setImportStatus({
+          success: false,
+          message: isFa ? `خطا در بازنشانی: ${res.error || 'دسترسی غیرمجاز'}` : `Failed to reset: ${res.error || 'Forbidden'}`,
+        });
+      }
     } catch {
       setImportStatus({
         success: false,
@@ -313,16 +324,19 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
                 />
               </label>
 
-              {/* Factory Reset Button */}
-              <button
-                onClick={() => setShowResetModal(true)}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-bold text-rose-300 transition-all"
-              >
-                <div className="flex items-center gap-2.5">
-                  <RotateCcw className="w-4 h-4 text-rose-400" />
-                  <span>{isFa ? 'بازنشانی کاتالوگ به داده مرجع بازیابی' : 'Reset Catalog to Recovery Seed'}</span>
-                </div>
-              </button>
+              {/* Factory Reset Button (Superadmin Only) */}
+              {isSuperadmin && (
+                <button
+                  onClick={() => setShowResetModal(true)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-bold text-rose-300 transition-all"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <RotateCcw className="w-4 h-4 text-rose-400" />
+                    <span>{isFa ? 'بازنشانی کاتالوگ به ۶۸ کالای استاندارد کارخانه' : 'Reset Catalog to Canonical 68 Items'}</span>
+                  </div>
+                  <span className="text-[10px] text-rose-400 font-mono">Superadmin</span>
+                </button>
+              )}
 
             </div>
           </div>

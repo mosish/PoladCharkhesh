@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { CONFIG } from './server/config';
 import { getDatabase } from './server/db';
@@ -36,6 +37,13 @@ async function startServer() {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     next();
   });
+
+  // 2.1 Static Uploads Directory for Media Assets
+  const uploadDir = path.join(path.dirname(CONFIG.DATABASE_PATH), 'uploads');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadDir));
 
   // 3. Initialize SQLite Database & Seed Canonical Bearings
   try {
