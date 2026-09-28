@@ -376,7 +376,12 @@ export default function App() {
       {/* Dynamic View: Product Page vs Single Page Scrolling Home */}
       <a href="#main-content" className="skip-link">{language === 'fa' ? 'رفتن به محتوا' : 'Skip to content'}</a>
       <main id="main-content" className="flex-1 space-y-4 sm:space-y-6">
-        {route.type === 'product' ? (
+        {import.meta.env.PROD && syncState.status !== 'synced' && !syncState.lastSyncedAt ? (
+          <div role="status" className="max-w-3xl mx-auto my-16 p-8 text-center glass-card-static rounded-3xl">
+            <p>{syncState.status === 'loading' ? (language === 'fa' ? 'در حال دریافت محتوای سایت…' : 'Loading website content…') : (language === 'fa' ? 'دریافت محتوای سایت ممکن نشد. لطفاً دوباره تلاش کنید.' : 'Website content could not be loaded. Please try again.')}</p>
+            {syncState.status === 'degraded' && <button className="glass-btn-primary text-white rounded-xl px-5 py-3 mt-5" onClick={() => void dataService.refreshFromServer()}>{language === 'fa' ? 'تلاش دوباره' : 'Retry'}</button>}
+          </div>
+        ) : route.type === 'product' ? (
           currentProduct ? (
             <ProductPage
               product={currentProduct}

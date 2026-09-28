@@ -121,7 +121,7 @@ export const AdminMedia: React.FC<{ language: Language }> = ({ language }) => {
             {[['product_photo','تصویر محصول','Product photo'],['cad_schematic','نقشه فنی','Schematic'],['datasheet_pdf','برگه PDF','PDF datasheet'],['company_photo','تصویر شرکت','Company photo']].map(([v,a,b]) => <option key={v} value={v}>{fa ? a : b}</option>)}
           </select></label><button disabled={!dirty} className="editor-primary" type="submit">{fa ? 'ذخیره مشخصات' : 'Save metadata'}</button>
         </fieldset></form>
-        <p className="text-sm my-4">{fa ? 'محصولات مرتبط: ' : 'Used by products: '}{selected.associatedProductCodes?.join('، ') || '—'}</p>
+        <p className="text-sm my-4">{fa ? 'محصولات مرتبط: ' : 'Used by products: '}{items.find(item => item.id === selected.id)?.associatedProductCodes?.join('، ') || '—'}</p>
         <button disabled={busy || dirty} type="button" onClick={() => void perform(async () => {
           const result = await mediaService.archive(selected.id, !selected.isArchived);
           if (!result.success) throw new Error(result.error.message); choose(result.data.media, true); await reload();

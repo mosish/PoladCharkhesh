@@ -54,6 +54,7 @@ try {
   await context.addCookies([{ name:'polad_session', value:cookie.slice(cookie.indexOf('=') + 1), url:base, httpOnly:true, sameSite:'Strict' }]);
   await page.goto(base + '/#admin/content');
   await page.getByRole('heading', { name:'Website content',exact:true }).waitFor();
+  await page.locator('.editor-sections').waitFor();
   await page.getByRole('button', { name:/Why choose us/ }).click();
   await page.getByLabel('English', { exact:true }).nth(1).fill('CMS verification title');
   await page.getByRole('button', { name:'Save content',exact:true }).click();
@@ -97,7 +98,14 @@ try {
   }
   assert.deepEqual(errors,[]);
   console.log('PASS: production runtime, Quick View + ProductPage, CMS save/persistence, media upload/alt/association/primary, FA/EN mobile overflow checks, no browser exceptions');
-} catch (error) {
+ } catch (error) {
+  console.error('Browser errors:', errors);
+  const failedPage = browser?.contexts()[0]?.pages()[0];
+  if (failedPage) {
+    console.error('Page URL:', failedPage.url());
+    console.error('Page text:', (await failedPage.locator('body').innerText()).slice(0,12000));
+    await failedPage.screenshot({path:'test-results/failure.png',fullPage:true}).catch(() => {});
+  }
   fs.writeFileSync('test-results/failure.txt',String(error.stack ?? error) + '\nBrowser errors: ' + JSON.stringify(errors));
   throw error;
 } finally {

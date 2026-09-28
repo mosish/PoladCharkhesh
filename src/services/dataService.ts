@@ -102,11 +102,7 @@ class DataService {
 
       if (prodRes.success && prodRes.data?.products && Array.isArray(prodRes.data.products)) {
         this.products = prodRes.data.products;
-        this.syncState = {
-          status: 'synced',
-          isAuthoritative: true,
-          lastSyncedAt: new Date().toISOString(),
-        };
+
       } else {
         this.syncState = {
           status: 'degraded',
@@ -125,6 +121,18 @@ class DataService {
         this.seoConfig = seoRes.data.seo;
       }
 
+      const failures = [
+        !prodRes.success || !Array.isArray(prodRes.data?.products) ? 'products' : '',
+        !compRes.success || !compRes.data?.company ? 'company' : '',
+        !contentRes.success || !contentRes.data?.content ? 'content' : '',
+        !seoRes.success || !seoRes.data?.seo ? 'seo' : '',
+      ].filter(Boolean);
+      this.syncState = failures.length
+        ? { ...this.syncState, status: 'degraded', isAuthoritative: false, error: 'Unable to load: ' + failures.join(', ') }
+        : { status: 'synced', isAuthoritative: true, lastSyncedAt: new Date().toISOString() };
+
+      // Inquiries are loaded only for a verified administrator.
+      if (authService.isAuthenticated()) {
       // Inquiries (requires admin session, gracefully fails for public users)
       try {
         const inqRes = await inquiryService.getInquiries();
@@ -132,6 +140,7 @@ class DataService {
           this.inquiries = inqRes.data.inquiries;
         }
       } catch {}
+      }
 
       this.notifyListeners();
     } catch (err: any) {
