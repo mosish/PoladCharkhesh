@@ -1,3 +1,4 @@
+import './testDatabase';
 import { validateAndLoadConfig } from '../server/config';
 import { getClientIp } from '../server/middleware';
 import { getAuthoritativeDomain, resolveAbsoluteSeoUrl } from '../src/utils/seo';

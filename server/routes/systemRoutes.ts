@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { requireAuth, requireRole, logAudit } from '../middleware';
 import { systemDb } from '../services/systemDb';
-import { validateProductCandidate } from '../validation';
+import { validateSnapshot } from '../snapshotValidation';
 
 export const systemRouter = Router();
 
@@ -50,26 +50,8 @@ systemRouter.get('/backup', requireAuth, (req: Request, res: Response) => {
 systemRouter.post('/restore', requireAuth, requireRole(['superadmin']), (req: Request, res: Response): void => {
   const backup = req.body;
 
-  if (!backup || typeof backup !== 'object') {
-    res.status(400).json({ error: 'ساختار فایل پشتیبان نامعتبر است.' });
-    return;
-  }
-
-  if (!Array.isArray(backup.products) || backup.products.length === 0) {
-    res.status(400).json({ error: 'لیست کالاهای فایل پشتیبان خالی یا نامعتبر است.' });
-    return;
-  }
-
-  // Validate all products
-  for (const p of backup.products) {
-    const val = validateProductCandidate(p);
-    if (!val.isValid) {
-      res.status(400).json({
-        error: `کالای ${p.code || 'نامشخص'} دارای اطلاعات ناقص است: ${val.errors.join(' - ')}`,
-      });
-      return;
-    }
-  }
+  const errors = validateSnapshot(backup);
+  if (errors.length) { res.status(400).json({ error: 'Invalid backup', errors }); return; }
 
   try {
     const result = systemDb.restoreSystemSnapshot(backup, req.admin!.username);

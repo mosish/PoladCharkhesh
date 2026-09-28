@@ -43,14 +43,23 @@ async function startServer() {
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
-  app.use('/uploads', express.static(uploadDir));
+  app.use('/uploads', express.static(uploadDir, {
+    setHeaders(res, file) {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      if (file.endsWith('.pdf')) {
+        res.setHeader('Content-Security-Policy', "sandbox; default-src 'none'");
+        res.setHeader('Content-Disposition', 'attachment');
+      }
+    },
+  }));
+  app.use('/uploads', (_req, res) => { res.status(404).end(); });
 
   // 3. Initialize SQLite Database & Seed Canonical Bearings
   try {
     getDatabase();
     seedDatabase(false);
   } catch (err) {
-    console.error('Database startup initialization failed:', err);
+    throw new Error('Database startup initialization failed', { cause: err });
   }
 
   // 4. API Endpoints
@@ -71,6 +80,9 @@ async function startServer() {
   app.use('/api/system', systemRouter);
   app.use('/api/media', mediaRouter);
 
+  app.use('/api', (_req, res) => { res.status(404).json({ error: 'API route not found' }); });
+
+
   // 5. Frontend Delivery: Vite middleware in Dev vs Static bundle in Production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -81,13 +93,19 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+    app.use('/assets', (_req, res) => { res.status(404).end(); });
     // Express 5 catch-all syntax
     app.get('*all', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile('index.html', { root: distPath });
     });
   }
 
-  // 6. Listen on Port 3000 and Host 0.0.0.0
+  app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    const status = err.type === 'entity.too.large' ? 413 : err.type === 'entity.parse.failed' ? 400 : 500;
+    res.status(status).json({ error: status === 413 ? 'File or request exceeds size limit' : status === 400 ? 'Invalid JSON' : 'Internal server error' });
+  });
+
+  // 6. Listen on the configured interface and port.
   app.listen(CONFIG.PORT, CONFIG.HOST, () => {
     console.log(`✓ Polad Charkhesh server running on http://${CONFIG.HOST}:${CONFIG.PORT}`);
     console.log(`  Environment: ${CONFIG.NODE_ENV}`);

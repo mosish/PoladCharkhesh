@@ -1,3 +1,4 @@
+import '../../scripts/testDatabase';
 import http from 'node:http';
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -298,12 +299,14 @@ async function runVerification() {
       defaultTitleFa: 'تست سئو پولاد چرخش',
       unwantedField: 12345,
     }, adminAuth);
-    if (seoUpdate.status !== 200) throw new Error(`SEO update failed: ${seoUpdate.status}`);
+    if (seoUpdate.status !== 400) throw new Error(`Unknown SEO field must be rejected: ${seoUpdate.status}`);
+    const validSeo = await makeRequest(port, 'PUT', '/api/seo', { defaultTitleFa: 'تست سئو پولاد چرخش' }, adminAuth);
+    if (validSeo.status !== 200) throw new Error('Valid SEO update failed');
     const seoCheck = await makeRequest(port, 'GET', '/api/seo');
     if ((seoCheck.body.seo as any).unwantedField !== undefined) {
       throw new Error('Mass assignment vulnerability: unwantedField persisted in SEO!');
     }
-    console.log('✓ SEO update: Whitelist enforced, unapproved fields stripped');
+    console.log('✓ SEO update: Unknown fields rejected, valid fields persist');
 
     // 3. Product mutation validation (Physical dimension check: d < D)
     const invalidProd = await makeRequest(port, 'POST', '/api/products', {

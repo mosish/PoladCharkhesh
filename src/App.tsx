@@ -111,7 +111,7 @@ export default function App() {
 
   // Admin state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(authService.isAuthenticated());
-  const [adminTab, setAdminTab] = useState<AdminTab>('overview');
+  const [adminTab, setAdminTab] = useState<AdminTab>(() => { const initial = parseCurrentRoute(); return initial.type === 'admin' ? initial.tab || 'overview' : 'overview'; });
   const [adminAddModalOpen, setAdminAddModalOpen] = useState<boolean>(false);
 
   // Quick Spec Modal (if triggered in quick view mode)
@@ -262,7 +262,7 @@ export default function App() {
           language={language}
           onSuccess={() => {
             setIsAuthenticated(true);
-            navigateToAdmin('overview');
+            navigateToAdmin(route.tab || 'overview');
           }}
           onExitToPublicSite={() => navigateToHome()}
         />
@@ -341,6 +341,15 @@ export default function App() {
       </AdminLayout>
     );
   }
+
+  // Public content must not silently fall back to seed data in production.
+  if (import.meta.env.PROD && !syncState.isAuthoritative) return (
+    <main dir={language === 'fa' ? 'rtl' : 'ltr'} className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center">
+      <p role="status">{syncState.status === 'loading' ? (language === 'fa' ? 'در حال دریافت اطلاعات…' : 'Loading site content…') : (language === 'fa' ? 'اطلاعات سایت موقتاً در دسترس نیست.' : 'Site content is temporarily unavailable.')}</p>
+      {syncState.status !== 'loading' && <button className="underline" onClick={() => void dataService.refreshFromServer()}>{language === 'fa' ? 'تلاش دوباره' : 'Retry'}</button>}
+      <a href="#admin">{language === 'fa' ? 'مدیریت' : 'Admin'}</a>
+    </main>
+  );
 
   // --- PUBLIC SITE VIEW RENDERING ---
   const currentProduct = route.type === 'product' ? findProductBySlug(route.slug, allProducts) : undefined;

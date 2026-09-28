@@ -3,7 +3,7 @@
  */
 
 import { getDatabase } from '../db';
-import { DEFAULT_PAGE_CONTENT } from '../../src/services/dataService';
+import { DEFAULT_PAGE_CONTENT } from '../../src/data/cmsDefaults';
 import { CmsPageContent } from '../../src/types/admin';
 
 export { DEFAULT_PAGE_CONTENT };

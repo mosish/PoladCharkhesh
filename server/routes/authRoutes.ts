@@ -55,7 +55,7 @@ authRouter.get('/status', (req: Request, res: Response) => {
  * POST /api/auth/setup
  * First-time server-side master admin initialization
  */
-authRouter.post('/setup', async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/setup', loginRateLimiter, async (req: Request, res: Response): Promise<void> => {
   if (isMasterAdminConfigured()) {
     res.status(403).json({
       error: 'حساب کاربری مدیریت ارشد قبلاً پیکربندی گردیده است.',
@@ -81,6 +81,8 @@ authRouter.post('/setup', async (req: Request, res: Response): Promise<void> => 
 
   try {
     const passwordHash = await hashPassword(cleanPassword);
+    // Recheck after asynchronous hashing; no await between this check and insert.
+    if (isMasterAdminConfigured()) { res.status(403).json({ error: 'Already configured', code: 'ALREADY_CONFIGURED' }); return; }
     const adminId = `usr_admin_${Date.now()}`;
     const nowIso = new Date().toISOString();
 
@@ -93,7 +95,7 @@ authRouter.post('/setup', async (req: Request, res: Response): Promise<void> => 
       cleanUsername,
       passwordHash,
       name ? String(name).trim() : 'مدیریت ارشد سامانه',
-      email ? String(email).trim() : `${cleanUsername}@poladcharkhesh.ir`,
+      email ? String(email).trim() : '',
       nowIso,
       nowIso
     );
