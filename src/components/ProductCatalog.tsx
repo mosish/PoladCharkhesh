@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { BearingProduct, Language } from '../types';
 import { translations } from '../data/translations';
+import { usePageContent } from '../services/dataService';
 import { searchAndRankProducts } from '../utils/search';
 import { PartMediaSlider } from './PartMediaSlider';
 import { ProductCardSkeleton, ProductTableSkeleton } from './Skeletons';
@@ -51,6 +52,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const t = translations[language];
+  const catalogContent = usePageContent().catalog;
 
   // Quick preset chips for rapid engineering exploration
   const quickFilterPresets = useMemo(() => [
@@ -156,13 +158,13 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         <div className="max-w-3xl mb-10 sm:mb-12 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
             <Layers className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{t.catalog.tag}</span>
+            <span>{language === 'fa' ? catalogContent.tagFa : catalogContent.tagEn}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {t.catalog.title}
+            {language === 'fa' ? catalogContent.titleFa : catalogContent.titleEn}
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600">
-            {t.catalog.subtitle}
+            {language === 'fa' ? catalogContent.subtitleFa : catalogContent.subtitleEn}
           </p>
         </div>
 
@@ -406,7 +408,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             </span>
             <span className="font-mono-spec text-[11px] text-emerald-600 flex items-center gap-1 font-semibold">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              {language === 'fa' ? 'تضمین اصالت ۱۰۰٪ فیزیکی قطعات' : '100% Genuine Physical Guarantee'}
+              {language === 'fa' ? catalogContent.authenticityLabelFa : catalogContent.authenticityLabelEn}
             </span>
           </div>
         </div>

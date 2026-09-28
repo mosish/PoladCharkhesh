@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Language } from '../../types';
 import { AdminProductItem, AuditLog } from '../../types/admin';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 import { auditService } from '../../services/auditService';
 import { validateProductDataset } from '../../utils/productValidation';
 import { 
@@ -33,6 +33,9 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
 }) => {
   const [products, setProducts] = useState<AdminProductItem[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const syncState = useDataSync();
+  const company = dataService.getCompanyInfo();
+  const content = dataService.getContent();
 
   useEffect(() => {
     dataService.refreshFromServer();
@@ -61,8 +64,8 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
   // Integrity Report
   const integrityReport = validateProductDataset(products);
 
-  const handleExportBackup = () => {
-    const snapshot = dataService.exportSnapshot();
+  const handleExportBackup = async () => {
+    const snapshot = await dataService.exportSnapshot();
     const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -135,7 +138,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
         {/* Card 2: ISO Factor Verified */}
         <div className="bg-slate-950/60 border border-slate-800 p-4 sm:p-5 rounded-2xl relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-medium">{isFa ? 'ضرایب تأییدشده ISO 281' : 'Verified ISO Factors'}</span>
+            <span className="text-xs font-medium">{isFa ? 'پوشش ضرایب مهندسی' : 'Engineering Factor Coverage'}</span>
             <FileCheck2 className="w-5 h-5 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-2">
@@ -145,7 +148,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
             <span className="text-xs text-slate-400 font-mono">/ {totalProducts}</span>
           </div>
           <div className="text-[11px] text-slate-500 mt-2">
-            {isFa ? 'دارای ضرایب رسمی کاتالوگ (e, Y, f₀)' : 'Catalog-verified engineering factors'}
+            {isFa ? 'محصولات دارای ضرایب مهندسی ثبت‌شده (e, Y, f₀)' : 'Products with engineering factors recorded (e, Y, f₀)'}
           </div>
         </div>
 
@@ -162,7 +165,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
             <span className="text-xs text-slate-400 font-mono">{isFa ? 'برند بین‌المللی' : 'Brands'}</span>
           </div>
           <div className="text-[11px] text-slate-500 mt-2 truncate">
-            SKF, FAG, TIMKEN, NSK, NTN...
+            {uniqueBrands.slice(0, 5).join(', ') || (isFa ? 'هنوز برندی ثبت نشده' : 'No brands recorded')}
           </div>
         </div>
 
@@ -219,6 +222,31 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
         </div>
       </div>
 
+      {/* Launch Readiness */}
+      <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-bold text-white">{isFa ? 'آمادگی انتشار' : 'Launch Readiness'}</h3>
+            <p className="text-[11px] text-slate-500 mt-1">{isFa ? 'کنترل سریع موارد ضروری قبل از استقرار روی سرور' : 'Fast pre-deployment checks for the production candidate'}</p>
+          </div>
+          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${syncState.isAuthoritative ? 'bg-emerald-500/15 text-emerald-300' : 'bg-amber-500/15 text-amber-300'}`}>
+            {syncState.isAuthoritative ? (isFa ? 'Backend متصل' : 'Backend Connected') : (isFa ? 'نیاز به بررسی اتصال' : 'Check Backend')}
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { ok: activeProducts > 0, fa: 'کاتالوگ فعال', en: 'Active catalog' },
+            { ok: Boolean(company.primaryPhone && company.whatsappUrl), fa: 'تماس و واتس‌اپ', en: 'Phone & WhatsApp' },
+            { ok: Boolean(content.hero?.titleSuffixFa && content.hero?.titleSuffixEn && content.contact?.titleFa && content.contact?.titleEn), fa: 'CMS دوزبانه', en: 'Bilingual CMS' },
+            { ok: integrityReport.isValid, fa: 'سلامت ساختاری داده', en: 'Dataset sanity' },
+          ].map((item) => (
+            <div key={item.en} className={`rounded-xl border p-3 flex items-center gap-2 ${item.ok ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-amber-500/5 border-amber-500/20'}`}>
+              {item.ok ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-amber-400" />}
+              <span className="text-xs text-slate-200">{isFa ? item.fa : item.en}</span>
+            </div>
+          ))}
+        </div>
+      </div>
       {/* 2-Column: Quick Modules Navigation + Recent Audit Logs */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         

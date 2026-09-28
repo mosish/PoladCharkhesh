@@ -41,7 +41,7 @@ function formatPhoneDisplay(raw: string, isLandline = false): { displayFa: strin
 
 function formatWhatsAppUrl(raw: string): string {
   const digits = raw.replace(/\D/g, '');
-  if (!digits) return 'https://wa.me/989127195313';
+  if (!digits) return '';
   if (digits.startsWith('09')) {
     return `https://wa.me/98${digits.slice(1)}`;
   }

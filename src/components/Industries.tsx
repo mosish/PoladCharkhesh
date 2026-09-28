@@ -1,6 +1,6 @@
 import React from 'react';
 import { Language } from '../types';
-import { translations, industryApplications } from '../data/translations';
+import { usePageContent } from '../services/dataService';
 import { 
   Factory, 
   Car, 
@@ -20,7 +20,7 @@ export const Industries: React.FC<IndustriesProps> = ({
   language,
   onSelectBearingCode,
 }) => {
-  const t = translations[language];
+  const content = usePageContent().industries;
 
   const getIcon = (iconName: string) => {
     const iconClass = "w-5 h-5 text-[#232c86]";
@@ -43,19 +43,19 @@ export const Industries: React.FC<IndustriesProps> = ({
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
             <Factory className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{t.industries.tag}</span>
+            <span>{language === 'fa' ? content.tagFa : content.tagEn}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {t.industries.title}
+            {language === 'fa' ? content.titleFa : content.titleEn}
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600">
-            {t.industries.subtitle}
+            {language === 'fa' ? content.subtitleFa : content.subtitleEn}
           </p>
         </div>
 
         {/* 6 Industries Grid (Apple Liquid Glass Cards) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {industryApplications.map((ind) => (
+          {content.items.map((ind) => (
             <div
               key={ind.id}
               className="p-6 sm:p-8 rounded-3xl glass-card flex flex-col justify-between group"
@@ -74,7 +74,7 @@ export const Industries: React.FC<IndustriesProps> = ({
 
               <div className="pt-4 border-t border-slate-200/60">
                 <span className="text-[11px] font-semibold text-slate-500 block mb-2.5">
-                  {language === 'fa' ? 'کدهای پیشنهادی و پرکاربرد:' : 'Recommended Parts:'}
+                  {language === 'fa' ? content.recommendedLabelFa : content.recommendedLabelEn}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {ind.recommendedBearings.map((code) => (

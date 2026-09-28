@@ -8,6 +8,7 @@ import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminOverview } from './components/admin/AdminOverview';
 import { AdminProducts } from './components/admin/AdminProducts';
 import { AdminMedia } from './components/admin/AdminMedia';
+import { AdminInquiries } from './components/admin/AdminInquiries';
 import { AdminCompany } from './components/admin/AdminCompany';
 import { AdminContact } from './components/admin/AdminContact';
 import { AdminSettings } from './components/admin/AdminSettings';
@@ -79,16 +80,18 @@ function parseCurrentRoute(): RouteState {
 
 function getInitialLanguage(): Language {
   if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname.toLowerCase();
-    // poladcharkhesh.com or English subdomains default to English
-    if (hostname.endsWith('.com') || hostname.startsWith('en.')) {
-      return 'en';
-    }
     const saved = localStorage.getItem('polad_preferred_language');
     if (saved === 'fa' || saved === 'en') {
       return saved as Language;
     }
+
+    const hostname = window.location.hostname.toLowerCase();
+    // Domains define the first-visit default; an explicit user choice persists afterwards.
+    if (hostname.endsWith('.com') || hostname.startsWith('en.')) {
+      return 'en';
+    }
   }
+
   // poladcharkhesh.ir & standard default is Persian
   return 'fa';
 }
@@ -297,6 +300,10 @@ export default function App() {
 
         {adminTab === 'media' && (
           <AdminMedia language={language} />
+        )}
+
+        {adminTab === 'inquiries' && (
+          <AdminInquiries language={language} />
         )}
 
         {adminTab === 'settings' && (
