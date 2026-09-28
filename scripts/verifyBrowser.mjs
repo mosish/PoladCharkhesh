@@ -32,12 +32,21 @@ try {
   }
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
-  await context.addInitScript(() => localStorage.setItem('polad_preferred_language', 'en'));
+  await context.addInitScript(() => { if (!localStorage.getItem('polad_preferred_language')) localStorage.setItem('polad_preferred_language', 'en'); });
   const page = await context.newPage();
   const preview = async name => { await page.evaluate(() => window.scrollTo(0,0)); console.log('VISUAL_PREVIEW:' + name + ':' + (await page.screenshot({type:'jpeg',quality:35})).toString('base64')); };
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(base);
   await page.locator('#why-us h2').waitFor();
+  const assetPaths = fs.readdirSync('public/assets/images').filter(name => /\.(webp|png|jpe?g)$/i.test(name)).map(name => '/assets/images/' + name);
+  const assetHealth = await page.evaluate(async urls => Promise.all(urls.map(url => new Promise(resolve => {
+    const img = new Image(); const timer = setTimeout(() => resolve({ url, ok:false, reason:'timeout' }),10000);
+    img.onload = () => { clearTimeout(timer); resolve({ url, ok:img.naturalWidth > 0 }); };
+    img.onerror = () => { clearTimeout(timer); resolve({ url, ok:false, reason:'decode/load failure' }); }; img.src = url;
+  }))),assetPaths);
+  fs.writeFileSync('test-results/asset-health.json',JSON.stringify(assetHealth,null,2));
+  console.log('BASELINE_ASSET_AUDIT:' + JSON.stringify(assetHealth));
+  if (assetHealth.some(asset => !asset.ok)) console.warn('Existing repository images failed decoding. Replace from original approved photos before launch; see asset-health.json.');
   await page.screenshot({ path: 'test-results/home-en-desktop.png', fullPage: true });
   await preview('public-desktop');
   assert.ok(await page.locator('#catalog').isVisible());
@@ -88,17 +97,19 @@ try {
   await page.getByRole('img',{name:'Verified gallery image',exact:true}).waitFor();
 
   for (const language of ['en','fa']) {
-    await context.addInitScript(lang => localStorage.setItem('polad_preferred_language',lang),language);
+    await page.evaluate(lang => localStorage.setItem('polad_preferred_language',lang),language);
     await page.setViewportSize({ width:390,height:844 });
     await page.goto(base);
     await page.waitForFunction(lang => document.documentElement.lang === lang,language);
     await page.locator('#why-us h2').waitFor();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Public horizontal overflow in ' + language);
     await page.screenshot({path:'test-results/home-' + language + '-mobile.png',fullPage:true});
+    if (language === 'fa') await preview('public-fa-mobile');
     await page.goto(base + '/#admin/content');
     await page.locator('.admin-editor textarea').first().waitFor();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Admin horizontal overflow in ' + language);
     await page.screenshot({path:'test-results/admin-content-' + language + '-mobile.png',fullPage:true});
+    if (language === 'fa') await preview('cms-fa-mobile');
   }
   assert.deepEqual(errors,[]);
   console.log('PASS: production runtime, Quick View + ProductPage, CMS save/persistence, media upload/alt/association/primary, FA/EN mobile overflow checks, no browser exceptions');

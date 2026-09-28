@@ -67,3 +67,9 @@ The integration suite uses a new temporary SQLite database. It covers migration 
 The browser suite launches the production build against an isolated temporary database. It exercises Quick View/ProductPage, actual CMS saves, actual media upload/metadata/association/primary actions, English/Persian desktop/mobile rendering and horizontal-overflow checks. Screenshots and failure diagnostics are retained by GitHub Actions.
 
 CI workflow: .github/workflows/predeployment.yml. Consult the PR's latest run for actual results; an earlier successful run does not certify a later commit.
+
+## Existing asset issue requiring original photos before launch
+
+Visual QA found corrupted WebP files already present on the base branch. The first repository commit also contains the corrupted bytes, so Git history cannot recover an authentic original for the sampled file. The browser suite writes `test-results/asset-health.json` with per-file decode results and emits a separate baseline-asset warning. A green functional test run is **not** a clean asset audit.
+
+Original files and product associations are retained. Public galleries keep CAD and show a localized unavailable-image state; the Media Library now shows an explicit thumbnail failure instead of a broken image icon. Replace failed files using approved originals: upload, attach to the appropriate product, set primary/reorder, then detach the old reference. The new library supports this without deleting originals or changing engineering data. No substitute technical photography was invented.

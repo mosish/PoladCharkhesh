@@ -5,6 +5,14 @@ import { dataService } from '../../services/dataService';
 import { mediaService, ProductGallery } from '../../services/mediaService';
 import { useUnsavedChanges } from './useUnsavedChanges';
 
+const MediaThumbnail: React.FC<{ url: string; alt: string; fa: boolean }> = ({ url, alt, fa }) => {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [url]);
+  return failed
+    ? <span className="media-unavailable" role="img" aria-label={alt}><span aria-hidden="true">◇</span>{fa ? 'تصویر قابل نمایش نیست؛ فایل اصلی را بررسی کنید.' : 'Image unavailable. Check the original file.'}</span>
+    : <img loading="lazy" src={url} alt={alt} onError={() => setFailed(true)} />;
+};
+
 export const AdminMedia: React.FC<{ language: Language }> = ({ language }) => {
   const fa = language === 'fa';
   const [items, setItems] = useState<MediaMetadata[]>([]);
@@ -104,7 +112,7 @@ export const AdminMedia: React.FC<{ language: Language }> = ({ language }) => {
     </div>
     <div className="media-layout"><div><p className="mb-3 text-sm text-slate-400">{filtered.length} {fa ? 'نتیجه' : 'results'}</p>
       <div className="media-grid">{filtered.map(item => <button disabled={busy} type="button" key={item.id} aria-pressed={selected?.id === item.id} className="media-tile" onClick={() => choose(item)}>
-        {item.mimeType.startsWith('image/') ? <img loading="lazy" src={item.url} alt={(fa ? item.altTextFa : item.altTextEn) || item.originalName} /> : <span className="media-pdf">PDF</span>}
+        {item.mimeType.startsWith('image/') ? <MediaThumbnail url={item.url} alt={(fa ? item.altTextFa : item.altTextEn) || item.originalName} fa={fa} /> : <span className="media-pdf">PDF</span>}
         <strong>{item.originalName}</strong><small>{item.associatedProductCodes?.length ?? 0} {fa ? 'محصول' : 'products'}</small>
       </button>)}</div>{!filtered.length && <p className="editor-empty">{fa ? 'رسانه‌ای با این فیلتر پیدا نشد.' : 'No assets match these filters.'}</p>}</div>
       <aside className="editor-group">{selected ? <><h3 className="font-bold text-lg mb-4">{fa ? 'جزئیات رسانه' : 'Asset details'}</h3>
@@ -143,7 +151,7 @@ export const AdminMedia: React.FC<{ language: Language }> = ({ language }) => {
         <small>{fa ? 'تصویر اول، تصویر اصلی محصول است.' : 'The first image is the primary product image.'}</small>
       </div><div className="media-grid">{gallery.images.map((image, index) => {
         const item = items.find(asset => asset.url === image);
-        return <div className="media-tile" key={image}><img src={image} alt={(fa ? item?.altTextFa : item?.altTextEn) || ''} />
+        return <div className="media-tile" key={image}><MediaThumbnail url={image} alt={(fa ? item?.altTextFa : item?.altTextEn) || item?.originalName || ''} fa={fa} />
           <span>{index + 1}{index === 0 ? (fa ? ' · اصلی' : ' · Primary') : ''}</span>
           <div className="editor-actions">
             <button disabled={busy || index === 0 || !item} aria-label={fa ? 'انتقال به بالا' : 'Move earlier'} onClick={() => void change('move', item?.id, index - 1)}>↑</button>
