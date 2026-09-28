@@ -75,7 +75,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       
       {/* Top App Bar */}
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-4">
           
           {/* Brand / Logo */}
           <div className="flex items-center gap-3">
@@ -146,14 +146,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       </header>
 
       {/* Main Container with Sidebar */}
-      <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col lg:flex-row gap-6 p-4 sm:p-6">
+      <div className="max-w-[1440px] mx-auto w-full flex-1 flex flex-col lg:flex-row gap-5 xl:gap-6 p-4 sm:p-6">
         
         {/* Desktop Sidebar Navigation */}
         <aside className={`
           lg:w-64 lg:block flex-shrink-0
           ${mobileMenuOpen ? 'block' : 'hidden'}
         `}>
-          <div className="bg-slate-950/80 rounded-2xl p-3 border border-slate-800 sticky top-20 space-y-1">
+          <div className="bg-slate-950/85 rounded-2xl p-3 border border-slate-800/90 shadow-xl shadow-black/10 sticky top-20 space-y-1">
             <div className="px-3 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono">
               {language === 'fa' ? 'ماژول‌های مدیریت' : 'Management Modules'}
             </div>
