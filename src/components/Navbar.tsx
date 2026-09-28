@@ -130,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ? 'bg-white/75 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] py-2.5 sm:py-3 border-b border-white/80' 
           : 'bg-white/80 backdrop-blur-xl py-3 sm:py-3.5 border-b border-slate-200/60'
       }`}>
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="max-w-[96rem] mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-2">
             
             {/* Brand Logo with Official PooladCharkhesh Emblem */}
@@ -150,7 +150,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
 
             {/* Desktop Navigation Links (Apple Glass Capsule Menu) */}
-            <div className="hidden xl:flex items-center gap-1 p-1 bg-slate-100/70 backdrop-blur-md rounded-full border border-white/80 shadow-[inset_0_1px_1px_rgba(0,0,0,0.04)]">
+            <div className="hidden min-[1440px]:flex items-center gap-1 p-1 bg-slate-100/70 backdrop-blur-md rounded-full border border-white/80 shadow-[inset_0_1px_1px_rgba(0,0,0,0.04)]">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
@@ -192,7 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {/* Mobile Menu & Toggles Button */}
-            <div className="flex items-center gap-1.5 xl:hidden flex-shrink-0">
+            <div className="flex items-center gap-1.5 min-[1440px]:hidden flex-shrink-0">
               <button
                 id="mobile-lang-btn"
                 onClick={onLanguageToggle}
@@ -218,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Full-Featured Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="xl:hidden px-4 pt-3 pb-6 glass-panel border-b border-white/80 space-y-2 animate-in slide-in-from-top duration-200 shadow-xl max-h-[80vh] overflow-y-auto mt-2 mx-2 rounded-3xl">
+          <div className="min-[1440px]:hidden px-4 pt-3 pb-6 glass-panel border-b border-white/80 space-y-2 animate-in slide-in-from-top duration-200 shadow-xl max-h-[80vh] overflow-y-auto mt-2 mx-2 rounded-3xl">
             <div className="grid grid-cols-2 gap-2 pb-2">
               {navLinks.map((link) => (
                 <a

@@ -112,11 +112,14 @@ try {
     await page.screenshot({path:'test-results/admin-content-' + language + '-mobile.png',fullPage:true});
     if (language === 'fa') await preview('cms-fa-mobile');
   }
-  for (const width of [768,1024,1280]) {
-    await page.setViewportSize({width,height:900});
-    await page.goto(base);
-    await page.locator('#why-us h2').waitFor();
-    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Public horizontal overflow at width ' + width);
+  for (const language of ['en','fa']) {
+    await page.evaluate(lang => localStorage.setItem('polad_preferred_language',lang),language);
+    for (const width of [320,768,1024,1280,1440]) {
+      await page.setViewportSize({width,height:900});
+      await page.goto(base);
+      await page.locator('#why-us h2').waitFor();
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Public horizontal overflow in ' + language + ' at width ' + width);
+    }
   }
   assert.deepEqual(errors,[]);
   console.log('PASS: production runtime, Quick View + ProductPage, CMS save/persistence, media upload/alt/association/primary, FA/EN mobile overflow checks, no browser exceptions');
