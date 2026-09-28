@@ -261,6 +261,7 @@ export default function App() {
           language={language}
           onSuccess={() => {
             setIsAuthenticated(true);
+            void dataService.refreshFromServer();
             navigateToAdmin(route.tab || 'overview');
           }}
           onExitToPublicSite={() => navigateToHome()}

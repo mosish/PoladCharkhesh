@@ -115,8 +115,8 @@ export const AdminMedia: React.FC<{ language: Language }> = ({ language }) => {
           if (!result.success) throw new Error(result.error.message); choose(result.data.media, true); await reload(); await mediaService.refresh();
         }); }}><fieldset disabled={busy} className="space-y-4">
           <label className="editor-field"><span>{fa ? 'نام فایل' : 'Filename'}</span><input required maxLength={255} value={draft.originalName} onChange={e => setDraft({ ...draft, originalName: e.target.value })} /></label>
-          <label className="editor-field"><span>متن جایگزین فارسی</span><textarea dir="rtl" maxLength={1000} value={draft.altTextFa} onChange={e => setDraft({ ...draft, altTextFa: e.target.value })} /></label>
-          <label className="editor-field"><span>English alt text</span><textarea dir="ltr" maxLength={1000} value={draft.altTextEn} onChange={e => setDraft({ ...draft, altTextEn: e.target.value })} /></label>
+          <label className="editor-field"><span>متن جایگزین فارسی</span><textarea aria-label="متن جایگزین فارسی" dir="rtl" maxLength={1000} value={draft.altTextFa} onChange={e => setDraft({ ...draft, altTextFa: e.target.value })} /></label>
+          <label className="editor-field"><span>English alt text</span><textarea aria-label="English alt text" dir="ltr" maxLength={1000} value={draft.altTextEn} onChange={e => setDraft({ ...draft, altTextEn: e.target.value })} /></label>
           <label className="editor-field"><span>{fa ? 'دسته' : 'Category'}</span><select value={draft.category} onChange={e => setDraft({ ...draft, category: e.target.value })}>
             {[['product_photo','تصویر محصول','Product photo'],['cad_schematic','نقشه فنی','Schematic'],['datasheet_pdf','برگه PDF','PDF datasheet'],['company_photo','تصویر شرکت','Company photo']].map(([v,a,b]) => <option key={v} value={v}>{fa ? a : b}</option>)}
           </select></label><button disabled={!dirty} className="editor-primary" type="submit">{fa ? 'ذخیره مشخصات' : 'Save metadata'}</button>

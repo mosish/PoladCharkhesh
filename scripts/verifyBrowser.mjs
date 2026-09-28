@@ -34,10 +34,12 @@ try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
   await context.addInitScript(() => localStorage.setItem('polad_preferred_language', 'en'));
   const page = await context.newPage();
+  const preview = async name => { await page.evaluate(() => window.scrollTo(0,0)); console.log('VISUAL_PREVIEW:' + name + ':' + (await page.screenshot({type:'jpeg',quality:35})).toString('base64')); };
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(base);
   await page.locator('#why-us h2').waitFor();
   await page.screenshot({ path: 'test-results/home-en-desktop.png', fullPage: true });
+  await preview('public-desktop');
   assert.ok(await page.locator('#catalog').isVisible());
   await page.getByRole('button', { name: 'Quick view', exact: true }).first().click();
   await page.waitForFunction(() => document.body.style.overflow === 'hidden');
@@ -60,6 +62,7 @@ try {
   await page.getByRole('button', { name:'Save content',exact:true }).click();
   await page.getByText('Saved and published to the website.', { exact:true }).waitFor();
   await page.screenshot({ path:'test-results/admin-content-en.png',fullPage:true });
+  await preview('cms-desktop');
   await page.goto(base);
   await page.getByRole('heading', { name:'CMS verification title',exact:true }).waitFor();
 
@@ -79,6 +82,7 @@ try {
   await gallery.getByRole('img', { name:'Verified gallery image',exact:true }).waitFor();
   await gallery.locator('.media-tile').filter({ has:page.getByRole('img',{name:'Verified gallery image',exact:true}) }).getByRole('button',{name:'Primary',exact:true}).click();
   await page.screenshot({ path:'test-results/admin-media-en.png',fullPage:true });
+  await preview('media-desktop');
   await page.goto(base + '/product/' + product.slug);
   await page.getByRole('button', { name:/Real Part Photo 1/ }).first().click();
   await page.getByRole('img',{name:'Verified gallery image',exact:true}).waitFor();

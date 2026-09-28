@@ -45,7 +45,7 @@ function Fields({ value, template, onChange, label, fa }: { value: any; template
   if (typeof value === 'string') {
     const english = /(?:En|en)$/.test(label);
     return <label className="editor-field"><span>{title(label, fa)}</span>
-      <textarea dir={english ? 'ltr' : /(?:Fa|fa)$/.test(label) ? 'rtl' : 'auto'} lang={english ? 'en' : undefined}
+      <textarea aria-label={title(label, fa)} dir={english ? 'ltr' : /(?:Fa|fa)$/.test(label) ? 'rtl' : 'auto'} lang={english ? 'en' : undefined}
         value={value} maxLength={5000} rows={value.length > 120 ? 4 : 2} onChange={e => onChange(e.target.value)} />
     </label>;
   }

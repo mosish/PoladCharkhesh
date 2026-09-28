@@ -1,7 +1,6 @@
 name: Pre-deployment verification
 on:
-  push:
-    branches: [codex/predeployment-completion]
+  workflow_dispatch:
   pull_request:
     branches: [main]
 permissions:
