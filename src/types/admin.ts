@@ -299,6 +299,7 @@ export interface MediaMetadata {
 }
 
 export interface MediaUploadInput {
+  filename?: string;
   originalName: string;
   mimeType: string;
   sizeBytes: number;
@@ -306,7 +307,10 @@ export interface MediaUploadInput {
   altTextFa?: string;
   altTextEn?: string;
   category?: MediaCategory;
+  associatedProductCodes?: string[];
 }
+
+export type MediaUpdateInput = Partial<MediaUploadInput>;
 
 // ==========================================
 // 8. PRODUCT CONTRACTS & INPUTS
