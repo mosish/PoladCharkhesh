@@ -23,7 +23,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'about' | 'footer'>('hero');
+  const [activeSubTab, setActiveSubTab] = useState<'hero' | 'about' | 'sections' | 'footer'>('hero');
+  const [sectionJsonError, setSectionJsonError] = useState('');
 
   useEffect(() => {
     const unsub = dataService.subscribeToContent(setContent);
@@ -58,6 +59,35 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
         [key]: value,
       },
     }));
+  };
+
+  const handleSectionChange = (
+    section: 'catalog' | 'tools' | 'whyUs' | 'industries' | 'team' | 'contact',
+    key: string,
+    value: unknown
+  ) => {
+    setContent((prev) => ({
+      ...prev,
+      [section]: {
+        ...(prev as any)[section],
+        [key]: value,
+      },
+    }));
+  };
+
+  const handleJsonField = (
+    section: 'whyUs' | 'industries' | 'team',
+    key: 'cards' | 'items' | 'members',
+    raw: string
+  ) => {
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) throw new Error('Array expected');
+      handleSectionChange(section, key, parsed);
+      setSectionJsonError('');
+    } catch {
+      setSectionJsonError(isFa ? 'ساختار JSON این بخش معتبر نیست؛ تغییرات لیستی ذخیره نشد.' : 'Invalid JSON structure; list changes were not applied.');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,6 +148,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
         {[
           { id: 'hero', labelFa: 'بخش اصلی و عنوان هیرو (Hero)', labelEn: 'Hero Section' },
           { id: 'about', labelFa: 'بخش درباره ما و آمار (About)', labelEn: 'About & Stats' },
+          { id: 'sections', labelFa: 'سکشن‌های سایت', labelEn: 'Site Sections' },
           { id: 'footer', labelFa: 'فوتر و سلب مسئولیت (Footer)', labelEn: 'Footer & Disclaimer' },
         ].map((tab) => (
           <button
@@ -282,6 +313,127 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:outline-none leading-relaxed"
               />
             </div>
+          </div>
+        )}
+
+
+        {/* OTHER PUBLIC SECTIONS TAB */}
+        {activeSubTab === 'sections' && (
+          <div className="space-y-5">
+            {sectionJsonError && (
+              <div className="px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
+                {sectionJsonError}
+              </div>
+            )}
+
+            {([
+              ['catalog', isFa ? 'کاتالوگ محصولات' : 'Product Catalog'],
+              ['tools', isFa ? 'ابزارهای مهندسی' : 'Engineering Tools'],
+              ['whyUs', isFa ? 'چرا پولاد چرخِش' : 'Why Us'],
+              ['industries', isFa ? 'صنایع تحت پوشش' : 'Industries'],
+              ['team', isFa ? 'تیم تخصصی' : 'Team'],
+              ['contact', isFa ? 'تماس و استعلام' : 'Contact'],
+            ] as const).map(([sectionKey, sectionLabel]) => {
+              const section = (content as any)[sectionKey];
+              return (
+                <div key={sectionKey} className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+                  <div className="flex items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div>
+                      <h3 className="text-sm font-bold text-white">{sectionLabel}</h3>
+                      <p className="text-[11px] text-slate-500 mt-1">{sectionKey}</p>
+                    </div>
+                    <Layers className="w-4 h-4 text-indigo-400" />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {['tagFa','tagEn','titleFa','titleEn','subtitleFa','subtitleEn'].map((field) => field in section ? (
+                      <div key={field} className={field.startsWith('subtitle') ? 'sm:col-span-2' : ''}>
+                        <label className="block text-[11px] font-semibold text-slate-400 mb-1">{field}</label>
+                        {field.startsWith('subtitle') ? (
+                          <textarea
+                            value={section[field] || ''}
+                            onChange={(e) => handleSectionChange(sectionKey, field, e.target.value)}
+                            rows={2}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            value={section[field] || ''}
+                            onChange={(e) => handleSectionChange(sectionKey, field, e.target.value)}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                          />
+                        )}
+                      </div>
+                    ) : null)}
+                  </div>
+
+                  {sectionKey === 'whyUs' && (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input value={section.badgeFa || ''} onChange={(e) => handleSectionChange('whyUs','badgeFa',e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" placeholder="Badge Fa" />
+                        <input value={section.badgeEn || ''} onChange={(e) => handleSectionChange('whyUs','badgeEn',e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" placeholder="Badge En" />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-400 mb-1">Why Us cards (JSON)</label>
+                        <textarea
+                          defaultValue={JSON.stringify(section.cards, null, 2)}
+                          onBlur={(e) => handleJsonField('whyUs','cards',e.target.value)}
+                          rows={10}
+                          dir="ltr"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-200 font-mono focus:border-indigo-500 focus:outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {sectionKey === 'industries' && (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input value={section.recommendedLabelFa || ''} onChange={(e) => handleSectionChange('industries','recommendedLabelFa',e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" placeholder="Recommended label Fa" />
+                        <input value={section.recommendedLabelEn || ''} onChange={(e) => handleSectionChange('industries','recommendedLabelEn',e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" placeholder="Recommended label En" />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-400 mb-1">Industry items (JSON)</label>
+                        <textarea defaultValue={JSON.stringify(section.items, null, 2)} onBlur={(e) => handleJsonField('industries','items',e.target.value)} rows={12} dir="ltr" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-200 font-mono focus:border-indigo-500 focus:outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  {sectionKey === 'team' && (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {['experienceLabelFa','experienceLabelEn','specialtyLabelFa','specialtyLabelEn','whatsappLabelFa','whatsappLabelEn'].map((field) => (
+                          <input key={field} value={section[field] || ''} onChange={(e) => handleSectionChange('team',field,e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" placeholder={field} />
+                        ))}
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-400 mb-1">Team members (JSON) — leave empty unless verified</label>
+                        <textarea defaultValue={JSON.stringify(section.members, null, 2)} onBlur={(e) => handleJsonField('team','members',e.target.value)} rows={10} dir="ltr" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-200 font-mono focus:border-indigo-500 focus:outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  {sectionKey === 'contact' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {['infoTitleFa','infoTitleEn','consultationTitleFa','consultationTitleEn','consultationTextFa','consultationTextEn','formTitleFa','formTitleEn','formSubtitleFa','formSubtitleEn'].map((field) => (
+                        <div key={field} className={field.includes('Text') || field.includes('Subtitle') ? 'sm:col-span-2' : ''}>
+                          <label className="block text-[11px] font-semibold text-slate-400 mb-1">{field}</label>
+                          <textarea value={section[field] || ''} onChange={(e) => handleSectionChange('contact',field,e.target.value)} rows={field.includes('Text') || field.includes('Subtitle') ? 2 : 1} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:outline-none" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {sectionKey === 'catalog' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input value={section.authenticityLabelFa || ''} onChange={(e) => handleSectionChange('catalog','authenticityLabelFa',e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" placeholder="Authenticity label Fa" />
+                      <input value={section.authenticityLabelEn || ''} onChange={(e) => handleSectionChange('catalog','authenticityLabelEn',e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" placeholder="Authenticity label En" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
