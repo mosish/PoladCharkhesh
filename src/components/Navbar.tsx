@@ -1,3 +1,4 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React, { useState, useEffect } from 'react';
 import { 
   Phone, 
@@ -31,7 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const company = useCompanyInfo();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const t = translations[language];
+  const t = useSiteCopy(language);
 
   const handleNavLinkClick = (e: React.MouseEvent, href: string) => {
     if (onNavigateSection) {

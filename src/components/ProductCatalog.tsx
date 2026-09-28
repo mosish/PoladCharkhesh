@@ -1,3 +1,5 @@
+import { getProductSlug } from '../utils/productSlug';
+import { useSiteCopy } from '../services/useSiteCopy';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { BearingProduct, Language } from '../types';
 import { translations } from '../data/translations';
@@ -33,6 +35,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   products,
   language,
   onSelectProduct,
+  onNavigateProduct,
   selectedBearingCode,
   initialCategory = 'all',
 }) => {
@@ -50,7 +53,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const t = translations[language];
+  const t = useSiteCopy(language);
 
   // Quick preset chips for rapid engineering exploration
   const quickFilterPresets = useMemo(() => [
@@ -451,7 +454,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     </div>
 
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 whitespace-nowrap">
-                      {t.catalog.card.inStock}
+                      {product.inStock ? t.catalog.card.inStock : (language === 'fa' ? 'نیاز به استعلام موجودی' : 'Availability on inquiry')}
                     </span>
                   </div>
 
@@ -506,6 +509,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                       </span>
                     </div>
                   </div>
+                </div>
+                <div className="flex gap-2 pt-4 mt-4 border-t border-slate-200" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+                  <button className="glass-btn-secondary rounded-xl px-3 py-2 text-xs" onClick={() => onSelectProduct(product)}>{language === 'fa' ? 'نمایش سریع' : 'Quick view'}</button>
+                  <a href={'/product/' + getProductSlug(product)} className="glass-btn-primary rounded-xl px-3 py-2 text-xs text-white" onClick={e => { if (onNavigateProduct && !e.ctrlKey && !e.metaKey) { e.preventDefault(); onNavigateProduct(getProductSlug(product)); } }}>{language === 'fa' ? 'صفحه محصول' : 'Product page'}</a>
                 </div>
               </div>
             ))}

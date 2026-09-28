@@ -1,3 +1,4 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
@@ -17,7 +18,7 @@ interface AboutUsProps {
 }
 
 export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
-  const t = translations[language];
+  const t = useSiteCopy(language);
   const pageContent = usePageContent();
   const aboutContent = pageContent.about;
 
@@ -32,6 +33,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
     <section id="about" className="py-16 sm:py-24 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">{aboutContent.stats.map((stat, index) => <div className="glass-card-static rounded-2xl p-5" key={index}><strong className="block text-2xl text-[#232c86]">{language === 'fa' ? stat.valueFa : stat.valueEn}</strong><span className="text-sm text-slate-600">{language === 'fa' ? stat.labelFa : stat.labelEn}</span></div>)}</div>
         {/* Section Header */}
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
@@ -90,7 +92,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
               className="p-6 sm:p-7 glass-card rounded-3xl group"
             >
               <div className="p-3 w-fit rounded-2xl bg-blue-500/10 mb-4 border border-blue-500/10 group-hover:scale-105 transition-transform">
-                {featureIcons[idx]}
+                {featureIcons[idx % featureIcons.length]}
               </div>
               <h4 className="text-sm sm:text-base font-bold text-slate-900 mb-2">
                 {feat.title}

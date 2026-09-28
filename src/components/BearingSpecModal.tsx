@@ -1,3 +1,4 @@
+import { ProductDocuments } from './ProductDocuments';
 import React, { useState, useEffect } from 'react';
 import { BearingProduct, Language } from '../types';
 import { translations } from '../data/translations';
@@ -149,6 +150,7 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
                 className="h-56 sm:h-64" 
                 showLabels={true} 
               />
+              <ProductDocuments product={product} language={language} />
               <div className="mt-2 text-center text-xs text-slate-400 font-mono-spec">
                 {t.specModal.standardCode}
               </div>

@@ -1,3 +1,4 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React, { useState, useMemo } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
@@ -47,7 +48,7 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
   const [speedCategory, setSpeedCategory] = useState<'normal' | 'high' | 'very-high'>('normal');
   const [activeToolTab, setActiveToolTab] = useState<'clearance' | 'life' | 'thermal' | 'converter' | 'all'>('clearance');
 
-  const t = translations[language];
+  const t = useSiteCopy(language);
 
   // Quick preset application handler
   const applyPreset = (type: 'motor' | 'kiln' | 'screen' | 'spindle') => {

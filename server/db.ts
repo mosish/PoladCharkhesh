@@ -211,6 +211,11 @@ export function initSchema(db: DatabaseSync): void {
   safeAddColumn('products', 'contact_angle', 'TEXT');
   safeAddColumn('products', 'calculation_factor_x', 'REAL');
   safeAddColumn('products', 'keywords', 'TEXT');
+  // Additive metadata migration: physical assets and product galleries are never deleted.
+  const mediaColumns = db.prepare('PRAGMA table_info(media_metadata)').all() as any[];
+  if (!mediaColumns.some(column => column.name === 'metadata')) db.exec("ALTER TABLE media_metadata ADD COLUMN metadata TEXT NOT NULL DEFAULT '{}'");
+  if (!mediaColumns.some(column => column.name === 'is_archived')) db.exec("ALTER TABLE media_metadata ADD COLUMN is_archived INTEGER NOT NULL DEFAULT 0");
+  if (!mediaColumns.some(column => column.name === 'revision')) db.exec("ALTER TABLE media_metadata ADD COLUMN revision INTEGER NOT NULL DEFAULT 0");
 }
 
 /**

@@ -1,3 +1,5 @@
+import { usePageContent } from '../services/dataService';
+import { useSiteCopy } from '../services/useSiteCopy';
 import React from 'react';
 import { Language } from '../types';
 import { translations, industryApplications } from '../data/translations';
@@ -20,7 +22,8 @@ export const Industries: React.FC<IndustriesProps> = ({
   language,
   onSelectBearingCode,
 }) => {
-  const t = translations[language];
+  const t = useSiteCopy(language);
+  const { copy } = usePageContent();
 
   const getIcon = (iconName: string) => {
     const iconClass = "w-5 h-5 text-[#232c86]";
@@ -55,7 +58,7 @@ export const Industries: React.FC<IndustriesProps> = ({
 
         {/* 6 Industries Grid (Apple Liquid Glass Cards) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {industryApplications.map((ind) => (
+          {copy.industryApplications.map((ind) => (
             <div
               key={ind.id}
               className="p-6 sm:p-8 rounded-3xl glass-card flex flex-col justify-between group"
@@ -74,13 +77,13 @@ export const Industries: React.FC<IndustriesProps> = ({
 
               <div className="pt-4 border-t border-slate-200/60">
                 <span className="text-[11px] font-semibold text-slate-500 block mb-2.5">
-                  {language === 'fa' ? 'کدهای پیشنهادی و پرکاربرد:' : 'Recommended Parts:'}
+                  {t.industries.recommendedCodes}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {ind.recommendedBearings.map((code) => (
                     <button
                       key={code}
-                      onClick={() => onSelectBearingCode(code.split(' ')[0])}
+                      onClick={() => onSelectBearingCode(code)}
                       className="px-3 py-1.5 text-xs font-mono-spec font-medium rounded-full glass-pill text-slate-700 hover:text-[#232c86] hover:bg-white/90 transition-all shadow-sm"
                     >
                       {code}

@@ -1,3 +1,5 @@
+import { usePageContent } from '../services/dataService';
+import { useSiteCopy } from '../services/useSiteCopy';
 import React from 'react';
 import { Language } from '../types';
 import { translations, teamMembers } from '../data/translations';
@@ -12,7 +14,8 @@ interface TeamMembersProps {
 }
 
 export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
-  const t = translations[language];
+  const t = useSiteCopy(language);
+  const { copy } = usePageContent();
 
   return (
     <section id="team" className="py-16 sm:py-24 relative">
@@ -34,7 +37,7 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
 
         {/* Team Grid (Apple Liquid Glass Cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {teamMembers.map((member) => (
+          {copy.teamMembers.map((member) => (
             <div
               key={member.id}
               className="glass-card rounded-3xl overflow-hidden flex flex-col justify-between group"
@@ -64,14 +67,14 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
                 <div className="space-y-2">
                   <div className="text-xs text-slate-600 leading-relaxed font-normal">
                     <strong className="text-slate-900 block mb-0.5 font-semibold">
-                      {language === 'fa' ? 'سابقه و تجربه:' : 'Experience:'}
+                      {t.team.expLabel}
                     </strong>
                     {language === 'fa' ? member.experienceFa : member.experienceEn}
                   </div>
 
                   <div className="text-xs text-slate-500 pt-2.5 border-t border-slate-200/60 font-normal">
                     <strong className="text-[#232c86] block mb-0.5 font-semibold">
-                      {language === 'fa' ? 'تخصص کلیدی:' : 'Key Specialty:'}
+                      {t.team.specLabel}
                     </strong>
                     {language === 'fa' ? member.specialtyFa : member.specialtyEn}
                   </div>
@@ -91,7 +94,7 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-full bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors shadow-sm"
-                    title={language === 'fa' ? 'گفتگو در واتس‌اپ' : 'Chat on WhatsApp'}
+                    title={t.team.chatWhatsapp}
                   >
                     <MessageSquare className="w-4 h-4" />
                   </a>

@@ -1,3 +1,4 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
@@ -32,7 +33,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState('');
 
-  const t = translations[language];
+  const t = useSiteCopy(language);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -27,8 +27,16 @@ contentRouter.put('/', requireAuth, (req: Request, res: Response): void => {
     return;
   }
 
+  try {
   const updated = contentDb.updatePageContent(validation.sanitized!, req.admin!.username);
   logAudit('CONTENT_UPDATED', 'content', 'محتوای متنی صفحات وب‌سایت ویرایش گردید.', req, 'main');
 
   res.json({ success: true, content: updated });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'CONTENT_CONFLICT') {
+      res.status(409).json({ error: 'Content changed in another session. Reload before saving. / محتوا تغییر کرده است؛ ابتدا بازخوانی کنید.' });
+      return;
+    }
+    throw error;
+  }
 });
