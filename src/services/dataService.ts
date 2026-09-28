@@ -14,7 +14,7 @@
 import { useState, useEffect } from 'react';
 import { BearingProduct } from '../types';
 import { bearingProducts as canonicalProducts } from '../data/products';
-import { translations, industryApplications, teamMembers } from '../data/translations';
+import { translations, industryApplications } from '../data/translations';
 import { COMPANY_INFO as canonicalCompanyInfo, CompanyContactInfo } from '../data/company';
 import {
   AdminUser,
@@ -50,15 +50,15 @@ export const DEFAULT_PAGE_CONTENT: CmsPageContent = {
     tagEn: 'ENGINEERING HERITAGE & TRUST',
     titleFa: 'بیش از دو دهه تجربه در قلب صنعت کشور',
     titleEn: 'Over Two Decades of Core Industrial Expertise',
-    paragraph1Fa: 'بازرگانی صنعتی پولاد چرخِش با اتکا به دانش مهندسی متالورژی و شناخت دقیق نیازمندی‌های کارخانجات فولاد، سیمان، نفت و پتروشیمی، همواره مطمئن‌ترین همراه صنایع مادر ایران در تأمین قطعات حساس دوار بوده است.',
-    paragraph1En: 'Polad Charkhesh Industrial Trading leverages metallurgical expertise and in-depth understanding of steel, cement, oil, and petrochemical plants to reliably supply critical rotating equipment.',
-    paragraph2Fa: 'ما با ایجاد زنجیره تأمین مستقیم بین‌المللی و آزمایشگاه کنترل کیفیت ابعادی و ارتعاشاتی، هرگونه ریسک خرابی زودرس و توقف خطوط تولید را به صفر نزدیک می‌کنیم.',
-    paragraph2En: 'Through direct global procurement and stringent dimensional/vibrational quality control, we minimize unexpected downtime risks for industrial manufacturing lines.',
+    paragraph1Fa: 'پولاد چرخِش یک وب‌سایت B2B تخصصی برای معرفی بیرینگ‌ها و قطعات مکانیکی صنعتی، ارائه مشخصات فنی و تسهیل ارتباط مستقیم برای مشاوره و استعلام است.',
+    paragraph1En: 'Polad Charkhesh is a B2B industrial platform for discovering bearings and mechanical components, reviewing technical specifications, and contacting the business directly for consultation and inquiries.',
+    paragraph2Fa: 'تمرکز این مجموعه بر ارائه اطلاعات فنی روشن، دسترسی سریع به دیتاشیت‌ها و ایجاد مسیر ساده برای تماس تلفنی یا واتس‌اپ جهت بررسی موجودی و جزئیات تجاری است.',
+    paragraph2En: 'The focus is clear technical information, fast access to datasheets, and a simple phone or WhatsApp path for availability and commercial discussions.',
     stats: [
-      { valueFa: '۲۲+', valueEn: '22+', labelFa: 'سال سابقه تخصصی', labelEn: 'Years Experience' },
-      { valueFa: '۱۰۰٪', valueEn: '100%', labelFa: 'تضمین اصالت کالا', labelEn: 'Authenticity Guarantee' },
-      { valueFa: '۶۸+', valueEn: '68+', labelFa: 'شماره فنی در انبار دائم', labelEn: 'Audited Product Lines' },
-      { valueFa: '۲۴/۷', valueEn: '24/7', labelFa: 'پشتیبانی فنی مهندسی', labelEn: 'Engineering Support' },
+      { valueFa: '۶۸+', valueEn: '68+', labelFa: 'محصول مرجع در کاتالوگ', labelEn: 'Reference Catalog Products' },
+      { valueFa: 'FA/EN', valueEn: 'FA/EN', labelFa: 'رابط دوزبانه', labelEn: 'Bilingual Interface' },
+      { valueFa: 'ISO', valueEn: 'ISO', labelFa: 'اطلاعات مهندسی استاندارد', labelEn: 'Engineering Reference' },
+      { valueFa: 'B2B', valueEn: 'B2B', labelFa: 'مشاوره و استعلام مستقیم', labelEn: 'Direct Consultation' },
     ],
   },
   catalog: {
@@ -80,18 +80,20 @@ export const DEFAULT_PAGE_CONTENT: CmsPageContent = {
     subtitleEn: translations.en.tools.subtitle,
   },
   whyUs: {
-    tagFa: translations.fa.whyUs.tag,
-    tagEn: translations.en.whyUs.tag,
-    titleFa: translations.fa.whyUs.title,
-    titleEn: translations.en.whyUs.title,
-    badgeFa: translations.fa.whyUs.badge,
-    badgeEn: translations.en.whyUs.badge,
-    cards: translations.fa.whyUs.cards.map((card, index) => ({
-      titleFa: card.title,
-      titleEn: translations.en.whyUs.cards[index]?.title || '',
-      descriptionFa: card.desc,
-      descriptionEn: translations.en.whyUs.cards[index]?.desc || '',
-    })),
+    tagFa: 'مزایای همکاری با پولاد چرخِش',
+    tagEn: 'Why Work With Polad Charkhesh',
+    titleFa: 'اطلاعات فنی شفاف و مسیر مستقیم برای مشاوره و استعلام',
+    titleEn: 'Clear Technical Information and Direct Inquiry Workflow',
+    badgeFa: 'تعهد به اطلاعات دقیق و پاسخگویی مستقیم',
+    badgeEn: 'Commitment to clear data and direct communication',
+    cards: [
+      { titleFa: 'کاتالوگ فنی ساختاریافته', titleEn: 'Structured Technical Catalog', descriptionFa: 'مشخصات ابعادی و مهندسی محصولات در قالبی استاندارد و قابل مقایسه ارائه می‌شود.', descriptionEn: 'Dimensional and engineering specifications are presented in a structured, comparable format.' },
+      { titleFa: 'مشاوره مستقیم', titleEn: 'Direct Consultation', descriptionFa: 'برای بررسی انتخاب قطعه، معادل فنی و شرایط کاربرد می‌توانید مستقیماً تماس بگیرید.', descriptionEn: 'Contact the technical desk directly for part selection, interchange, and application guidance.' },
+      { titleFa: 'دیتاشیت و منابع فنی', titleEn: 'Datasheets & References', descriptionFa: 'در صورت موجود بودن، منابع فنی و دیتاشیت‌ها در کنار صفحه محصول در دسترس قرار می‌گیرند.', descriptionEn: 'Where available, technical references and datasheets are linked from the product page.' },
+      { titleFa: 'جستجو و فیلتر مهندسی', titleEn: 'Engineering Search & Filters', descriptionFa: 'محصولات بر اساس کد، دسته و ابعاد اصلی قابل جستجو و بررسی هستند.', descriptionEn: 'Products can be searched and filtered by code, category, and key dimensions.' },
+      { titleFa: 'ارتباط تلفنی و واتس‌اپ', titleEn: 'Phone & WhatsApp', descriptionFa: 'مسیر ارتباط مستقیم برای استعلام موجودی و جزئیات تجاری بدون فرآیند خرید آنلاین فراهم است.', descriptionEn: 'Direct phone and WhatsApp inquiries are available for availability and commercial details without online checkout.' },
+      { titleFa: 'رابط فارسی و انگلیسی', titleEn: 'Persian & English', descriptionFa: 'محتوای اصلی سایت و اطلاعات محصولات برای کاربران فارسی و انگلیسی ارائه می‌شود.', descriptionEn: 'Core site content and product information are available in Persian and English.' },
+    ],
   },
   industries: {
     tagFa: translations.fa.industries.tag,
@@ -117,7 +119,7 @@ export const DEFAULT_PAGE_CONTENT: CmsPageContent = {
     specialtyLabelEn: translations.en.team.specLabel,
     whatsappLabelFa: translations.fa.team.chatWhatsapp,
     whatsappLabelEn: translations.en.team.chatWhatsapp,
-    members: teamMembers,
+    members: [],
   },
   contact: {
     tagFa: translations.fa.contact.tag,
