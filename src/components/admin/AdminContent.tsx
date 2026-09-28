@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Language } from '../../types';
 import { CmsContent, CmsHeroContent, CmsAboutContent, CmsFooterContent } from '../../types/admin';
 import { dataService } from '../../services/dataService';
@@ -24,14 +24,17 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
   const [saveError, setSaveError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<'hero' | 'about' | 'sections' | 'footer'>('hero');
-  const [sectionJsonError, setSectionJsonError] = useState('');
+  const [jsonErrors, setJsonErrors] = useState<Record<string, string>>({});
+  const sectionJsonError = Object.values(jsonErrors).filter(Boolean).join(' ');
+  const dirty = useRef(false);
 
   useEffect(() => {
-    const unsub = dataService.subscribeToContent(setContent);
+    const unsub = dataService.subscribeToContent(next => { if (!dirty.current) setContent(next); });
     return () => unsub();
   }, []);
 
   const handleHeroChange = (key: keyof CmsHeroContent, value: string) => {
+    dirty.current = true;
     setContent((prev) => ({
       ...prev,
       hero: {
@@ -42,6 +45,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
   };
 
   const handleAboutChange = (key: keyof CmsAboutContent, value: CmsAboutContent[keyof CmsAboutContent]) => {
+    dirty.current = true;
     setContent((prev) => ({
       ...prev,
       about: {
@@ -52,6 +56,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
   };
 
   const handleFooterChange = (key: keyof CmsFooterContent, value: string) => {
+    dirty.current = true;
     setContent((prev) => ({
       ...prev,
       footer: {
@@ -66,6 +71,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
     key: string,
     value: unknown
   ) => {
+    dirty.current = true;
     setContent((prev) => ({
       ...prev,
       [section]: {
@@ -84,14 +90,15 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) throw new Error('Array expected');
       handleSectionChange(section, key, parsed);
-      setSectionJsonError('');
+      setJsonErrors(prev => ({ ...prev, [section]: '' }));
     } catch {
-      setSectionJsonError(isFa ? 'ساختار JSON این بخش معتبر نیست؛ تغییرات لیستی ذخیره نشد.' : 'Invalid JSON structure; list changes were not applied.');
+      setJsonErrors(prev => ({ ...prev, [section]: isFa ? 'ساختار JSON این بخش معتبر نیست؛ تغییرات لیستی ذخیره نشد.' : 'Invalid JSON structure; list changes were not applied.' }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (sectionJsonError) { setSaveError(sectionJsonError); setSavedSuccess(false); return; }
     setSaveError('');
     setSavedSuccess(false);
     setIsSaving(true);
@@ -102,6 +109,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
         setSaveError(isFa ? 'ذخیره محتوای سایت ناموفق بود. لطفاً اتصال سرور و داده‌های ورودی را بررسی کنید.' : 'Failed to save site content. Check the server connection and submitted data.');
         return;
       }
+      dirty.current = false;
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch {
@@ -144,7 +152,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
       </div>
 
       {/* Sub Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3">
         {[
           { id: 'hero', labelFa: 'بخش اصلی و عنوان هیرو (Hero)', labelEn: 'Hero Section' },
           { id: 'about', labelFa: 'بخش درباره ما و آمار (About)', labelEn: 'About & Stats' },
@@ -378,7 +386,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                         <label className="block text-[11px] font-semibold text-slate-400 mb-1">Why Us cards (JSON)</label>
                         <textarea
                           defaultValue={JSON.stringify(section.cards, null, 2)}
-                          onBlur={(e) => handleJsonField('whyUs','cards',e.target.value)}
+                          onChange={(e) => handleJsonField('whyUs','cards',e.target.value)}
                           rows={10}
                           dir="ltr"
                           className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-200 font-mono focus:border-indigo-500 focus:outline-none"
@@ -395,7 +403,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                       </div>
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-400 mb-1">Industry items (JSON)</label>
-                        <textarea defaultValue={JSON.stringify(section.items, null, 2)} onBlur={(e) => handleJsonField('industries','items',e.target.value)} rows={12} dir="ltr" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-200 font-mono focus:border-indigo-500 focus:outline-none" />
+                        <textarea defaultValue={JSON.stringify(section.items, null, 2)} onChange={(e) => handleJsonField('industries','items',e.target.value)} rows={12} dir="ltr" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-200 font-mono focus:border-indigo-500 focus:outline-none" />
                       </div>
                     </>
                   )}
@@ -409,7 +417,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                       </div>
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-400 mb-1">Team members (JSON) — leave empty unless verified</label>
-                        <textarea defaultValue={JSON.stringify(section.members, null, 2)} onBlur={(e) => handleJsonField('team','members',e.target.value)} rows={10} dir="ltr" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-200 font-mono focus:border-indigo-500 focus:outline-none" />
+                        <textarea defaultValue={JSON.stringify(section.members, null, 2)} onChange={(e) => handleJsonField('team','members',e.target.value)} rows={10} dir="ltr" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-200 font-mono focus:border-indigo-500 focus:outline-none" />
                       </div>
                     </>
                   )}
@@ -480,6 +488,10 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:outline-none leading-relaxed"
               />
             </div>
+            {(['descriptionEn', 'copyrightEn', 'disclaimerEn'] as const).map(key => <label key={key} className="block text-xs text-slate-300">
+              {key}
+              <textarea dir="ltr" value={content.footer[key]} onChange={e => handleFooterChange(key, e.target.value)} rows={2} className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white" />
+            </label>)}
           </div>
         )}
 
@@ -487,7 +499,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ language }) => {
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="submit"
-            disabled={isSaving}
+            disabled={isSaving || !!sectionJsonError}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#232c86] to-indigo-600 hover:from-[#1b236d] hover:to-indigo-500 disabled:opacity-60 disabled:cursor-wait text-white text-xs font-bold shadow-lg shadow-indigo-950 transition-all active:scale-[0.99]"
           >
             <Save className="w-4 h-4" />

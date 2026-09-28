@@ -49,6 +49,12 @@ export const AboutUs: React.FC<AboutUsProps> = ({ language }) => {
           </p>
         </div>
 
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          {aboutContent.stats.map((stat, i) => <div key={i} className="glass-card rounded-2xl p-4">
+            <strong className="block">{language === 'fa' ? stat.valueFa : stat.valueEn}</strong>
+            <span className="text-sm">{language === 'fa' ? stat.labelFa : stat.labelEn}</span>
+          </div>)}
+        </div>
         {/* Mission & Vision Cards (Apple Frosted Glass) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 sm:mb-16">
           {/* Mission */}

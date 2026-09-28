@@ -1,3 +1,5 @@
+import { DEFAULT_PAGE_CONTENT } from '../src/data/cmsDefaults';
+import { isSafeAssetUrl } from './assetUrls';
 /**
  * POLAD CHARKHESH - SERVER-SIDE VALIDATION INFRASTRUCTURE
  * 
@@ -91,6 +93,9 @@ export function validateProductCandidate(body: any, isUpdate = false): Validatio
   if (body.descriptionEn && typeof body.descriptionEn === 'string' && body.descriptionEn.length > 5000) {
     errors.push('توضیحات انگلیسی کالا بیش از حد طولانی است (حداکثر ۵۰۰۰ نویسه).');
   }
+
+  for (const key of ['imageUrl', 'pdfUrl']) if (body[key] !== undefined && !isSafeAssetUrl(body[key])) errors.push(`Invalid ${key}`);
+  if (body.images !== undefined && (!Array.isArray(body.images) || body.images.length > 100 || body.images.some((url: any) => !isSafeAssetUrl(url, false)))) errors.push('Invalid product gallery');
 
   // Category check if provided
   if (body.category && !VALID_BEARING_CATEGORIES.includes(body.category)) {
@@ -278,6 +283,25 @@ export function validateCompanyPayload(body: any): ValidationResult<Record<strin
     return { isValid: false, errors: ['ورودی غیرمجاز شناسایی شد.'] };
   }
 
+  const booleans = ['whatsappEnabled','phoneEnabled','contactCtaEnabled','showFloatingActions','showTopAnnouncement','contactCtaVisibility','whatsappVisibility','phoneVisibility'];
+  for (const field of ALLOWED_COMPANY_FIELDS) {
+    const value = body[field];
+    if (value === undefined) continue;
+    if (booleans.includes(field)) { if (typeof value !== 'boolean') errors.push(`Invalid ${field}`); }
+    else if (field === 'landlinePhones') {
+      if (!Array.isArray(value) || value.length > 10 || value.some(v => typeof v !== 'string' || !PHONE_REGEX.test(v))) errors.push('Invalid phone list');
+    } else if (field === 'socialLinks') {
+      if (!Array.isArray(value) || value.length > 15 || value.some(v => !v || typeof v !== 'object' || ['platform','url','titleFa','titleEn'].some(k => typeof v[k] !== 'string') || typeof v.enabled !== 'boolean' || !isSafeAssetUrl(v.url))) errors.push('Invalid social links');
+    } else if (field === 'maps') {
+      if (!value || typeof value !== 'object' || Array.isArray(value) || Object.entries(value).some(([k,v]) => !['google','neshan','balad'].includes(k) || !isSafeAssetUrl(v))) errors.push('Invalid maps');
+    } else if (field === 'workingHoursConfig') {
+      if (!value || typeof value !== 'object' || Array.isArray(value) || Object.entries(value).some(([k,v]) => k === 'hasThursdayHours' ? typeof v !== 'boolean' : !['workDaysFa','workDaysEn','openTime','closeTime','thursdayOpenTime','thursdayCloseTime','closedDaysFa','closedDaysEn'].includes(k) || typeof v !== 'string' || v.length > 100)) errors.push('Invalid working hours');
+    } else if (typeof value !== 'string') errors.push(`Invalid ${field}`);
+    if (['website','whatsappUrl'].includes(field) && !isSafeAssetUrl(value)) errors.push(`Unsafe ${field}`);
+    if (field === 'defaultLanguage' && !['fa','en','domain_based'].includes(value)) errors.push('Invalid default language');
+  }
+  if (errors.length) return { isValid: false, errors };
+
   const sanitized: Record<string, any> = {};
 
   for (const field of ALLOWED_COMPANY_FIELDS) {
@@ -406,29 +430,31 @@ export function validateCompanyPayload(body: any): ValidationResult<Record<strin
 // 3. CMS CONTENT VALIDATION
 // ==========================================
 
-const ALLOWED_CONTENT_SECTIONS = ['hero', 'about', 'catalog', 'tools', 'whyUs', 'industries', 'team', 'contact', 'footer'];
-
+const teamTemplate = { id: '', nameFa: '', nameEn: '', roleFa: '', roleEn: '', experienceFa: '', experienceEn: '', specialtyFa: '', specialtyEn: '', image: '', phone: '', email: '' };
 export function validateContentPayload(body: any): ValidationResult<Record<string, any>> {
-  if (!body || typeof body !== 'object' || Array.isArray(body)) {
-    return { isValid: false, errors: ['داده نامعتبر است.'] };
-  }
-
-  if (containsForbiddenKeys(body)) {
-    return { isValid: false, errors: ['ورودی غیرمجاز شناسایی شد.'] };
-  }
-
-  const sanitized: Record<string, any> = {};
-  for (const section of ALLOWED_CONTENT_SECTIONS) {
-    if (body[section] !== undefined && typeof body[section] === 'object' && !Array.isArray(body[section])) {
-      sanitized[section] = body[section];
+  const errors: string[] = [];
+  function check(value: any, template: any, at: string, complete = false) {
+    if (typeof template === 'string') {
+      if (typeof value !== 'string' || value.length > 5000) errors.push(`${at}: expected bounded text`);
+      if (at.endsWith('.image') && !isSafeAssetUrl(value)) errors.push(`${at}: unsafe image URL`);
+    } else if (Array.isArray(template)) {
+      if (!Array.isArray(value) || value.length > 100) { errors.push(`${at}: expected list (maximum 100)`); return; }
+      const item = at === 'content.team.members' ? teamTemplate : template[0] ?? '';
+      value.forEach((v: any, i: number) => check(v, item, `${at}[${i}]`, true));
+    } else {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) { errors.push(`${at}: expected object`); return; }
+      for (const key of Object.keys(value)) {
+        if (!Object.hasOwn(template, key)) errors.push(`${at}.${key}: unknown field`);
+        else check(value[key], template[key], `${at}.${key}`, complete);
+      }
+      if (complete) for (const key of Object.keys(template)) {
+        if (!Object.hasOwn(value, key) && !(at.startsWith('content.team.members[') && ['phone','email'].includes(key))) errors.push(`${at}.${key}: missing field`);
+      }
     }
   }
-
-  return {
-    isValid: true,
-    errors: [],
-    sanitized,
-  };
+  if (containsForbiddenKeys(body)) errors.push('Forbidden key');
+  check(body, DEFAULT_PAGE_CONTENT, 'content');
+  return { isValid: errors.length === 0, errors, sanitized: errors.length ? undefined : body };
 }
 
 // ==========================================
@@ -451,26 +477,19 @@ export function validateSeoPayload(body: any): ValidationResult<Record<string, a
   }
 
   const sanitized: Record<string, any> = {};
-  for (const field of ALLOWED_SEO_FIELDS) {
-    if (body[field] !== undefined) {
-      if (typeof body[field] === 'string') {
-        if (body[field].length > 1000) {
-          return { isValid: false, errors: [`طول فیلد ${field} بیش از حد مجاز است.`] };
-        }
-        sanitized[field] = body[field].trim();
-      } else if (Array.isArray(body[field])) {
-        sanitized[field] = body[field].slice(0, 50).map((k: any) => String(k || '').trim().slice(0, 80));
-      } else {
-        sanitized[field] = body[field];
-      }
-    }
+  const errors: string[] = [];
+  for (const field of Object.keys(body)) {
+    const value = body[field];
+    if (!ALLOWED_SEO_FIELDS.includes(field)) { errors.push(`Unknown SEO field: ${field}`); continue; }
+    if (field === 'keywordsFa' || field === 'keywordsEn') {
+      if (!Array.isArray(value) || value.length > 50 || value.some((v: any) => typeof v !== 'string' || v.length > 80)) errors.push(`Invalid ${field}`);
+      else sanitized[field] = value;
+    } else if (typeof value !== 'string' || value.length > 1000) errors.push(`Invalid ${field}`);
+    else if (field === 'ogImageUrl' && !isSafeAssetUrl(value)) errors.push('Invalid image URL');
+    else if (field === 'canonicalBaseUrl' && !['https://poladcharkhesh.ir', 'https://poladcharkhesh.com'].includes(value)) errors.push('Canonical domain is fixed');
+    else sanitized[field] = value;
   }
-
-  return {
-    isValid: true,
-    errors: [],
-    sanitized,
-  };
+  return { isValid: !errors.length, errors, sanitized: errors.length ? undefined : sanitized };
 }
 
 // ==========================================
@@ -562,6 +581,8 @@ export function validateMediaPayload(body: any, isUpdate = false): ValidationRes
     }
   }
 
+  if (body.url !== undefined && !isSafeAssetUrl(body.url, false)) errors.push('Invalid media URL');
+  if (body.mimeType !== undefined && !['image/jpeg','image/png','image/webp','application/pdf','application/octet-stream'].includes(body.mimeType)) errors.push('Invalid MIME type');
   if (!isUpdate && !sanitized.originalName) errors.push('نام فایل الزامی است.');
   if (!isUpdate && !sanitized.url) errors.push('آدرس فایل الزامی است.');
 

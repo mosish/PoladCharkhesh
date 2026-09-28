@@ -1,10 +1,8 @@
+import { assetIdentity, isSafeAssetUrl } from '../assetUrls';
 /**
  * POLAD CHARKHESH - MEDIA METADATA DATABASE ACCESS SERVICE
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { CONFIG } from '../config';
 import { getDatabase, runTransaction } from '../db';
 import { MediaMetadata, MediaUploadInput, MediaUpdateInput } from '../../src/types/admin';
 
@@ -38,17 +36,19 @@ export const mediaDb = {
   getReferences(url: string): string[] {
     const db = getDatabase();
     const refs: string[] = [];
+    const identity = assetIdentity(url);
+    const references = (value: unknown): boolean => typeof value === 'string' ? assetIdentity(value) === identity : Array.isArray(value) ? value.some(references) : !!value && typeof value === 'object' ? Object.values(value).some(references) : false;
     const prods = db.prepare('SELECT id, code, image_url, images, pdf_url FROM products').all() as any[];
     for (const p of prods) {
       const images: string[] = safeJsonParse(p.images, []);
-      if (p.image_url === url || images.includes(url) || p.pdf_url === url) {
+      if (references([p.image_url, ...images, p.pdf_url])) {
         refs.push(p.code);
       }
     }
     for (const table of ['cms_content', 'company_info', 'seo_config']) {
       try {
         const row = db.prepare(`SELECT data FROM ${table} WHERE id='main'`).get() as any;
-        if (row && typeof row.data === 'string' && row.data.includes(url)) {
+        if (row && references(safeJsonParse(row.data, {}))) {
           refs.push(table);
         }
       } catch {}
@@ -85,6 +85,12 @@ export const mediaDb = {
       let images: string[] = [...new Set<string>([row.image_url, ...safeJsonParse<string[]>(row.images, [])].filter(Boolean))];
       let pdfUrl = row.pdf_url || '';
       const url = input.mediaUrl || '';
+      if (input.action !== 'clearPdf' && !isSafeAssetUrl(input.mediaUrl, false)) throw new Error('Invalid media URL');
+      const metadata = this.getMediaList().find(m => m.url === url);
+      if (input.action === 'setPdf' && metadata && metadata.mimeType !== 'application/pdf') throw new Error('Expected PDF');
+      if (['attach','primary'].includes(input.action) && metadata?.mimeType === 'application/pdf') throw new Error('Expected image');
+      if (['primary','move','detach'].includes(input.action) && !images.includes(url)) throw new Error('Image is not attached');
+      if (input.action === 'move' && (!Number.isInteger(input.toIndex) || input.toIndex! < 0 || input.toIndex! >= images.length)) throw new Error('Invalid gallery position');
 
       switch (input.action) {
         case 'attach':
@@ -148,6 +154,7 @@ export const mediaDb = {
 
   createMediaRecord(data: MediaUploadInput, username: string): MediaMetadata {
     const db = getDatabase();
+    if (!isSafeAssetUrl(data.url, false) || this.getMediaList().some(item => assetIdentity(item.url) === assetIdentity(data.url))) throw new Error('Invalid or duplicate media URL');
     const id = `med_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const nowIso = new Date().toISOString();
     const filename = data.filename || data.originalName;
@@ -179,6 +186,9 @@ export const mediaDb = {
     const existing = this.getMediaById(id);
     if (!existing) return null;
 
+    for (const key of ['url','filename','mimeType','sizeBytes'] as const) {
+      if (updates[key] !== undefined && updates[key] !== existing[key]) throw new Error('File identity cannot be changed; register a new asset');
+    }
     const merged: MediaMetadata = {
       ...existing,
       ...updates,
@@ -224,25 +234,18 @@ export const mediaDb = {
     if (!current) return { success: false };
 
     const inUse = this.getReferences(current.url);
+    const siblings = this.getMediaList().filter(item => item.id !== id && assetIdentity(item.url) === assetIdentity(current.url));
+    inUse.push(...siblings.map(item => 'media:' + item.id));
     if (inUse.length > 0) {
       return { success: false, inUse };
     }
 
     const db = getDatabase();
+    // Never unlink physical bytes here: safety snapshots and old backups may still
+    // reference them. Removing a library record is reversible by restoring metadata.
+    // Offline storage cleanup must reconcile all snapshots before removing bytes.
     const result = db.prepare('DELETE FROM media_metadata WHERE id = ?;').run(id);
+    return { success: result.changes > 0, unlinked: false };
 
-    let unlinked = false;
-    if (current.url.startsWith('/uploads/')) {
-      const filename = path.basename(current.url);
-      const filePath = path.join(path.dirname(CONFIG.DATABASE_PATH), 'uploads', filename);
-      if (fs.existsSync(filePath)) {
-        try {
-          fs.unlinkSync(filePath);
-          unlinked = true;
-        } catch {}
-      }
-    }
-
-    return { success: result.changes > 0, unlinked };
   },
 };

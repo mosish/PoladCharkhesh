@@ -1,3 +1,4 @@
+import './testDatabase';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -185,14 +186,15 @@ async function main() {
     });
     assert.equal(detachRes.status, 200);
 
-    // Now unreferenced delete should succeed and unlink file
+    // Unreferenced metadata removal retains bytes for restorable backups
     const allowedDelete = await fetch(`${baseUrl}/api/media/${pngResult.media.id}`, {
       method: 'DELETE',
       headers: { Cookie: superadminCookie },
     });
     assert.equal(allowedDelete.status, 200);
-    assert.ok(!fs.existsSync(savedPath), 'Unreferenced file must be unlinked from storage');
-    console.log('✓ PASS: Unreferenced media safely deleted and physical file unlinked');
+    assert.ok(fs.existsSync(savedPath), 'Backup recovery must retain uploaded bytes');
+    assert.equal(mediaDb.getMediaById(pngResult.media.id), null);
+    console.log('✓ PASS: Unreferenced metadata removed; physical file retained for backup recovery');
 
     // Clean up test PDF
     const pdfPath = path.join(uploadDir, pdfResult.media.filename);

@@ -1,5 +1,6 @@
+import '../../scripts/testDatabase';
 import http from 'node:http';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { getDatabase } from '../db';
@@ -73,15 +74,14 @@ async function runSecurityTestSuite() {
   // --------------------------------------------------------------------------
   console.log('3. [ENV] Verifying Production Fail-Fast on Missing Secrets...');
   try {
-    execSync(
-      'NODE_ENV=production SESSION_SECRET="" COOKIE_SECRET="" npx tsx -e "import(\'./server/config\')"',
-      { stdio: 'pipe' }
-    );
+    execFileSync(process.execPath, ['--import', 'tsx', '-e', "import('./server/config.ts')"], {
+      stdio: 'pipe', env: { ...process.env, NODE_ENV: 'production', SESSION_SECRET: '', COOKIE_SECRET: '' },
+    });
     throw new Error('Production mode should have failed when SESSION_SECRET is missing!');
   } catch (err: any) {
     const errorOutput = err.stderr ? err.stderr.toString() : err.message;
-    if (errorOutput.includes('FATAL SECURITY CONFIGURATION ERROR')) {
-      console.log('   ✓ Production startup correctly threw FATAL SECURITY CONFIGURATION ERROR when secrets were omitted.\n');
+    if (errorOutput.includes('FATAL CONFIG ERROR')) {
+      console.log('   ✓ Production startup correctly threw FATAL CONFIG ERROR when secrets were omitted.\n');
     } else {
       throw new Error(`Unexpected failure output: ${errorOutput}`);
     }
@@ -224,7 +224,7 @@ async function runSecurityTestSuite() {
       headers: { 'Content-Type': 'application/json', 'Cookie': cookiePart },
       body: JSON.stringify({
         code: testCode,
-        category: 'tapered',
+        category: 'roller',
         nameFa: 'رولبرینگ تست امنیتی',
         nameEn: 'Security Test Bearing',
         d: 25,
@@ -244,7 +244,12 @@ async function runSecurityTestSuite() {
     const createdProd = (await createProdRes.json()).product;
     console.log(`   ✓ Authenticated POST /api/products created product ${createdProd.code} (201 Created).`);
 
-    // 7.3 Delete test product
+    // 7.3 Active products must be archived before permanent deletion.
+    const activeDelete = await fetch(`${baseUrl}/api/products/${createdProd.id}`, { method: 'DELETE', headers: { Cookie: cookiePart } });
+    if (activeDelete.status !== 400) throw new Error('Active product delete must be rejected');
+    const archive = await fetch(`${baseUrl}/api/products/${createdProd.id}/archive`, { method: 'PATCH', headers: { Cookie: cookiePart, 'Content-Type': 'application/json' }, body: JSON.stringify({ isArchived: true }) });
+    if (!archive.ok) throw new Error('Archive failed');
+    // Delete test product
     const delRes = await fetch(`${baseUrl}/api/products/${createdProd.id}`, {
       method: 'DELETE',
       headers: { 'Cookie': cookiePart },

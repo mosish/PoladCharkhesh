@@ -1,7 +1,7 @@
 # Polad Charkhesh — پولاد چرخش
 
-> **Project status:** Final integration & launch-readiness stage (Validated)  
-> **Source of truth:** `main` branch  
+> **Project status:** Independent audit: NOT READY for deployment candidate freeze
+> **Source of truth:** `main` branch
 > **Last status review:** 2026-09-28
 
 Polad Charkhesh is a bilingual Persian/English B2B industrial engineering website focused on bearings, mechanical components, technical product information, engineering tools, datasheets, and direct consultation.
@@ -14,38 +14,33 @@ This project is **not an e-commerce website**. There is no online pricing, shopp
 
 ## Current Project Status
 
-The project has completed the final integration phase and is now ready for deployment freeze:
+The independent audit of main `9221340` found unresolved catalog reconciliation and launch requirements. Build success alone does not certify readiness. See [the audit report](docs/FINAL_PREDEPLOY_AUDIT.md) and its reproducible evidence. No deployment was performed.
+
+Current sequence:
 
 **Stabilize → Audit → Fix → Freeze → Deploy**
 
 ### Progress overview
 
-| Area | Status |
+| Area | Verified status |
 |---|---|
-| Core website & industrial design system | ✅ Complete |
-| Responsive Persian/English public website | ✅ Complete |
-| Product catalog (68 canonical products) | ✅ Complete |
-| Engineering product data & calculations | ✅ Complete |
-| Product detail experience | ✅ Complete |
-| Express + SQLite backend | ✅ Complete |
-| Server-side admin authentication | ✅ Complete |
-| Product management | ✅ Complete |
-| Company & contact settings | ✅ Complete |
-| Full-site content CMS | ✅ Complete |
-| Repeatable public sections | ✅ Complete |
-| Customer inquiries | ✅ Complete |
-| SEO management | ✅ Complete |
-| Backup / restore | ✅ Complete |
-| Audit logs | ✅ Complete |
-| Media Library & Physical Upload | ✅ Complete and verified |
-| Admin responsive UX | ✅ Complete |
-| Multi-agent development governance | ✅ Complete |
-| Final integration/regression audit | ✅ Complete |
-| Cross-browser/device QA | 🟢 Complete / verified |
-| Production security/configuration audit | 🟢 Complete / verified |
-| Deployment candidate freeze | 🟡 Ready for freeze |
-| VPS deployment | ⬜ Pending |
-| Production smoke test | ⬜ Pending |
+| Public RTL/LTR and responsive layout | Representative Chrome checks at 390px / 1440px; not cross-browser certification |
+| Product catalog | 68 static / 68 SQLite, unique IDs/codes/slugs; 142 field differences remain |
+| Engineering formulas | Existing regression checks pass; SQLite/reference reconciliation FAILS |
+| Product detail / Quick View | Direct production route and modal tested |
+| Backend / authentication | API, authorization, sessions and production startup tests pass within audited scope |
+| Product management | Existing integrity suite passes; public media/stock integration remains partial |
+| Company settings | API-backed; unverified business claims and values require owner review |
+| CMS | Nine section models persist and render; coverage and bilingual editors remain PARTIAL |
+| Customer inquiries | API-backed storage and triage; browser rendering checked |
+| SEO | Site metadata now consumes saved values; product overrides and sitemap remain partial |
+| Backup / restore | Isolated business-data roundtrip and safety snapshots tested; physical files need separate backup |
+| Media | Physical upload tested; safe metadata removal retains bytes; 29 broken catalog images remain |
+| Admin responsive UX | Representative Chrome checks; not every control has an end-to-end browser test |
+| Multi-agent integration | Isolated audit branch; old overlapping PRs not merged |
+| Final independent audit | Findings and scoped fixes documented; unresolved P0/P1 remain |
+| Deployment candidate freeze | BLOCKED |
+| VPS deployment / HTTPS smoke test | NOT STARTED |
 
 ---
 
@@ -97,7 +92,7 @@ The admin includes centralized management for:
 - CTA/contact visibility
 - Site-wide communication settings
 
-Public website components consume this centralized source instead of duplicating contact data.
+Most contact surfaces consume company data. Some fallback values and business claims remain in runtime sources; see the company hygiene findings.
 
 ### Full-Site CMS
 
@@ -112,9 +107,9 @@ CMS coverage has been expanded across major public sections, including:
 - Team (gracefully hidden when roster is unverified)
 - Contact
 - Footer
-- Other shared public content
+- Selected shared public headings and copy
 
-Routine website content changes are managed directly from Admin without editing source code.
+Coverage is partial: mission/vision, hero statistics and other marketing claims remain hardcoded. Repeatable sections use JSON editors, and some English fields are still absent from Admin. Saving a CMS model is not proof that every public sentence is CMS-managed.
 
 ### Customer Inquiries
 
@@ -128,14 +123,17 @@ Admins can search/filter inquiries and track customer follow-up.
 
 ### Media Library
 
-The Media module provides complete media asset lifecycle management:
+The Media module currently provides:
 
 - Physical file upload (JPEG, PNG, WebP, PDF up to 10 MB) with magic-byte verification and path-traversal prevention
 - Persistent storage in `data/uploads/` and static serving via `/uploads`
 - Media records, categories, and bilingual alt text in SQLite
 - Product associations and gallery management (attach, detach, primary, move, datasheet PDF)
 - Reference checking preventing accidental deletion of assets in active use
-- Safe unlinking of unreferenced assets upon deletion
+- Removal of unreferenced metadata while retaining physical bytes for backup recovery
+- Immutable file identity; register a new asset instead of rewriting an existing URL
+
+Public sliders still show one photo plus CAD, and do not consume gallery order or media alt text. Associated PDF links are not yet surfaced in ProductPage/Quick View. Metadata associations do not automatically attach assets to products.
 
 ### Backup, Security & Audit
 
@@ -144,9 +142,29 @@ Admin/System functionality includes:
 - Password management (PBKDF2)
 - Dataset/database backup export (including products, company, CMS, SEO, media metadata, and inquiries)
 - Backup restore with automatic pre-restore safety snapshots
-- Factory Reset to the 68 canonical engineering items restricted to `superadmin` role
-- Immutable audit logging with IP tracking
+- Factory Reset restricted to `superadmin`, with a pre-reset business-data safety snapshot
+- Reset still replaces live engineering values with bundled reference values: reconcile the catalog differences before operational use
+- Append-only application audit logging with IP tracking (not tamper-proof against direct database access)
 - Security/system management
+
+---
+
+## Verified Local Checks and Runtime Configuration
+
+Use Node.js with `node:sqlite` support (audit used Node 24.19.0). Run from the repository root:
+
+```sh
+npm install --no-audit --no-fund
+npm run lint
+npm run build
+node scripts/runIsolated.mjs scripts/verifyCatalog.ts scripts/auditCalculations.ts scripts/verifyPhase720.ts scripts/verifyPhase701Integrity.ts server/scripts/testBackend.ts server/scripts/verifyPhase622.ts scripts/verifyMediaAndLaunchIntegrity.ts scripts/auditFinalPredeploy.ts
+```
+
+The final command intentionally exits nonzero while the committed SQLite/reference discrepancies remain. Browser verification: `node scripts/auditProduction.mjs` requires Playwright and an installed browser; `PLAYWRIGHT_MODULE_PATH` can select an existing installation and `PLAYWRIGHT_CHANNEL=chrome` uses installed Chrome. It currently fails the image-decoding check. See the audit report for exact results, not old script banners claiming universal correctness.
+
+`npm start` does not load `.env`. Supply environment variables through a process manager or use `node --env-file=.env dist/server.cjs`. Keep `DATABASE_PATH` on persistent writable storage and back up both SQLite and the adjacent `uploads/` directory. JSON exports contain business data and media metadata, **not uploaded bytes, credentials, active sessions, the audit log, or deployment secrets**. Pre-reset/pre-restore snapshots live in SQLite and need operator-assisted recovery. Never overwrite the live database with the tracked seed on an update.
+
+Behind a same-host proxy use `HOST=127.0.0.1`, explicit `PORT`, strong independent random secrets, HTTPS, and the matching `TRUST_PROXY`. Initialize the first admin before exposing the site publicly. The local audit checks cookie flags and restart behavior; it does not certify Nginx, TLS, or the target VPS.
 
 ---
 
@@ -226,9 +244,9 @@ Primary brand colors include:
 
 Typography:
 
-- **Vazirmatn** — Persian
-- **Inter** — English
-- **IBM Plex Mono** — technical codes / part numbers
+- **IRANSans** — Persian (self-hosted)
+- **Outfit** — English
+- **JetBrains Mono** — technical codes / part numbers
 
 ---
 
@@ -281,7 +299,7 @@ The Admin Panel expanded from basic product management into a broader Website Co
 
 ### Current Stage
 
-Major feature development is substantially complete. Development should now prioritize launch blockers and verified integration issues instead of introducing unnecessary new features.
+The current implementation is under independent audit; the owner's full pre-deployment requirements are not yet verified complete. Development should now prioritize launch blockers and verified integration issues instead of introducing unnecessary new features.
 
 ---
 
@@ -322,11 +340,9 @@ Priority areas:
 
 Any visible admin control must either work end-to-end or be removed/disabled before launch.
 
-### 3. Media Workflow Decision
+### 3. Resolve Audited Media Gaps
 
-Confirm whether production requires direct image/PDF upload and physical storage management.
-
-If required, complete it **before deployment**.
+Physical upload already exists. Replace the 29 corrupt source images using verified files, finish public gallery/alt/PDF consumption, and define an offline storage retention/backup procedure. Do not replace technical photographs with invented or unrelated stock images.
 
 ### 4. Final UX & Browser QA
 

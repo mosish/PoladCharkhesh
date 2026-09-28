@@ -84,9 +84,11 @@ export function validateAndLoadConfig(env: NodeJS.ProcessEnv = process.env): App
     }
   }
 
+  const port = Number(env.PORT || 3000);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('[FATAL CONFIG ERROR] Invalid PORT');
   return {
-    PORT: 3000,
-    HOST: '0.0.0.0',
+    PORT: port,
+    HOST: env.HOST || (isProduction ? '127.0.0.1' : '0.0.0.0'),
     NODE_ENV: nodeEnv,
     isProduction,
     DATABASE_PATH: env.DATABASE_PATH || path.resolve(process.cwd(), 'data', 'poladcharkhesh.db'),

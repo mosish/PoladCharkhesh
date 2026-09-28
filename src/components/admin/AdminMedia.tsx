@@ -246,7 +246,7 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
     const confirmed = window.confirm(
       isFa
         ? `رسانه «${selectedMedia.originalName}» از کتابخانه حذف شود؟ این عملیات فایل فیزیکی روی سرور را حذف نمی‌کند.`
-        : `Remove “${selectedMedia.originalName}” from the media library? This does not delete a physical file from storage.`
+        : `Remove “${selectedMedia.originalName}” from the media library? Uploaded files are retained for backup recovery.`
     );
     if (!confirmed) return;
 
@@ -263,11 +263,7 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
 
   const selectProduct = (product: AdminProductItem) => {
     setSelectedProduct(product);
-    const existing = product.images && product.images.length > 0
-      ? [...product.images]
-      : product.imageUrl
-        ? [product.imageUrl]
-        : [];
+    const existing = [...new Set([product.imageUrl, ...(product.images || [])].filter((url): url is string => !!url))];
     setGalleryImages(existing);
     setPdfUrl(product.pdfUrl || '');
     setNewImageUrl('');
@@ -312,7 +308,7 @@ export const AdminMedia: React.FC<AdminMediaProps> = ({ language }) => {
       {
         imageUrl: nextImages[0] || '',
         images: nextImages,
-        pdfUrl: pdfUrl.trim() || undefined,
+        pdfUrl: pdfUrl.trim(),
       },
       'admin'
     );

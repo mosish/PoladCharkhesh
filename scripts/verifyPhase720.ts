@@ -1,3 +1,4 @@
+import './testDatabase';
 import { getDatabase } from '../server/db';
 import { companyDb } from '../server/services/companyDb';
 import { validateCompanyPayload, containsForbiddenKeys } from '../server/validation';

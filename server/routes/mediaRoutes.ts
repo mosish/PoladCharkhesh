@@ -127,7 +127,8 @@ mediaRouter.post(
     fs.writeFileSync(path.join(uploadDirectory, filename), bytes, { flag: 'wx' });
 
     const category = mime === 'application/pdf' ? 'datasheet_pdf' : 'product_photo';
-    const created = mediaDb.createMediaRecord(
+    let created;
+    try { created = mediaDb.createMediaRecord(
       {
         filename,
         originalName,
@@ -138,7 +139,10 @@ mediaRouter.post(
         associatedProductCodes: [],
       },
       req.admin!.username
-    );
+    ); } catch (error) {
+      fs.unlinkSync(path.join(uploadDirectory, filename));
+      throw error;
+    }
 
     logAudit('MEDIA_UPLOADED', 'media', `فایل جدید (${originalName}) با موفقیت بارگذاری گردید.`, req, created.id);
     res.status(201).json({ success: true, media: created });
@@ -170,6 +174,7 @@ mediaRouter.post('/', requireAuth, (req: Request, res: Response): void => {
     return;
   }
 
+  if (mediaDb.getMediaList().some(item => item.url === validation.sanitized!.url)) { res.status(409).json({ error: 'Media URL already registered' }); return; }
   const created = mediaDb.createMediaRecord(validation.sanitized as any, req.admin!.username);
   logAudit('MEDIA_UPDATED', 'media', `رسانه جدید (${created.originalName}) ثبت گردید.`, req, created.id);
 
@@ -188,6 +193,10 @@ mediaRouter.put('/:id', requireAuth, (req: Request, res: Response): void => {
     return;
   }
 
+  const existing = mediaDb.getMediaById(id);
+  if (existing && ['url','filename','mimeType','sizeBytes'].some(key => req.body[key] !== undefined && req.body[key] !== (existing as any)[key])) {
+    res.status(409).json({ error: 'File identity cannot be changed; register a new asset' }); return;
+  }
   const updated = mediaDb.updateMediaRecord(id, validation.sanitized || {});
   if (!updated) {
     res.status(404).json({ error: 'رسانه مورد نظر یافت نشد.' });
@@ -200,7 +209,7 @@ mediaRouter.put('/:id', requireAuth, (req: Request, res: Response): void => {
 
 /**
  * DELETE /api/media/:id
- * Delete media metadata record and physical file if unreferenced (Protected)
+ * Remove unreferenced metadata; retain bytes for recoverable backups (Protected)
  */
 mediaRouter.delete('/:id', requireAuth, (req: Request, res: Response): void => {
   const id = String(req.params.id);

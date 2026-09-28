@@ -94,6 +94,9 @@ function setJsonLd(id: string, schema: object) {
 export function updateDocumentSeo({ product, language, path, categoryLabel }: SeoUpdateOptions): void {
   const isPersian = language === 'fa';
   const siteUrl = getAuthoritativeDomain(language);
+  const seo = dataService.getSeoConfig();
+  setMetaTag('keywords', (isPersian ? seo.keywordsFa : seo.keywordsEn).join(', '));
+  setMetaTag('google-site-verification', seo.googleSiteVerification || '');
 
   if (product) {
     // --- INDIVIDUAL PRODUCT PAGE SEO ---
@@ -254,13 +257,11 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
     // --- HOMEPAGE / CATALOG SEO ---
     const canonicalUrl = resolveAbsoluteSeoUrl(path === '/' ? '' : path, language);
     
-    const title = isPersian
-      ? 'پولاد چرخِش | تأمین و توزیع تخصصی انواع بیرینگ‌های صنایع نفت، معدن و فولاد'
-      : 'PoladCharkhesh | Supply & Distribution of Heavy Oil, Mining & Steel Bearings';
-    
-    const description = isPersian
-      ? 'پولاد چرخِش، مرکز تخصصی واردات، تأمین و توزیع بیرینگ‌ها و کاسه نمدهای صنعتی برندهای SKF, FAG, TIMKEN, NSK, NTN, KOYO با تضمین اصالت و مشاوره مهندسی تخصصی در تهران.'
-      : 'Polad Charkhesh specializes in the supply, engineering consultation, and distribution of premium industrial bearings, housings, and sealing systems (SKF, FAG, TIMKEN, NSK, NTN, KOYO, CORTECO).';
+    const title = isPersian ? seo.defaultTitleFa : seo.defaultTitleEn;
+    const description = isPersian ? seo.defaultDescriptionFa : seo.defaultDescriptionEn;
+    const image = seo.ogImageUrl ? (seo.ogImageUrl.startsWith('https:') ? seo.ogImageUrl : siteUrl + seo.ogImageUrl) : '';
+    setMetaTag('og:image', image, true);
+    setMetaTag('twitter:image', image);
 
     document.title = title;
     setMetaTag('description', description);
@@ -351,7 +352,7 @@ export function updateDocumentSeo({ product, language, path, categoryLabel }: Se
       '@type': 'PostalAddress',
       'streetAddress': isPersian ? (company.officeAddressFa || company.addressFa) : (company.officeAddressEn || company.addressEn),
       'addressLocality': isPersian ? company.cityFa : company.cityEn,
-      'postalCode': company.postalCode || '1649714311',
+      'postalCode': company.postalCode || undefined,
       'addressCountry': 'IR',
     },
     'openingHoursSpecification': openingHoursSpec,

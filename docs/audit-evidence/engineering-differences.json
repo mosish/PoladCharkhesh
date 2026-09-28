@@ -1,0 +1,854 @@
+[
+  {
+    "code": "6204-2RSH / 2RS1",
+    "field": "speedOilRpm",
+    "sqlite": 17000,
+    "static": 19000
+  },
+  {
+    "code": "6204-2RSH / 2RS1",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.1
+  },
+  {
+    "code": "6308-2Z / ZZ C3",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.2
+  },
+  {
+    "code": "6005 Open / C3",
+    "field": "code",
+    "sqlite": "6005 OPEN / C3",
+    "static": "6005 Open / C3"
+  },
+  {
+    "code": "6005 Open / C3",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 14.5
+  },
+  {
+    "code": "6206-2RS1 C3",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.8
+  },
+  {
+    "code": "6310-2Z / C3",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.2
+  },
+  {
+    "code": "22212 EK / C3 + H312",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 2.8
+  },
+  {
+    "code": "22316 CC/W33 / C3",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 2
+  },
+  {
+    "code": "22220 EK / C3",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 2.8
+  },
+  {
+    "code": "NU 208 ECP / C3",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "NJ 212 ECP",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "NUP 310 ECP / C3",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "51106 Single Direction",
+    "field": "code",
+    "sqlite": "51106 SINGLE DIRECTION",
+    "static": "51106 Single Direction"
+  },
+  {
+    "code": "51106 Single Direction",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 1
+  },
+  {
+    "code": "51108 Single Direction",
+    "field": "code",
+    "sqlite": "51108 SINGLE DIRECTION",
+    "static": "51108 Single Direction"
+  },
+  {
+    "code": "51108 Single Direction",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 1
+  },
+  {
+    "code": "51210 High Capacity",
+    "field": "code",
+    "sqlite": "51210 HIGH CAPACITY",
+    "static": "51210 High Capacity"
+  },
+  {
+    "code": "51210 High Capacity",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 1
+  },
+  {
+    "code": "UCP 205 (Cast Iron Pillow Block)",
+    "field": "code",
+    "sqlite": "UCP 205 (CAST IRON PILLOW BLOCK)",
+    "static": "UCP 205 (Cast Iron Pillow Block)"
+  },
+  {
+    "code": "UCP 205 (Cast Iron Pillow Block)",
+    "field": "D",
+    "sqlite": 140,
+    "static": 71
+  },
+  {
+    "code": "UCF 208 (4-Bolt Flange Housing)",
+    "field": "code",
+    "sqlite": "UCF 208 (4-BOLT FLANGE HOUSING)",
+    "static": "UCF 208 (4-Bolt Flange Housing)"
+  },
+  {
+    "code": "SNL 511-609 (Split Plummer Block)",
+    "field": "code",
+    "sqlite": "SNL 511-609 (SPLIT PLUMMER BLOCK)",
+    "static": "SNL 511-609 (Split Plummer Block)"
+  },
+  {
+    "code": "SNL 511-609 (Split Plummer Block)",
+    "field": "D",
+    "sqlite": 255,
+    "static": 130
+  },
+  {
+    "code": "SNL 511-609 (Split Plummer Block)",
+    "field": "crKn",
+    "sqlite": 160,
+    "static": 190
+  },
+  {
+    "code": "SNL 511-609 (Split Plummer Block)",
+    "field": "corKn",
+    "sqlite": 190,
+    "static": 160
+  },
+  {
+    "code": "TC 35-52-10 NBR (Dual Lip)",
+    "field": "code",
+    "sqlite": "TC 35-52-10 NBR (DUAL LIP)",
+    "static": "TC 35-52-10 NBR (Dual Lip)"
+  },
+  {
+    "code": "TC 35-52-10 NBR (Dual Lip)",
+    "field": "crKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 35-52-10 NBR (Dual Lip)",
+    "field": "corKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 50-72-8 Viton / FKM High-Temp",
+    "field": "code",
+    "sqlite": "TC 50-72-8 VITON / FKM HIGH-TEMP",
+    "static": "TC 50-72-8 Viton / FKM High-Temp"
+  },
+  {
+    "code": "TC 50-72-8 Viton / FKM High-Temp",
+    "field": "crKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 50-72-8 Viton / FKM High-Temp",
+    "field": "corKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 75-100-12 NBR Heavy Duty",
+    "field": "code",
+    "sqlite": "TC 75-100-12 NBR HEAVY DUTY",
+    "static": "TC 75-100-12 NBR Heavy Duty"
+  },
+  {
+    "code": "TC 75-100-12 NBR Heavy Duty",
+    "field": "crKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 75-100-12 NBR Heavy Duty",
+    "field": "corKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "SKF LGMT 2 / 1kg",
+    "field": "code",
+    "sqlite": "SKF LGMT 2 / 1KG",
+    "static": "SKF LGMT 2 / 1kg"
+  },
+  {
+    "code": "SKF LGMT 2 / 1kg",
+    "field": "speedGreaseRpm",
+    "sqlite": 15000,
+    "static": 12000
+  },
+  {
+    "code": "SKF LGMT 2 / 1kg",
+    "field": "speedOilRpm",
+    "sqlite": 15000,
+    "static": 12000
+  },
+  {
+    "code": "22324 CCJA/W33VA405 (Vibrating Screen Special)",
+    "field": "code",
+    "sqlite": "22324 CCJA/W33VA405 (VIBRATING SCREEN SPECIAL)",
+    "static": "22324 CCJA/W33VA405 (Vibrating Screen Special)"
+  },
+  {
+    "code": "22324 CCJA/W33VA405 (Vibrating Screen Special)",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 1.9
+  },
+  {
+    "code": "32218 J2/Q (Heavy Steel Mill & Axle)",
+    "field": "code",
+    "sqlite": "32218 J2/Q (HEAVY STEEL MILL & AXLE)",
+    "static": "32218 J2/Q (Heavy Steel Mill & Axle)"
+  },
+  {
+    "code": "29420 E (Spherical Roller Thrust Bearing)",
+    "field": "code",
+    "sqlite": "29420 E (SPHERICAL ROLLER THRUST BEARING)",
+    "static": "29420 E (Spherical Roller Thrust Bearing)"
+  },
+  {
+    "code": "29420 E (Spherical Roller Thrust Bearing)",
+    "field": "calculationFactorE",
+    "sqlite": null,
+    "static": 0.32
+  },
+  {
+    "code": "29420 E (Spherical Roller Thrust Bearing)",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 1.9
+  },
+  {
+    "code": "29420 E (Spherical Roller Thrust Bearing)",
+    "field": "calculationFactorY0",
+    "sqlite": null,
+    "static": 1.2
+  },
+  {
+    "code": "NU 2224 ECP / C3 (Heavy Refinery Pump)",
+    "field": "code",
+    "sqlite": "NU 2224 ECP / C3 (HEAVY REFINERY PUMP)",
+    "static": "NU 2224 ECP / C3 (Heavy Refinery Pump)"
+  },
+  {
+    "code": "NU 2224 ECP / C3 (Heavy Refinery Pump)",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "6210-2Z/VA208 (High-Temp 350°C Kiln Bearing)",
+    "field": "code",
+    "sqlite": "6210-2Z/VA208 (HIGH-TEMP 350°C KILN BEARING)",
+    "static": "6210-2Z/VA208 (High-Temp 350°C Kiln Bearing)"
+  },
+  {
+    "code": "6210-2Z/VA208 (High-Temp 350°C Kiln Bearing)",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 14.4
+  },
+  {
+    "code": "TC 80-100-12 Viton / FKM Petrochemical",
+    "field": "code",
+    "sqlite": "TC 80-100-12 VITON / FKM PETROCHEMICAL",
+    "static": "TC 80-100-12 Viton / FKM Petrochemical"
+  },
+  {
+    "code": "TC 80-100-12 Viton / FKM Petrochemical",
+    "field": "crKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 80-100-12 Viton / FKM Petrochemical",
+    "field": "corKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "SNL 518-615 (Heavy Mining Split Housing)",
+    "field": "code",
+    "sqlite": "SNL 518-615 (HEAVY MINING SPLIT HOUSING)",
+    "static": "SNL 518-615 (Heavy Mining Split Housing)"
+  },
+  {
+    "code": "SNL 518-615 (Heavy Mining Split Housing)",
+    "field": "D",
+    "sqlite": 345,
+    "static": 192
+  },
+  {
+    "code": "SNL 518-615 (Heavy Mining Split Housing)",
+    "field": "crKn",
+    "sqlite": 345,
+    "static": 420
+  },
+  {
+    "code": "SNL 518-615 (Heavy Mining Split Housing)",
+    "field": "corKn",
+    "sqlite": 420,
+    "static": 345
+  },
+  {
+    "code": "Mobilith SHC 220 Synthetic",
+    "field": "code",
+    "sqlite": "MOBILITH SHC 220 SYNTHETIC",
+    "static": "Mobilith SHC 220 Synthetic"
+  },
+  {
+    "code": "7312 BECBM (40° Brass Cage)",
+    "field": "code",
+    "sqlite": "7312 BECBM (40° BRASS CAGE)",
+    "static": "7312 BECBM (40° Brass Cage)"
+  },
+  {
+    "code": "7312 BECBM (40° Brass Cage)",
+    "field": "calculationFactorE",
+    "sqlite": null,
+    "static": 1.14
+  },
+  {
+    "code": "7312 BECBM (40° Brass Cage)",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0.57
+  },
+  {
+    "code": "7312 BECBM (40° Brass Cage)",
+    "field": "calculationFactorY0",
+    "sqlite": null,
+    "static": 0.26
+  },
+  {
+    "code": "7210 BECBP / P6",
+    "field": "calculationFactorE",
+    "sqlite": null,
+    "static": 1.14
+  },
+  {
+    "code": "7210 BECBP / P6",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0.57
+  },
+  {
+    "code": "7210 BECBP / P6",
+    "field": "calculationFactorY0",
+    "sqlite": null,
+    "static": 0.26
+  },
+  {
+    "code": "3308 A-2Z/C3 (Double Row)",
+    "field": "code",
+    "sqlite": "3308 A-2Z/C3 (DOUBLE ROW)",
+    "static": "3308 A-2Z/C3 (Double Row)"
+  },
+  {
+    "code": "3308 A-2Z/C3 (Double Row)",
+    "field": "calculationFactorE",
+    "sqlite": null,
+    "static": 0.8
+  },
+  {
+    "code": "3308 A-2Z/C3 (Double Row)",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0.78
+  },
+  {
+    "code": "3308 A-2Z/C3 (Double Row)",
+    "field": "calculationFactorY0",
+    "sqlite": null,
+    "static": 0.66
+  },
+  {
+    "code": "3308 A-2Z/C3 (Double Row)",
+    "field": "calculationFactorY1",
+    "sqlite": null,
+    "static": 0.78
+  },
+  {
+    "code": "3308 A-2Z/C3 (Double Row)",
+    "field": "calculationFactorY2",
+    "sqlite": null,
+    "static": 1.24
+  },
+  {
+    "code": "1309 EKTN9 (Self-Aligning Tapered Bore)",
+    "field": "code",
+    "sqlite": "1309 EKTN9 (SELF-ALIGNING TAPERED BORE)",
+    "static": "1309 EKTN9 (Self-Aligning Tapered Bore)"
+  },
+  {
+    "code": "1309 EKTN9 (Self-Aligning Tapered Bore)",
+    "field": "calculationFactorE",
+    "sqlite": null,
+    "static": 0.23
+  },
+  {
+    "code": "1309 EKTN9 (Self-Aligning Tapered Bore)",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 2.7
+  },
+  {
+    "code": "1309 EKTN9 (Self-Aligning Tapered Bore)",
+    "field": "calculationFactorY0",
+    "sqlite": null,
+    "static": 2.8
+  },
+  {
+    "code": "1309 EKTN9 (Self-Aligning Tapered Bore)",
+    "field": "calculationFactorY1",
+    "sqlite": null,
+    "static": 2.7
+  },
+  {
+    "code": "1309 EKTN9 (Self-Aligning Tapered Bore)",
+    "field": "calculationFactorY2",
+    "sqlite": null,
+    "static": 4.2
+  },
+  {
+    "code": "NA 4910 (Machined Needle Roller)",
+    "field": "code",
+    "sqlite": "NA 4910 (MACHINED NEEDLE ROLLER)",
+    "static": "NA 4910 (Machined Needle Roller)"
+  },
+  {
+    "code": "NA 4910 (Machined Needle Roller)",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "23228 CC/W33 (Heavy Mining SAG Mill)",
+    "field": "code",
+    "sqlite": "23228 CC/W33 (HEAVY MINING SAG MILL)",
+    "static": "23228 CC/W33 (Heavy Mining SAG Mill)"
+  },
+  {
+    "code": "23228 CC/W33 (Heavy Mining SAG Mill)",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 1.9
+  },
+  {
+    "code": "32314 J2/Q (Heavy Crusher & Crane Wheel)",
+    "field": "code",
+    "sqlite": "32314 J2/Q (HEAVY CRUSHER & CRANE WHEEL)",
+    "static": "32314 J2/Q (Heavy Crusher & Crane Wheel)"
+  },
+  {
+    "code": "UCP 210 (50mm Heavy Duty Pillow Block)",
+    "field": "code",
+    "sqlite": "UCP 210 (50MM HEAVY DUTY PILLOW BLOCK)",
+    "static": "UCP 210 (50mm Heavy Duty Pillow Block)"
+  },
+  {
+    "code": "UCP 210 (50mm Heavy Duty Pillow Block)",
+    "field": "D",
+    "sqlite": 206,
+    "static": 114
+  },
+  {
+    "code": "TC 100-125-13 Viton / FKM Heavy Refractory",
+    "field": "code",
+    "sqlite": "TC 100-125-13 VITON / FKM HEAVY REFRACTORY",
+    "static": "TC 100-125-13 Viton / FKM Heavy Refractory"
+  },
+  {
+    "code": "TC 100-125-13 Viton / FKM Heavy Refractory",
+    "field": "crKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 100-125-13 Viton / FKM Heavy Refractory",
+    "field": "corKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 60-85-10 NBR (Dual Lip)",
+    "field": "code",
+    "sqlite": "TC 60-85-10 NBR (DUAL LIP)",
+    "static": "TC 60-85-10 NBR (Dual Lip)"
+  },
+  {
+    "code": "TC 60-85-10 NBR (Dual Lip)",
+    "field": "crKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "TC 60-85-10 NBR (Dual Lip)",
+    "field": "corKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "SKF 6311 / C3 Explorer",
+    "field": "code",
+    "sqlite": "SKF 6311 / C3 EXPLORER",
+    "static": "SKF 6311 / C3 Explorer"
+  },
+  {
+    "code": "SKF 6311 / C3 Explorer",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.1
+  },
+  {
+    "code": "SKF C 2215 K CARB® Toroidal",
+    "field": "code",
+    "sqlite": "SKF C 2215 K CARB® TOROIDAL",
+    "static": "SKF C 2215 K CARB® Toroidal"
+  },
+  {
+    "code": "SKF C 2215 K CARB® Toroidal",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "SKF SY 50 TF (Y-Bearing Unit)",
+    "field": "code",
+    "sqlite": "SKF SY 50 TF (Y-BEARING UNIT)",
+    "static": "SKF SY 50 TF (Y-Bearing Unit)"
+  },
+  {
+    "code": "SKF SY 50 TF (Y-Bearing Unit)",
+    "field": "D",
+    "sqlite": 135,
+    "static": 114
+  },
+  {
+    "code": "FAG 6312-TB-P6 Schaeffler",
+    "field": "code",
+    "sqlite": "FAG 6312-TB-P6 SCHAEFFLER",
+    "static": "FAG 6312-TB-P6 Schaeffler"
+  },
+  {
+    "code": "FAG 6312-TB-P6 Schaeffler",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.2
+  },
+  {
+    "code": "FAG 22216-E1-XL-K X-Life",
+    "field": "code",
+    "sqlite": "FAG 22216-E1-XL-K X-LIFE",
+    "static": "FAG 22216-E1-XL-K X-Life"
+  },
+  {
+    "code": "FAG 22216-E1-XL-K X-Life",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 3.1
+  },
+  {
+    "code": "FAG NJ2312-E-XL-M1A Cylindrical",
+    "field": "code",
+    "sqlite": "FAG NJ2312-E-XL-M1A CYLINDRICAL",
+    "static": "FAG NJ2312-E-XL-M1A Cylindrical"
+  },
+  {
+    "code": "FAG NJ2312-E-XL-M1A Cylindrical",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "INA NK 25/20 Heavy Needle Roller",
+    "field": "code",
+    "sqlite": "INA NK 25/20 HEAVY NEEDLE ROLLER",
+    "static": "INA NK 25/20 Heavy Needle Roller"
+  },
+  {
+    "code": "INA NK 25/20 Heavy Needle Roller",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "INA KR 35 PP Cam Follower",
+    "field": "code",
+    "sqlite": "INA KR 35 PP CAM FOLLOWER",
+    "static": "INA KR 35 PP Cam Follower"
+  },
+  {
+    "code": "INA KR 35 PP Cam Follower",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "TIMKEN 22220EMW33C3 Solid Brass",
+    "field": "code",
+    "sqlite": "TIMKEN 22220EMW33C3 SOLID BRASS",
+    "static": "TIMKEN 22220EMW33C3 Solid Brass"
+  },
+  {
+    "code": "TIMKEN 22220EMW33C3 Solid Brass",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 2.8
+  },
+  {
+    "code": "NSK 6206 DDU CM Japan",
+    "field": "code",
+    "sqlite": "NSK 6206 DDU CM JAPAN",
+    "static": "NSK 6206 DDU CM Japan"
+  },
+  {
+    "code": "NSK 6206 DDU CM Japan",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.8
+  },
+  {
+    "code": "NSK 7010 CTYNDBLP4 Super Precision",
+    "field": "code",
+    "sqlite": "NSK 7010 CTYNDBLP4 SUPER PRECISION",
+    "static": "NSK 7010 CTYNDBLP4 Super Precision"
+  },
+  {
+    "code": "NSK 7010 CTYNDBLP4 Super Precision",
+    "field": "calculationFactorE",
+    "sqlite": null,
+    "static": 0.38
+  },
+  {
+    "code": "NSK 7010 CTYNDBLP4 Super Precision",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 1.46
+  },
+  {
+    "code": "NSK 7010 CTYNDBLP4 Super Precision",
+    "field": "calculationFactorY0",
+    "sqlite": null,
+    "static": 0.46
+  },
+  {
+    "code": "NSK NU 2214 ET Cylindrical",
+    "field": "code",
+    "sqlite": "NSK NU 2214 ET CYLINDRICAL",
+    "static": "NSK NU 2214 ET Cylindrical"
+  },
+  {
+    "code": "NSK NU 2214 ET Cylindrical",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "NTN 6204 LLU / C3 Japan",
+    "field": "code",
+    "sqlite": "NTN 6204 LLU / C3 JAPAN",
+    "static": "NTN 6204 LLU / C3 Japan"
+  },
+  {
+    "code": "NTN 6204 LLU / C3 Japan",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.1
+  },
+  {
+    "code": "NTN 22214 EAKD1 ULTAGE®",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 2.9
+  },
+  {
+    "code": "NTN 5206 S Double Row",
+    "field": "code",
+    "sqlite": "NTN 5206 S DOUBLE ROW",
+    "static": "NTN 5206 S Double Row"
+  },
+  {
+    "code": "NTN 5206 S Double Row",
+    "field": "calculationFactorE",
+    "sqlite": null,
+    "static": 0.8
+  },
+  {
+    "code": "NTN 5206 S Double Row",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0.78
+  },
+  {
+    "code": "NTN 5206 S Double Row",
+    "field": "calculationFactorY0",
+    "sqlite": null,
+    "static": 0.66
+  },
+  {
+    "code": "NTN 5206 S Double Row",
+    "field": "calculationFactorY1",
+    "sqlite": null,
+    "static": 0.78
+  },
+  {
+    "code": "NTN 5206 S Double Row",
+    "field": "calculationFactorY2",
+    "sqlite": null,
+    "static": 1.24
+  },
+  {
+    "code": "KOYO 6207-2RS (JTEKT Japan)",
+    "field": "code",
+    "sqlite": "KOYO 6207-2RS (JTEKT JAPAN)",
+    "static": "KOYO 6207-2RS (JTEKT Japan)"
+  },
+  {
+    "code": "KOYO 6207-2RS (JTEKT Japan)",
+    "field": "speedOilRpm",
+    "sqlite": 8500,
+    "static": 11000
+  },
+  {
+    "code": "KOYO 6207-2RS (JTEKT Japan)",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 13.8
+  },
+  {
+    "code": "KOYO 30212 JR Tapered Roller",
+    "field": "code",
+    "sqlite": "KOYO 30212 JR TAPERED ROLLER",
+    "static": "KOYO 30212 JR Tapered Roller"
+  },
+  {
+    "code": "KOYO 22218 RHR Spherical Roller",
+    "field": "code",
+    "sqlite": "KOYO 22218 RHR SPHERICAL ROLLER",
+    "static": "KOYO 22218 RHR Spherical Roller"
+  },
+  {
+    "code": "KOYO 22218 RHR Spherical Roller",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 2.9
+  },
+  {
+    "code": "NACHI 6008-2NSE9 Quest® Japan",
+    "field": "code",
+    "sqlite": "NACHI 6008-2NSE9 QUEST® JAPAN",
+    "static": "NACHI 6008-2NSE9 Quest® Japan"
+  },
+  {
+    "code": "NACHI 6008-2NSE9 Quest® Japan",
+    "field": "calculationFactorF0",
+    "sqlite": null,
+    "static": 15.3
+  },
+  {
+    "code": "NACHI 22222 EX Quest Spherical",
+    "field": "code",
+    "sqlite": "NACHI 22222 EX QUEST SPHERICAL",
+    "static": "NACHI 22222 EX Quest Spherical"
+  },
+  {
+    "code": "NACHI 22222 EX Quest Spherical",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 2.9
+  },
+  {
+    "code": "NACHI NUP 310 EG Cylindrical",
+    "field": "code",
+    "sqlite": "NACHI NUP 310 EG CYLINDRICAL",
+    "static": "NACHI NUP 310 EG Cylindrical"
+  },
+  {
+    "code": "NACHI NUP 310 EG Cylindrical",
+    "field": "calculationFactorY",
+    "sqlite": null,
+    "static": 0
+  },
+  {
+    "code": "CORTECO 12011153B Simmerring® TC 35x52x7",
+    "field": "code",
+    "sqlite": "CORTECO 12011153B SIMMERRING® TC 35X52X7",
+    "static": "CORTECO 12011153B Simmerring® TC 35x52x7"
+  },
+  {
+    "code": "CORTECO 12011153B Simmerring® TC 35x52x7",
+    "field": "crKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "CORTECO 12011153B Simmerring® TC 35x52x7",
+    "field": "corKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "CORTECO 12012014B Viton® TC 50x72x8",
+    "field": "code",
+    "sqlite": "CORTECO 12012014B VITON® TC 50X72X8",
+    "static": "CORTECO 12012014B Viton® TC 50x72x8"
+  },
+  {
+    "code": "CORTECO 12012014B Viton® TC 50x72x8",
+    "field": "crKn",
+    "sqlite": 0,
+    "static": 0.05
+  },
+  {
+    "code": "CORTECO 12012014B Viton® TC 50x72x8",
+    "field": "corKn",
+    "sqlite": 0,
+    "static": 0.05
+  }
+]

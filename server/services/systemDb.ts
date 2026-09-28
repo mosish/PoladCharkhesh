@@ -2,6 +2,7 @@
  * POLAD CHARKHESH - SYSTEM & AUDIT DATABASE ACCESS SERVICE
  */
 
+import { randomUUID } from 'node:crypto';
 import { getDatabase, runTransaction } from '../db';
 import { productDb, rowToProduct } from './productDb';
 import { companyDb } from './companyDb';
@@ -98,7 +99,7 @@ export const systemDb = {
         INSERT INTO backup_snapshots (id, created_at, created_by, reason, snapshot_data)
         VALUES (?, ?, ?, ?, ?);
       `).run(
-        `snap_${Date.now()}`,
+        `snap_${randomUUID()}`,
         new Date().toISOString(),
         username,
         'AUTOMATIC_PRE_RESTORE_SAFEGUARD',
@@ -187,6 +188,8 @@ export const systemDb = {
     const db = getDatabase();
 
     return runTransaction(() => {
+      db.prepare('INSERT INTO backup_snapshots (id, created_at, created_by, reason, snapshot_data) VALUES (?, ?, ?, ?, ?)')
+        .run('snap_' + randomUUID(), new Date().toISOString(), username, 'AUTOMATIC_PRE_RESET_SAFEGUARD', JSON.stringify(systemDb.exportSystemSnapshot(username)));
       // 1. Clear products
       db.prepare('DELETE FROM products;').run();
 

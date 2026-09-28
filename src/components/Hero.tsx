@@ -73,6 +73,8 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
               </span>
             </h1>
 
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">{language === 'fa' ? heroContent.descriptionFa : heroContent.descriptionEn}</p>
+
             {/* Fast Search Bar (Apple Liquid Glass Input Container) */}
             <form onSubmit={handleSearch} className="relative max-w-xl mx-auto lg:mx-0">
               <div className="relative flex items-center glass-card p-1.5 rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)]">

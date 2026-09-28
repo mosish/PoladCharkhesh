@@ -1,0 +1,115 @@
+[
+  {
+    "name": "production fails before listening for missing secrets or unusable database path",
+    "status": "PASS"
+  },
+  {
+    "name": "production setup race, login, cookie flags",
+    "status": "PASS"
+  },
+  {
+    "name": "unknown API, malformed JSON, oversized upload, missing asset",
+    "status": "PASS"
+  },
+  {
+    "name": "physical upload serving, PDF isolation headers, restart persistence",
+    "status": "PASS"
+  },
+  {
+    "name": "local product asset decodability",
+    "status": "FAIL",
+    "error": "[{\"url\":\"/assets/images/bearing_6204_2rs_1787678583210.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_6308_2z_1787678597854.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_6005_open_1787678608569.webp\",\"ok\":false},{\"url\":\"/assets/images/ball_bearing_photo_1787677355061.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_30208_tapered_1787678619565.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_32210_tapered_1787678639800.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_22212_spherical_1787678650795.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_22316_spherical_1787678662094.webp\",\"ok\":false},{\"url\":\"/assets/images/spherical_bearing_photo_1787677386106.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_nu208_cylindrical_1787678672477.webp\",\"ok\":false},{\"url\":\"/assets/images/cylindrical_bearing_photo_1787677431892.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_51108_thrust_1787678727693.webp\",\"ok\":false},{\"url\":\"/assets/images/unit_ucp205_pillow_1787678692893.webp\",\"ok\":false},{\"url\":\"/assets/images/unit_ucf208_flange_1787678704716.webp\",\"ok\":false},{\"url\":\"/assets/images/housing_snl511_split_1787678749335.webp\",\"ok\":false},{\"url\":\"/assets/images/seal_tc35_nbr_1787678715667.webp\",\"ok\":false},{\"url\":\"/assets/images/seal_tc50_viton_1787678737812.webp\",\"ok\":false},{\"url\":\"/assets/images/grease_skf_lgmt2_1787678760211.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_22324_brass_1787678785316.webp\",\"ok\":false},{\"url\":\"/assets/images/tapered_bearing_photo_1787677370531.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_29420_thrust_1787678796134.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_6210_kiln_1787678818521.webp\",\"ok\":false},{\"url\":\"/assets/images/grease_mobilith_red_1787678829445.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_7312_brass_1787678774838.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_3308_doublerow_1787678851991.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_1309_align_1787678841334.webp\",\"ok\":false},{\"url\":\"/assets/images/bearing_na4910_needle_1787678806671.webp\",\"ok\":false},{\"url\":\"/assets/images/pillow_block_photo_1787677398497.webp\",\"ok\":false},{\"url\":\"/assets/images/oil_seal_photo_1787677410030.webp\",\"ok\":false}]\n\n29 !== 0\n"
+  },
+  {
+    "name": "public fa width 1440",
+    "status": "PASS"
+  },
+  {
+    "name": "public fa width 390",
+    "status": "PASS"
+  },
+  {
+    "name": "public en width 1440",
+    "status": "PASS"
+  },
+  {
+    "name": "public en width 390",
+    "status": "PASS"
+  },
+  {
+    "name": "admin route overview",
+    "status": "PASS",
+    "details": "System Overview & Database Health\n\nSummary of catalog items, ISO 281 engineering indices, and activity logs\n\nAdd New Product\nExport Backup\nTotal Catalog Items\n68\n(68 Active)\nAll items public\nEngineering Factor Coverage\n1"
+  },
+  {
+    "name": "admin route products",
+    "status": "PASS",
+    "details": "Engineering Product Catalog\n\nTotal of 68 catalog items with verified ISO specifications\n\nAdd New Product\nAll Categories\nTapered Roller\nSpherical Roller\nDeep Groove Ball\nCylindrical Roller\nThrust Bearing\nBearing Housing\nO"
+  },
+  {
+    "name": "admin route media",
+    "status": "PASS",
+    "details": "Media & Datasheet Library\n\nManage media metadata, product associations, and product galleries without destructive overwrites.\n\nLibrary\nProduct Galleries\nAll Categories\nProduct Photo\nCAD / Schematic\nDatasheet PDF\nCompany "
+  },
+  {
+    "name": "admin route inquiries",
+    "status": "PASS",
+    "details": "Customer Inquiries\n\nTriage website inquiries and track follow-up status.\n\n0 records\nAll statuses\nNew\nReviewed\nContacted\nClosed\nRefresh\nNo inquiries match these filters."
+  },
+  {
+    "name": "admin route settings",
+    "status": "PASS",
+    "details": "Website Control Center & Settings\n\nCentrally manage company profile, phone lines, working schedule and global website features\n\nSave All Changes\nCompany Identity\n\nBrand names, legal identity, address & taglines\n\nContact "
+  },
+  {
+    "name": "admin route content",
+    "status": "PASS",
+    "details": "Page Content Management (CMS)\n\nModify Hero headlines, About Us copy, and footer disclaimers dynamically\n\nHero Section\nAbout & Stats\nSite Sections\nFooter & Disclaimer\nHero Banner Texts\nTop Badge (Fa)\nTop Badge (En)\nMain T"
+  },
+  {
+    "name": "admin route seo",
+    "status": "PASS",
+    "details": "SEO & Search Engine Meta Tags\n\nConfigure page meta titles, descriptions, canonical URL, and OpenGraph tags\n\nMeta Title & Description\nMain Site Title (Fa)\nMeta Description (Fa)\nLength: 145 chars\nCanonical Domains (System "
+  },
+  {
+    "name": "admin route system",
+    "status": "PASS",
+    "details": "Security, Audit Ledger & Backups\n\nMaster password management, complete JSON snapshot backup/restore, and immutable audit logs\n\nChange Master Password\nCurrent Password:\nNew Password (min 8 chars):\nConfirm New Password:\nUp"
+  },
+  {
+    "name": "admin CMS fa width 1440",
+    "status": "PASS"
+  },
+  {
+    "name": "admin CMS fa width 390",
+    "status": "PASS"
+  },
+  {
+    "name": "admin CMS en width 1440",
+    "status": "PASS"
+  },
+  {
+    "name": "admin CMS en width 390",
+    "status": "PASS"
+  },
+  {
+    "name": "CMS editor English footer saves and invalid JSON disables save",
+    "status": "PASS"
+  },
+  {
+    "name": "nine bilingual CMS sections and SEO survive restart and render",
+    "status": "PASS"
+  },
+  {
+    "name": "ProductPage and Quick View remain accessible",
+    "status": "PASS"
+  },
+  {
+    "name": "production does not display seeded CMS when content API fails",
+    "status": "PASS"
+  },
+  {
+    "name": "no uncaught browser exceptions",
+    "status": "PASS"
+  }
+]
