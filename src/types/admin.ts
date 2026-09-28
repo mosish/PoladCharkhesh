@@ -389,6 +389,8 @@ export interface DatasetSnapshot {
   companyInfo: CompanyContactInfo;
   pageContent: CmsPageContent;
   seoConfig: SiteSeoConfig;
+  media: MediaMetadata[];
+  inquiries: InquiryLog[];
   auditLogsCount: number;
   inquiriesCount?: number;
 }
