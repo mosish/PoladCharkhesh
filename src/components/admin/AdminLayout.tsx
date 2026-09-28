@@ -93,7 +93,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
                   {language === 'fa' ? 'پنل مدیریت پولاد چرخِش' : 'Polad Charkhesh Admin'}
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">
-                  v2.0 • Data Management Engine
+                  {language === 'fa' ? 'مدیریت وب‌سایت' : 'Website administration'}
                 </span>
               </div>
             </div>

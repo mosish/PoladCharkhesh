@@ -28,7 +28,282 @@ const names: Record<string, [string, string]> = {
   nav: ['منوی سایت', 'Navigation'], teamMembers: ['اعضای تیم', 'Team members'],
   industryApplications: ['کارت‌های صنایع', 'Industry cards'], brands: ['برندها', 'Brands'],
 };
-const title = (key: string, fa: boolean) => names[key]?.[fa ? 0 : 1] ?? key.replace(/([a-z])([A-Z])/g, '$1 $2');
+Object.assign(names, {
+  "description": [
+    "توضیحات",
+    "Description"
+  ],
+  "titleHighlight": [
+    "بخش برجسته عنوان",
+    "Highlighted title"
+  ],
+  "titleSuffix": [
+    "ادامه عنوان",
+    "Title continuation"
+  ],
+  "searchPlaceholder": [
+    "راهنمای جستجو",
+    "Search placeholder"
+  ],
+  "paragraph1": [
+    "پاراگراف اول",
+    "First paragraph"
+  ],
+  "paragraph2": [
+    "پاراگراف دوم",
+    "Second paragraph"
+  ],
+  "value": [
+    "مقدار",
+    "Value"
+  ],
+  "label": [
+    "برچسب",
+    "Label"
+  ],
+  "copyright": [
+    "حقوق نشر",
+    "Copyright"
+  ],
+  "disclaimer": [
+    "توضیح حقوقی",
+    "Disclaimer"
+  ],
+  "searchAction": [
+    "دکمه جستجو",
+    "Search action"
+  ],
+  "quickSpecs": [
+    "دکمه کاتالوگ",
+    "Catalog action"
+  ],
+  "contactQuick": [
+    "دکمه تماس",
+    "Contact action"
+  ],
+  "experienceNum": [
+    "تعداد سال تجربه",
+    "Experience value"
+  ],
+  "experienceLabel": [
+    "شرح تجربه",
+    "Experience label"
+  ],
+  "inventoryNum": [
+    "تعداد موجودی",
+    "Inventory value"
+  ],
+  "inventoryLabel": [
+    "شرح موجودی",
+    "Inventory label"
+  ],
+  "authenticityNum": [
+    "میزان اصالت",
+    "Authenticity value"
+  ],
+  "authenticityLabel": [
+    "شرح اصالت",
+    "Authenticity label"
+  ],
+  "dispatchNum": [
+    "زمان ارسال",
+    "Dispatch value"
+  ],
+  "dispatchLabel": [
+    "شرح ارسال",
+    "Dispatch label"
+  ],
+  "brandsTitle": [
+    "عنوان برندها",
+    "Brands heading"
+  ],
+  "missionTitle": [
+    "عنوان مأموریت",
+    "Mission title"
+  ],
+  "missionText": [
+    "متن مأموریت",
+    "Mission text"
+  ],
+  "visionTitle": [
+    "عنوان چشم‌انداز",
+    "Vision title"
+  ],
+  "visionText": [
+    "متن چشم‌انداز",
+    "Vision text"
+  ],
+  "recommendedCodes": [
+    "عنوان کدهای پیشنهادی",
+    "Recommended codes label"
+  ],
+  "expLabel": [
+    "عنوان تجربه",
+    "Experience label"
+  ],
+  "specLabel": [
+    "عنوان تخصص",
+    "Specialty label"
+  ],
+  "chatWhatsapp": [
+    "دکمه واتس‌اپ",
+    "WhatsApp action"
+  ],
+  "infoTitle": [
+    "عنوان اطلاعات تماس",
+    "Contact information title"
+  ],
+  "warehouseTitle": [
+    "عنوان دفتر و انبار",
+    "Office title"
+  ],
+  "form": [
+    "فرم استعلام",
+    "Inquiry form"
+  ],
+  "map": [
+    "نقشه",
+    "Map"
+  ],
+  "openMap": [
+    "دکمه نقشه",
+    "Map action"
+  ],
+  "consultationTitle": [
+    "عنوان مشاوره",
+    "Consultation title"
+  ],
+  "consultationDescription": [
+    "شرح مشاوره",
+    "Consultation description"
+  ],
+  "company": [
+    "شرکت",
+    "Company"
+  ],
+  "namePlaceholder": [
+    "راهنمای نام",
+    "Name placeholder"
+  ],
+  "companyPlaceholder": [
+    "راهنمای شرکت",
+    "Company placeholder"
+  ],
+  "phonePlaceholder": [
+    "راهنمای تلفن",
+    "Phone placeholder"
+  ],
+  "emailPlaceholder": [
+    "راهنمای ایمیل",
+    "Email placeholder"
+  ],
+  "partList": [
+    "عنوان درخواست",
+    "Inquiry label"
+  ],
+  "partListPlaceholder": [
+    "راهنمای درخواست",
+    "Inquiry placeholder"
+  ],
+  "urgency": [
+    "فوریت",
+    "Urgency"
+  ],
+  "urgencies": [
+    "گزینه‌های فوریت",
+    "Urgency options"
+  ],
+  "urgent": [
+    "فوری",
+    "Urgent"
+  ],
+  "normal": [
+    "عادی",
+    "Normal"
+  ],
+  "quoteOnly": [
+    "مشاوره",
+    "Consultation"
+  ],
+  "submitBtn": [
+    "دکمه ارسال",
+    "Submit action"
+  ],
+  "submitWhatsapp": [
+    "ارسال با واتس‌اپ",
+    "WhatsApp submission"
+  ],
+  "sendAnother": [
+    "پیام جدید",
+    "New message"
+  ],
+  "successTitle": [
+    "عنوان موفقیت",
+    "Success title"
+  ],
+  "successMsg": [
+    "پیام موفقیت",
+    "Success message"
+  ],
+  "alertMissing": [
+    "پیام فیلدهای ناقص",
+    "Missing fields message"
+  ],
+  "topBannerTitle": [
+    "عنوان نوار ضمانت",
+    "Guarantee banner"
+  ],
+  "quickLinks": [
+    "عنوان پیوندها",
+    "Quick links title"
+  ],
+  "popularProducts": [
+    "عنوان محصولات پرکاربرد",
+    "Popular products title"
+  ],
+  "popularDesc": [
+    "شرح محصولات پرکاربرد",
+    "Popular products description"
+  ],
+  "brandsLine1": [
+    "معرفی برندها",
+    "Brand line one"
+  ],
+  "brandsLine2": [
+    "توضیح توزیع برندها",
+    "Brand line two"
+  ],
+  "certifications": [
+    "عنوان استانداردها",
+    "Certifications title"
+  ],
+  "certText": [
+    "متن استانداردها",
+    "Certifications text"
+  ],
+  "designedFor": [
+    "توضیح پایانی",
+    "Closing text"
+  ],
+  "home": [
+    "صفحه اصلی",
+    "Home"
+  ],
+  "products": [
+    "محصولات",
+    "Products"
+  ],
+  "callAction": [
+    "دکمه تماس",
+    "Call action"
+  ]
+});
+const title = (key: string, fa: boolean): string => {
+  if (names[key]) return names[key][fa ? 0 : 1];
+  const suffix = key.match(/(Fa|En)$/);
+  if (suffix) return title(key.slice(0,-2), fa) + ' · ' + (suffix[1] === 'Fa' ? (fa ? 'فارسی' : 'Persian') : (fa ? 'انگلیسی' : 'English'));
+  return key.replace(/([a-z])([A-Z])/g, '$1 $2');
+};
 function blank(value: any): any {
   if (Array.isArray(value)) return [];
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, k === 'id' ? crypto.randomUUID() : blank(v)]));

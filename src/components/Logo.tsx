@@ -1,4 +1,5 @@
 import React from 'react';
+import { useCompanyInfo } from '../services/dataService';
 
 interface LogoProps {
   variant?: 'emblem' | 'full' | 'horizontal' | 'vertical';
@@ -15,6 +16,9 @@ export const Logo: React.FC<LogoProps> = ({
   isDark = false,
   language = 'fa',
 }) => {
+  const company = useCompanyInfo();
+  const companyName = language === 'fa' ? company.nameFa : company.nameEn;
+  const slogan = language === 'fa' ? company.sloganFa : company.sloganEn;
   // Dimension mapping
   const sizeMap = {
     xs: { icon: 28, text: 'text-sm', sub: 'text-[9px]' },
@@ -136,10 +140,10 @@ export const Logo: React.FC<LogoProps> = ({
         {renderEmblemSvg(currentSize.icon * 1.4)}
         <div className="flex flex-col items-center">
           <span className={`font-black tracking-tight leading-tight text-slate-900 dark:text-white ${currentSize.text}`}>
-            {language === 'fa' ? 'پولاد چرخِش آرین تک' : 'PoladCharkhesh Arian Tak'}
+            {companyName}
           </span>
           <span className={`font-bold tracking-wider text-amber-600 dark:text-amber-400 uppercase ${currentSize.sub}`}>
-            {language === 'fa' ? 'تأمین تخصصی بلبرینگ و کاسه نمد صنعتی' : 'Industrial Bearings & Sealing Solutions'}
+            {slogan}
           </span>
         </div>
       </div>
@@ -151,14 +155,14 @@ export const Logo: React.FC<LogoProps> = ({
     <div className={`inline-flex items-center gap-3 ${className}`}>
       {renderEmblemSvg(currentSize.icon)}
       
-      <div className="flex flex-col text-start justify-center">
-        <div className="flex items-center gap-1.5">
-          <span className={`font-black tracking-tight leading-tight text-slate-900 dark:text-white font-mono-spec ${currentSize.text}`}>
-            {language === 'fa' ? 'پولاد چرخِش آرین تک' : 'PoladCharkhesh'}
+      <div className="min-w-0 flex flex-col text-start justify-center">
+        <div className="min-w-0 flex items-center gap-1.5">
+          <span className={`font-black tracking-tight leading-tight text-slate-900 dark:text-white ${language === 'en' ? 'font-mono-spec' : ''} ${currentSize.text}`}>
+            {companyName}
           </span>
         </div>
         <span className={`font-bold tracking-wider text-[#232c86] dark:text-blue-400 block uppercase ${currentSize.sub}`}>
-          {language === 'fa' ? 'بلبرینگ، رولبرینگ و کاسه نمد صنعتی' : 'Arian Tak Bearings & Seals'}
+          {slogan}
         </span>
       </div>
     </div>

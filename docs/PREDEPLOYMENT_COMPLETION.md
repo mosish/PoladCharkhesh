@@ -8,7 +8,7 @@ Branch: codex/predeployment-completion. No deployment or merge is part of this c
 | Public area | Editable authority |
 | --- | --- |
 | Navigation labels | CMS → Navigation |
-| Company identity, announcement, phones, hours, addresses, WhatsApp | Existing Company/Website Settings |
+| Company identity (including logo text), announcement, phones, hours, addresses, WhatsApp | Existing Company/Website Settings |
 | Hero headings, introduction, search copy, statistics, brands | CMS → Hero / Brands |
 | About paragraphs, mission, vision, benefits and statistics | CMS → About |
 | Catalog introduction | CMS → Catalog introduction |
@@ -70,6 +70,6 @@ CI workflow: .github/workflows/predeployment.yml. Consult the PR's latest run fo
 
 ## Existing asset issue requiring original photos before launch
 
-Visual QA found corrupted WebP files already present on the base branch. The first repository commit also contains the corrupted bytes, so Git history cannot recover an authentic original for the sampled file. The browser suite writes `test-results/asset-health.json` with per-file decode results and emits a separate baseline-asset warning. A green functional test run is **not** a clean asset audit.
+Visual QA found all 29 catalog WebP files already corrupted on the base branch. The first repository commit also contains the corrupted bytes, so Git history cannot recover an authentic original for the sampled file. The browser suite writes `test-results/asset-health.json` with per-file decode results and emits a separate baseline-asset warning. A green functional test run is **not** a clean asset audit.
 
 Original files and product associations are retained. Public galleries keep CAD and show a localized unavailable-image state; the Media Library now shows an explicit thumbnail failure instead of a broken image icon. Replace failed files using approved originals: upload, attach to the appropriate product, set primary/reorder, then detach the old reference. The new library supports this without deleting originals or changing engineering data. No substitute technical photography was invented.

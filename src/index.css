@@ -388,3 +388,11 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .glass-card:hover { transform: none; }
 }
+
+/* Keep the configured company identity readable without expanding the mobile header. */
+.nav-brand { max-width: min(17rem, calc(100vw - 7rem)); }
+.nav-brand > div { min-width: 0; }
+.nav-brand > div > div > span { overflow-wrap: anywhere; font-size: clamp(.9rem, 3.8vw, 1.125rem); }
+.nav-brand > div > span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.5; letter-spacing: 0; }
+@media (min-width: 640px) { .nav-brand { max-width: 17rem; } }
+@media (max-width: 520px) { .admin-shell header > div { gap: .6rem; } .admin-shell header > div > div { min-width: 0; gap: .5rem; } }
