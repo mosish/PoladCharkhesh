@@ -11,6 +11,8 @@ import { bearingProducts as canonicalProducts } from '../../src/data/products';
 import { COMPANY_INFO as canonicalCompanyInfo } from '../../src/data/company';
 import { DEFAULT_PAGE_CONTENT } from './contentDb';
 import { DEFAULT_SEO_CONFIG } from './seoDb';
+import { mediaDb } from './mediaDb';
+import { inquiryDb } from './inquiryDb';
 
 export const systemDb = {
   getAuditLogs(limit = 200, entity?: string | null, action?: string | null): any[] {
@@ -58,18 +60,22 @@ export const systemDb = {
     const companyInfo = companyDb.getCompanyInfo();
     const pageContent = contentDb.getPageContent();
     const seoConfig = seoDb.getSeoConfig();
+    const media = mediaDb.getMediaList();
+    const inquiries = inquiryDb.getInquiries();
 
     const auditCountRow = db.prepare('SELECT COUNT(*) as c FROM audit_logs;').get() as any;
     const inqCountRow = db.prepare('SELECT COUNT(*) as c FROM inquiries;').get() as any;
 
     return {
-      version: '2.0.0',
+      version: '2.1.0',
       exportedAt: new Date().toISOString(),
       exportedBy: username,
       products,
       companyInfo,
       pageContent,
       seoConfig,
+      media,
+      inquiries,
       auditLogsCount: Number(auditCountRow.c),
       inquiriesCount: Number(inqCountRow.c),
     };
@@ -80,12 +86,12 @@ export const systemDb = {
     const currentProducts = productDb.getAllProducts(true);
 
     return runTransaction(() => {
-      // 1. Take pre-restore safety snapshot
+      // 1. Take pre-restore safety snapshot of all restorable business data.
+      // Authentication credentials and active sessions are intentionally excluded.
       const safetySnapshot = {
+        ...systemDb.exportSystemSnapshot(username),
         timestamp: new Date().toISOString(),
         initiatedBy: username,
-        productsCount: currentProducts.length,
-        products: currentProducts,
       };
 
       db.prepare(`
@@ -120,6 +126,55 @@ export const systemDb = {
       // 6. Restore seo config if present
       if (snapshot.seoConfig) {
         seoDb.updateSeoConfig(snapshot.seoConfig, username);
+      }
+
+      // 7. Restore media metadata library.
+      if (Array.isArray(snapshot.media)) {
+        db.prepare('DELETE FROM media_metadata;').run();
+        const mediaInsert = db.prepare(`
+          INSERT INTO media_metadata (
+            id, filename, original_name, mime_type, size_bytes, url, created_at, created_by,
+            alt_text_fa, alt_text_en, category, associated_product_codes
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `);
+        for (const item of snapshot.media) {
+          mediaInsert.run(
+            item.id,
+            item.filename,
+            item.originalName,
+            item.mimeType,
+            Number(item.sizeBytes) || 0,
+            item.url,
+            item.createdAt || new Date().toISOString(),
+            item.createdBy || username,
+            item.altTextFa || null,
+            item.altTextEn || null,
+            item.category || null,
+            JSON.stringify(item.associatedProductCodes || [])
+          );
+        }
+      }
+
+      // 8. Restore customer inquiries with original ids, timestamps and triage state.
+      if (Array.isArray(snapshot.inquiries)) {
+        db.prepare('DELETE FROM inquiries;').run();
+        const inquiryInsert = db.prepare(`
+          INSERT INTO inquiries (id, timestamp, full_name, phone, message, company, email, status, ip_address)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `);
+        for (const item of snapshot.inquiries) {
+          inquiryInsert.run(
+            item.id,
+            item.timestamp,
+            item.fullName,
+            item.phone,
+            item.message,
+            item.company || null,
+            item.email || null,
+            item.status || 'new',
+            item.ipAddress || null
+          );
+        }
       }
 
       return {
