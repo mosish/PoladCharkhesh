@@ -151,6 +151,9 @@ export const systemDb = {
         } else {
           mediaDb.createMediaRecord({ originalName: item.originalName, mimeType: item.mimeType, sizeBytes: item.sizeBytes, url: item.url, altTextFa: item.altTextFa ?? '', altTextEn: item.altTextEn ?? '', category: item.category }, username);
         }
+        const restored = db.prepare('SELECT id FROM media_metadata WHERE url=?').get(item.url) as any;
+        const archived = Boolean(item.isArchived) && mediaDb.getReferences(item.url).length === 0;
+        db.prepare('UPDATE media_metadata SET is_archived=? WHERE id=?').run(archived ? 1 : 0, restored.id);
       }
       return {
         restoredProductsCount: snapshot.products.length,

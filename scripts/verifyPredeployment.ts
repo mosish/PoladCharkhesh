@@ -13,6 +13,7 @@ const { getDatabase, initSchema } = await import('../server/db');
 const { seedDatabase } = await import('../server/scripts/seedDb');
 const { contentDb } = await import('../server/services/contentDb');
 const { mediaDb } = await import('../server/services/mediaDb');
+const { systemDb } = await import('../server/services/systemDb');
 const { validateContentPayload, validateMediaPayload } = await import('../server/validation');
 const { hashPassword } = await import('../server/auth');
 const { CONFIG } = await import('../server/config');
@@ -78,6 +79,20 @@ const metadata = mediaDb.updateMetadata(image.id, { revision, altTextFa: 'جدی
 assert.equal(metadata.altTextEn, '');
 assert.throws(() => mediaDb.updateMetadata(image.id, { revision, altTextEn: 'stale' }), /Media changed/);
 assert.ok(mediaDb.getMediaList('datasheet_pdf').every(asset => asset.category === 'datasheet_pdf'));
+
+// Backups include metadata and content; older backups retain the existing library.
+const backup = systemDb.exportSystemSnapshot('test');
+assert.ok(backup.media.some((item: any) => item.id === image.id));
+assert.equal(backup.pageContent.copy.whyUs.title.en, '');
+contentDb.updatePageContent({ hero: { ...original.hero, titleSuffixEn: 'Changed after backup' } }, 'test');
+systemDb.restoreSystemSnapshot(backup, 'test');
+assert.equal(contentDb.getPageContent().hero.titleSuffixEn, backup.pageContent.hero.titleSuffixEn);
+assert.equal(mediaDb.getMediaById(image.id)!.altTextFa, 'جدید');
+assert.equal(technicalSnapshot(), technicalBefore);
+const olderBackup = { ...backup }; delete olderBackup.media;
+systemDb.restoreSystemSnapshot(olderBackup, 'test');
+assert.ok(mediaDb.getMediaById(image.id));
+assert.ok((db.prepare('SELECT snapshot_data FROM backup_snapshots ORDER BY created_at DESC LIMIT 1').get() as any).snapshot_data.includes('"media"'));
 
 // Real HTTP and authentication boundary; no mocked database or fake API success.
 const app = express();

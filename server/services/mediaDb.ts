@@ -32,6 +32,7 @@ function fromRow(row: any): MediaMetadata {
     }).map(product => product.code) };
 }
 export const mediaDb = {
+  getReferences(url: string): string[] { return references(url); },
   getMediaList(category?: string, includeArchived = false): MediaMetadata[] {
     this.indexProductAssets();
     const rows = getDatabase().prepare('SELECT * FROM media_metadata ORDER BY created_at DESC').all() as any[];
