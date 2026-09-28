@@ -296,7 +296,7 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
                   <Download className="w-4 h-4 text-indigo-400 group-hover:translate-y-0.5 transition-transform" />
                   <span>{isFa ? 'دانلود نسخه پشتیبان کامل (JSON)' : 'Download Snapshot (.JSON)'}</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">68+ items</span>
+                <span className="text-[10px] text-slate-400 font-mono">JSON</span>
               </button>
 
               {/* Import File Input */}
@@ -320,7 +320,7 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
               >
                 <div className="flex items-center gap-2.5">
                   <RotateCcw className="w-4 h-4 text-rose-400" />
-                  <span>{isFa ? 'بازنشانی کاتالوگ به ۶۸ محصول اصلی' : 'Reset to Canonical 68 Products'}</span>
+                  <span>{isFa ? 'بازنشانی کاتالوگ به داده مرجع بازیابی' : 'Reset Catalog to Recovery Seed'}</span>
                 </div>
               </button>
 
@@ -346,14 +346,22 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ language }) => {
                   className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none"
                 >
                   <option value="ALL">{isFa ? 'همه رویدادها' : 'All Actions'}</option>
-                  <option value="PRODUCT_UPDATE">PRODUCT_UPDATE</option>
-                  <option value="PRODUCT_CREATE">PRODUCT_CREATE</option>
-                  <option value="PRODUCT_DELETE">PRODUCT_DELETE</option>
-                  <option value="AUTH_LOGIN">AUTH_LOGIN</option>
-                  <option value="PASSWORD_CHANGE">PASSWORD_CHANGE</option>
-                  <option value="COMPANY_UPDATE">COMPANY_UPDATE</option>
-                  <option value="CONTENT_UPDATE">CONTENT_UPDATE</option>
-                  <option value="SEO_UPDATE">SEO_UPDATE</option>
+                  <option value="LOGIN">LOGIN</option>
+                  <option value="FAILED_LOGIN">FAILED_LOGIN</option>
+                  <option value="PASSWORD_CHANGED">PASSWORD_CHANGED</option>
+                  <option value="PRODUCT_CREATED">PRODUCT_CREATED</option>
+                  <option value="PRODUCT_UPDATED">PRODUCT_UPDATED</option>
+                  <option value="PRODUCT_ARCHIVED">PRODUCT_ARCHIVED</option>
+                  <option value="PRODUCT_RESTORED">PRODUCT_RESTORED</option>
+                  <option value="PRODUCT_DELETED">PRODUCT_DELETED</option>
+                  <option value="COMPANY_UPDATED">COMPANY_UPDATED</option>
+                  <option value="CONTENT_UPDATED">CONTENT_UPDATED</option>
+                  <option value="SEO_UPDATED">SEO_UPDATED</option>
+                  <option value="MEDIA_UPDATED">MEDIA_UPDATED</option>
+                  <option value="INQUIRY_STATUS_UPDATED">INQUIRY_STATUS_UPDATED</option>
+                  <option value="BACKUP_EXPORTED">BACKUP_EXPORTED</option>
+                  <option value="BACKUP_IMPORTED">BACKUP_IMPORTED</option>
+                  <option value="SYSTEM_RESET">SYSTEM_RESET</option>
                 </select>
               </div>
             </div>
