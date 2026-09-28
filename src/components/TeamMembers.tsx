@@ -1,3 +1,6 @@
+import { useMediaMetadata } from '../services/mediaService';
+import { usePageContent } from '../services/dataService';
+import { useSiteCopy } from '../services/useSiteCopy';
 import React from 'react';
 import { Language } from '../types';
 import { translations, teamMembers } from '../data/translations';
@@ -12,7 +15,9 @@ interface TeamMembersProps {
 }
 
 export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
-  const t = translations[language];
+  const t = useSiteCopy(language);
+  const { copy } = usePageContent();
+  const media = useMediaMetadata();
 
   return (
     <section id="team" className="py-16 sm:py-24 relative">
@@ -34,20 +39,20 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
 
         {/* Team Grid (Apple Liquid Glass Cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {teamMembers.map((member) => (
+          {copy.teamMembers.map((member) => (
             <div
               key={member.id}
               className="glass-card rounded-3xl overflow-hidden flex flex-col justify-between group"
             >
               {/* Photo & Badge */}
               <div className="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                <img
+                {member.image && <img
                   src={member.image}
-                  alt={language === 'fa' ? member.nameFa : member.nameEn}
+                  alt={(language === 'fa' ? media.find(asset => asset.url === member.image)?.altTextFa : media.find(asset => asset.url === member.image)?.altTextEn) || (language === 'fa' ? member.nameFa : member.nameEn)}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                   referrerPolicy="no-referrer"
-                />
+                />}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 text-white">
                   <h3 className="font-bold text-sm sm:text-base">
@@ -64,21 +69,21 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
                 <div className="space-y-2">
                   <div className="text-xs text-slate-600 leading-relaxed font-normal">
                     <strong className="text-slate-900 block mb-0.5 font-semibold">
-                      {language === 'fa' ? 'سابقه و تجربه:' : 'Experience:'}
+                      {t.team.expLabel}
                     </strong>
                     {language === 'fa' ? member.experienceFa : member.experienceEn}
                   </div>
 
                   <div className="text-xs text-slate-500 pt-2.5 border-t border-slate-200/60 font-normal">
                     <strong className="text-[#232c86] block mb-0.5 font-semibold">
-                      {language === 'fa' ? 'تخصص کلیدی:' : 'Key Specialty:'}
+                      {t.team.specLabel}
                     </strong>
                     {language === 'fa' ? member.specialtyFa : member.specialtyEn}
                   </div>
                 </div>
 
                 {/* Direct Contact Button */}
-                <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                {member.phone && <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
                   <a
                     href={`tel:${member.phone}`}
                     className="flex items-center gap-1.5 text-slate-700 hover:text-[#232c86] font-mono-spec font-semibold glass-pill px-2.5 py-1 rounded-full shadow-sm"
@@ -87,15 +92,16 @@ export const TeamMembers: React.FC<TeamMembersProps> = ({ language }) => {
                     <span>{member.phone}</span>
                   </a>
                   <a
-                    href={`https://wa.me/98${member.phone?.startsWith('0') ? member.phone.slice(1) : member.phone}`}
+                    href={`https://wa.me/${member.phone.replace(/\D/g, '').replace(/^0/, '98')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-full bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors shadow-sm"
-                    title={language === 'fa' ? 'گفتگو در واتس‌اپ' : 'Chat on WhatsApp'}
+                    title={t.team.chatWhatsapp}
                   >
                     <MessageSquare className="w-4 h-4" />
                   </a>
-                </div>
+                </div>}
+                {member.email && <a href={'mailto:' + member.email} className="text-xs text-[#232c86] break-all" dir="ltr">{member.email}</a>}
               </div>
 
             </div>

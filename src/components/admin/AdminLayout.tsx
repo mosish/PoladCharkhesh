@@ -53,7 +53,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
   const navItems: Array<{ id: AdminTab; labelFa: string; labelEn: string; icon: React.ComponentType<{ className?: string }> }> = [
     { id: 'overview', labelFa: 'داشبورد و وضعیت', labelEn: 'Overview & Status', icon: LayoutDashboard },
-    { id: 'products', labelFa: 'مدیریت محصولات (۶۸+)', labelEn: 'Product Catalog', icon: Package },
+    { id: 'products', labelFa: 'مدیریت محصولات', labelEn: 'Product Catalog', icon: Package },
     { id: 'media', labelFa: 'رسانه و تصاویر', labelEn: 'Media & Images', icon: Image },
     { id: 'settings', labelFa: 'تنظیمات وب‌سایت (Settings)', labelEn: 'Website Settings', icon: SlidersHorizontal },
     { id: 'content', labelFa: 'محتوای متنی سایت (CMS)', labelEn: 'Page Content (CMS)', icon: FileText },
@@ -68,7 +68,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-[#232c86] selection:text-white" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+    <div className="admin-shell min-h-screen bg-slate-900 text-slate-100 flex flex-col selection:bg-[#232c86] selection:text-white" dir={language === 'fa' ? 'rtl' : 'ltr'}>
       
       {/* Top App Bar */}
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 py-3">
@@ -93,7 +93,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
                   {language === 'fa' ? 'پنل مدیریت پولاد چرخِش' : 'Polad Charkhesh Admin'}
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">
-                  v2.0 • Data Management Engine
+                  {language === 'fa' ? 'مدیریت وب‌سایت' : 'Website administration'}
                 </span>
               </div>
             </div>

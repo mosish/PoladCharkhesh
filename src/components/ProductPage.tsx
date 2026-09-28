@@ -1,3 +1,4 @@
+import { ProductDocuments } from './ProductDocuments';
 import React, { useState } from 'react';
 import { 
   BearingProduct, 
@@ -123,6 +124,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({
               className="h-72 sm:h-96" 
               showLabels={true} 
             />
+              <ProductDocuments product={product} language={language} />
           </div>
 
           {/* Quick ISO Dimension Cards */}

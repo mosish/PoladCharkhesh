@@ -3,7 +3,7 @@
  */
 
 import { getDatabase } from '../db';
-import { DEFAULT_SEO_CONFIG } from '../../src/services/dataService';
+import { DEFAULT_SEO_CONFIG } from '../../src/data/contentDefaults';
 import { SiteSeoConfig } from '../../src/types/admin';
 
 export { DEFAULT_SEO_CONFIG };

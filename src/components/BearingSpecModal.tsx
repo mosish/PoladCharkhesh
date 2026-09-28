@@ -1,3 +1,4 @@
+import { ProductDocuments } from './ProductDocuments';
 import React, { useState, useEffect } from 'react';
 import { BearingProduct, Language } from '../types';
 import { translations } from '../data/translations';
@@ -41,8 +42,8 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
         onClose();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [onClose]);
 
   // Body scroll lock while modal is open
@@ -63,6 +64,23 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
       return () => clearTimeout(timer);
     }
   }, [product?.id]);
+
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    const dialog = document.getElementById(isLoading ? 'bearing-spec-modal-skeleton-card' : 'bearing-spec-modal-card');
+    const selector = 'button:not([disabled]), a[href], input, select, textarea, [tabindex="0"]';
+    const first = dialog?.querySelector<HTMLElement>(selector);
+    first?.focus();
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab' || !dialog) return;
+      const targets = [...dialog.querySelectorAll<HTMLElement>(selector)];
+      const firstTarget = targets[0]; const lastTarget = targets[targets.length - 1];
+      if (event.shiftKey && document.activeElement === firstTarget) { event.preventDefault(); lastTarget?.focus(); }
+      else if (!event.shiftKey && document.activeElement === lastTarget) { event.preventDefault(); firstTarget?.focus(); }
+    };
+    window.addEventListener('keydown', trapFocus, true);
+    return () => { window.removeEventListener('keydown', trapFocus, true); previous?.focus(); };
+  }, [isLoading]);
 
   if (!product) return null;
 
@@ -103,6 +121,7 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
     >
       <div 
         id="bearing-spec-modal-card"
+        role="dialog" aria-modal="true" aria-label={product.code}
         className="relative w-full max-w-4xl max-h-[92vh] glass-card rounded-3xl shadow-2xl overflow-y-auto bg-white/95 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -149,6 +168,7 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
                 className="h-56 sm:h-64" 
                 showLabels={true} 
               />
+              <ProductDocuments product={product} language={language} />
               <div className="mt-2 text-center text-xs text-slate-400 font-mono-spec">
                 {t.specModal.standardCode}
               </div>

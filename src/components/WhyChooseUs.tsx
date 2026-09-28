@@ -1,3 +1,4 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
@@ -17,7 +18,7 @@ interface WhyChooseUsProps {
 }
 
 export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ language }) => {
-  const t = translations[language];
+  const t = useSiteCopy(language);
 
   const icons = [
     <ShieldCheck className="w-5 h-5 text-[#232c86]" key="0" />,
@@ -52,7 +53,7 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ language }) => {
             >
               <div>
                 <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/10 w-fit mb-5 shadow-sm group-hover:scale-105 transition-transform">
-                  {icons[idx]}
+                  {icons[idx % icons.length]}
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2.5">
                   {card.title}
@@ -64,7 +65,7 @@ export const WhyChooseUs: React.FC<WhyChooseUsProps> = ({ language }) => {
 
               <div className="pt-5 mt-5 border-t border-slate-200/60 flex items-center gap-2 text-xs font-semibold text-[#232c86]">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>{language === 'fa' ? 'تعهد قطعی بازرگانی پولاد چرخِش' : 'PoladCharkhesh Quality Commitment'}</span>
+                <span>{t.whyUs.badge}</span>
               </div>
             </div>
           ))}

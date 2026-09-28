@@ -1,3 +1,4 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
@@ -26,7 +27,7 @@ export const Footer: React.FC<FooterProps> = ({
 }) => {
   const company = useCompanyInfo();
   const pageContent = usePageContent();
-  const t = translations[language];
+  const t = useSiteCopy(language);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -39,18 +40,7 @@ export const Footer: React.FC<FooterProps> = ({
     }
   };
 
-  const popularCodes = [
-    '6204-2RS',
-    '6308-2Z',
-    '30208',
-    '32210',
-    '22212 EK',
-    '22316 CC',
-    'NU 208 ECP',
-    'UCP 205',
-    'UCF 208',
-    'TC 35-52-10',
-  ];
+  const popularCodes = pageContent.copy.footer.popularCodes;
 
   return (
     <footer className="bg-slate-950 text-slate-400 border-t border-slate-800 text-xs">
@@ -63,9 +53,7 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
             <div>
               <span className="text-sm font-bold text-white block">
-                {language === 'fa' 
-                  ? 'تضمین ۱۰۰٪ اصالت و ارائه برگه‌های بازرسی معتبر بین‌المللی' 
-                  : '100% Authenticity Guarantee with International QC Inspection'}
+                {t.footer.topBannerTitle}
               </span>
               <span className="text-slate-500 text-[11px]">
                 {t.footer.certText}
@@ -154,9 +142,7 @@ export const Footer: React.FC<FooterProps> = ({
               {t.footer.popularProducts}
             </h4>
             <p className="text-[11px] text-slate-500">
-              {language === 'fa' 
-                ? 'کلیک روی هر کد جهت فیلتر و مشاهده مشخصات فنی در کاتالوگ:' 
-                : 'Click any code to filter technical specifications:'}
+              {t.footer.popularDesc}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {popularCodes.map((code) => (
@@ -175,18 +161,19 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <div className="pt-4 text-[11px] text-slate-500 space-y-1">
-              <div>{language === 'fa' ? 'برندها: SKF Sweden • FAG Germany • TIMKEN USA • NSK Japan' : 'Brands: SKF Sweden • FAG Germany • TIMKEN USA • NSK Japan'}</div>
-              <div>{language === 'fa' ? 'تأمین و توزیع تخصصی انواع بیرینگ صنعتی با تضمین اصالت فیزیکی' : 'Specialized supply of industrial bearings with genuine physical guarantee'}</div>
+              <div>{t.footer.brandsLine1}</div>
+              <div>{t.footer.brandsLine2}</div>
             </div>
           </div>
 
         </div>
       </div>
 
+      <p className="max-w-7xl mx-auto px-6 pb-6 text-slate-400 leading-relaxed">{language === 'fa' ? pageContent.footer.disclaimerFa : pageContent.footer.disclaimerEn}</p>
       {/* Bottom Copyright */}
       <div className="border-t border-slate-900 py-6 bg-slate-950 text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-start">
-          <p>{t.footer.allRights}</p>
+          <p>{language === 'fa' ? pageContent.footer.copyrightFa : pageContent.footer.copyrightEn}</p>
           <div className="flex items-center gap-4">
             <p className="font-mono-spec text-[11px]">{t.footer.designedFor}</p>
             <a

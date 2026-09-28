@@ -1,3 +1,4 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React, { useState, useEffect } from 'react';
 import { 
   Phone, 
@@ -31,7 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const company = useCompanyInfo();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const t = translations[language];
+  const t = useSiteCopy(language);
 
   const handleNavLinkClick = (e: React.MouseEvent, href: string) => {
     if (onNavigateSection) {
@@ -72,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="flex items-center gap-1.5 text-amber-300 font-medium text-[11px] sm:text-xs truncate whitespace-nowrap">
                 <Sparkles className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
                 <span className="truncate whitespace-nowrap">
-                  {language === 'fa' ? (company.announcementTextFa || t.topBar.announcement) : (company.announcementTextEn || t.topBar.announcement)}
+                  {language === 'fa' ? (company.announcementTextFa ?? t.topBar.announcement) : (company.announcementTextEn ?? t.topBar.announcement)}
                 </span>
               </span>
             </div>
@@ -109,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="flex items-center gap-1 text-emerald-300 hover:text-emerald-200 font-semibold whitespace-nowrap"
-                    title="واتس‌اپ پولاد چرخِش"
+                    title={language === 'fa' ? company.nameFa : company.nameEn}
                   >
                     <MessageCircle className="w-3 h-3 flex-shrink-0" />
                     <span className="hidden sm:inline whitespace-nowrap">{company.primaryPhone}</span>
@@ -129,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ? 'bg-white/75 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] py-2.5 sm:py-3 border-b border-white/80' 
           : 'bg-white/80 backdrop-blur-xl py-3 sm:py-3.5 border-b border-slate-200/60'
       }`}>
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="max-w-[96rem] mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-2">
             
             {/* Brand Logo with Official PooladCharkhesh Emblem */}
@@ -137,19 +138,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               href="#home" 
               onClick={(e) => handleNavLinkClick(e, '#home')}
               className="flex items-center group focus:outline-none flex-shrink-0 transition-transform duration-200 active:scale-95 cursor-pointer"
-              title="پولاد چرخِش"
+              title={language === 'fa' ? company.nameFa : company.nameEn}
             >
               <Logo 
                 variant="horizontal" 
                 size="md" 
                 isDark={false}
                 language={language}
-                className="max-w-[190px] xs:max-w-[230px] sm:max-w-none"
+                className="nav-brand"
               />
             </a>
 
             {/* Desktop Navigation Links (Apple Glass Capsule Menu) */}
-            <div className="hidden lg:flex items-center gap-1 p-1 bg-slate-100/70 backdrop-blur-md rounded-full border border-white/80 shadow-[inset_0_1px_1px_rgba(0,0,0,0.04)]">
+            <div className="hidden min-[1440px]:flex items-center gap-1 p-1 bg-slate-100/70 backdrop-blur-md rounded-full border border-white/80 shadow-[inset_0_1px_1px_rgba(0,0,0,0.04)]">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
@@ -191,11 +192,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {/* Mobile Menu & Toggles Button */}
-            <div className="flex items-center gap-1.5 lg:hidden flex-shrink-0">
+            <div className="flex items-center gap-1.5 min-[1440px]:hidden flex-shrink-0">
               <button
                 id="mobile-lang-btn"
                 onClick={onLanguageToggle}
-                className="p-2 rounded-full text-slate-700 glass-btn-secondary active:scale-95 transition-transform cursor-pointer"
+                className="sm:hidden p-2 rounded-full text-slate-700 glass-btn-secondary active:scale-95 transition-transform cursor-pointer"
                 title="Language"
               >
                 <Globe className="w-4 h-4 text-[#232c86]" />
@@ -205,7 +206,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 id="mobile-menu-toggle-btn"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="p-2 rounded-full text-slate-800 glass-btn-secondary active:scale-95 transition-all cursor-pointer"
-                aria-label="Toggle navigation menu"
+                aria-label={language === 'fa' ? 'منوی ناوبری' : 'Toggle navigation menu'}
+                aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? <X className="w-4 h-4 text-[#232c86]" /> : <Menu className="w-4 h-4 text-[#232c86]" />}
               </button>
@@ -216,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Full-Featured Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden px-4 pt-3 pb-6 glass-panel border-b border-white/80 space-y-2 animate-in slide-in-from-top duration-200 shadow-xl max-h-[80vh] overflow-y-auto mt-2 mx-2 rounded-3xl">
+          <div className="min-[1440px]:hidden px-4 pt-3 pb-6 glass-panel border-b border-white/80 space-y-2 animate-in slide-in-from-top duration-200 shadow-xl max-h-[80vh] overflow-y-auto mt-2 mx-2 rounded-3xl">
             <div className="grid grid-cols-2 gap-2 pb-2">
               {navLinks.map((link) => (
                 <a
@@ -232,16 +234,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div className="pt-3 border-t border-slate-200/60 flex flex-col gap-2">
-              <a
+              {company.phoneEnabled !== false && <a
                 href={company.primaryPhoneTel}
                 onClick={() => setMobileMenuOpen(false)}
                 className="glass-btn-primary flex items-center justify-center gap-2 py-3 rounded-2xl text-white font-bold text-sm shadow-md active:scale-98 transition-all whitespace-nowrap"
               >
                 <Phone className="w-4 h-4 text-amber-300" />
                 <span className="whitespace-nowrap">{language === 'fa' ? `تماس مستقیم: ${company.primaryPhoneDisplayFa}` : `Call: ${company.primaryPhoneDisplayEn}`}</span>
-              </a>
+              </a>}
 
-              <a
+              {company.whatsappEnabled !== false && <a
                 href={company.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -249,7 +251,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <MessageCircle className="w-4 h-4" />
                 <span className="whitespace-nowrap">{language === 'fa' ? `استعلام واتس‌اپ: ${company.primaryPhone}` : `WhatsApp: ${company.primaryPhone}`}</span>
-              </a>
+              </a>}
             </div>
           </div>
         )}

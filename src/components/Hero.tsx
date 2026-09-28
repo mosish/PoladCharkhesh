@@ -1,3 +1,4 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
@@ -20,7 +21,7 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
   const company = useCompanyInfo();
   const pageContent = usePageContent();
   const [searchInput, setSearchInput] = useState('');
-  const t = translations[language];
+  const t = useSiteCopy(language);
   const heroContent = pageContent.hero;
 
   const handleSearch = (e: React.FormEvent) => {
@@ -34,16 +35,7 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
     }
   };
 
-  const topBrands = [
-    { name: 'SKF', origin: language === 'fa' ? 'سوئد' : 'Sweden' },
-    { name: 'FAG / INA', origin: language === 'fa' ? 'آلمان' : 'Germany' },
-    { name: 'TIMKEN', origin: language === 'fa' ? 'آمریکا' : 'USA' },
-    { name: 'NSK', origin: language === 'fa' ? 'ژاپن' : 'Japan' },
-    { name: 'NTN', origin: language === 'fa' ? 'ژاپن' : 'Japan' },
-    { name: 'KOYO', origin: language === 'fa' ? 'ژاپن' : 'Japan' },
-    { name: 'NACHI', origin: language === 'fa' ? 'ژاپن' : 'Japan' },
-    { name: 'CORTECO', origin: language === 'fa' ? 'ایتالیا' : 'Italy' },
-  ];
+  const topBrands = pageContent.copy.brands.map(brand => ({ name: brand.name, origin: language === 'fa' ? brand.originFa : brand.originEn }));
 
   return (
     <section id="home" className="relative overflow-hidden pt-6 pb-14 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-24">
@@ -72,6 +64,7 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
                 {language === 'fa' ? heroContent.titleSuffixFa : heroContent.titleSuffixEn}
               </span>
             </h1>
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">{language === 'fa' ? heroContent.descriptionFa : heroContent.descriptionEn}</p>
 
             {/* Fast Search Bar (Apple Liquid Glass Input Container) */}
             <form onSubmit={handleSearch} className="relative max-w-xl mx-auto lg:mx-0">

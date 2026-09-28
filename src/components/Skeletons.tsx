@@ -128,6 +128,7 @@ export const BearingSpecModalSkeleton: React.FC<{
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
       <div 
         id="bearing-spec-modal-skeleton-card"
+        role="dialog" aria-modal="true" aria-label={language === 'fa' ? 'در حال دریافت مشخصات' : 'Loading specifications'}
         className="relative w-full max-w-4xl max-h-[92vh] glass-card rounded-3xl shadow-2xl overflow-y-auto bg-white/95 flex flex-col animate-shimmer"
         onClick={(e) => e.stopPropagation()}
       >

@@ -1,3 +1,4 @@
+import type { CmsCopy } from '../data/siteCopy';
 import { BearingProduct, BearingCategory, BearingSchematicType, TechnicalSource } from '../types';
 import { CompanyContactInfo } from '../data/company';
 
@@ -148,12 +149,16 @@ export interface CmsFooterContent {
 }
 
 export interface CmsPageContent {
+  copy: CmsCopy;
+  revision?: number;
   hero: CmsHeroContent;
   about: CmsAboutContent;
   footer: CmsFooterContent;
 }
 
 export type CmsUpdateInput = Partial<{
+  copy: CmsCopy;
+  revision: number;
   hero: Partial<CmsHeroContent>;
   about: Partial<CmsAboutContent>;
   footer: Partial<CmsFooterContent>;
@@ -217,6 +222,10 @@ export type MediaCategory = 'product_photo' | 'cad_schematic' | 'datasheet_pdf' 
 
 export interface MediaMetadata {
   id: string;
+  isArchived?: boolean;
+  width?: number;
+  height?: number;
+  revision?: number;
   filename: string;
   originalName: string;
   mimeType: string;
@@ -308,6 +317,7 @@ export type ProductUpdateInput = Partial<ProductCreateInput> & {
 // ==========================================
 
 export interface DatasetSnapshot {
+  media?: MediaMetadata[];
   version: string;
   exportedAt: string;
   exportedBy: string;

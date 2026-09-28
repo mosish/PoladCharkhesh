@@ -1,7 +1,8 @@
+import { useSiteCopy } from '../services/useSiteCopy';
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { dataService, useCompanyInfo } from '../services/dataService';
+import { dataService, useCompanyInfo, usePageContent } from '../services/dataService';
 import { 
   Phone, 
   MessageCircle, 
@@ -20,6 +21,7 @@ interface ContactSectionProps {
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
   const company = useCompanyInfo();
+  const editorial = usePageContent().copy.contact;
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -30,11 +32,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
-  const t = translations[language];
+  const t = useSiteCopy(language);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    if (isSubmitting) { e.preventDefault(); return; }
     e.preventDefault();
     if (!formData.name.trim() || !formData.phone.trim() || !formData.partList.trim()) {
       setFormError(
@@ -47,7 +51,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
     setFormError('');
     
     // Record in central data service for Admin view
-    dataService.recordInquiry({
+    setIsSubmitting(true);
+    const result = await dataService.recordInquiry({
       fullName: `${formData.name} (${formData.company || 'شخصی'})`,
       phone: formData.phone,
       message: `[فوریت: ${formData.urgency}] ${formData.partList}`,
@@ -55,6 +60,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
       email: formData.email,
     });
 
+    setIsSubmitting(false);
+    if (!result.success) { setFormError(result.error || (language === 'fa' ? 'ارسال پیام ناموفق بود؛ دوباره تلاش کنید.' : 'Message could not be sent. Please retry.')); return; }
     setSubmitted(true);
   };
 
@@ -73,7 +80,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         `⚡ Urgency: ${formData.urgency}\n` +
         `⚙️ Inquired Parts/Details:\n${formData.partList || 'General Inquiry'}`;
     
-    const baseUrl = company.whatsappUrl || 'https://wa.me/989127195313';
+    const baseUrl = company.whatsappUrl || ('https://wa.me/' + String(company.whatsappNumber || company.primaryPhone).replace(/\D/g, '').replace(/^0/, '98'));
     return `${baseUrl}?text=${encodeURIComponent(text)}`;
   };
 
@@ -184,12 +191,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
               <div className="p-5 rounded-2xl bg-gradient-to-br from-[#232c86] to-[#171e5c] text-white space-y-2 shadow-lg shadow-blue-950/20 border border-white/10">
                 <div className="flex items-center gap-2 font-bold text-xs">
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>{language === 'fa' ? 'مشاوره فنی و استعلام تلفنی فوری' : 'Instant Technical & Supply Consultation'}</span>
+                  <span>{editorial.consultationTitle[language]}</span>
                 </div>
                 <p className="text-[11px] text-blue-100 leading-relaxed font-normal">
-                  {language === 'fa' 
-                    ? 'کارشناسان ما آماده پاسخگویی به استعلامات فنی، معادل‌سازی کدها و ارائه مشاوره‌های روانکاری تخصصی هستند.'
-                    : 'Our engineering team is ready to assist with cross-referencing, lubricant calculations, and technical bearings specs.'}
+                  {editorial.consultationDescription[language]}
                 </p>
               </div>
 
@@ -354,10 +359,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
                   <button
                     id="submit-contact-form-btn"
                     type="submit"
+                    disabled={isSubmitting}
                     className="w-full sm:flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-full glass-btn-primary text-xs sm:text-sm shadow-md shadow-blue-900/20"
                   >
                     <Send className="w-4 h-4 text-amber-300" />
-                    <span>{t.contact.form.submitBtn}</span>
+                    <span>{isSubmitting ? (language === 'fa' ? 'در حال ارسال…' : 'Sending…') : t.contact.form.submitBtn}</span>
                   </button>
 
                   <a

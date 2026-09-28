@@ -1,3 +1,5 @@
+import { DEFAULT_PAGE_CONTENT } from '../src/data/contentDefaults';
+import { validateContentShape, isSafeAssetUrl } from '../src/utils/contentModel';
 /**
  * POLAD CHARKHESH - SERVER-SIDE VALIDATION INFRASTRUCTURE
  * 
@@ -406,29 +408,14 @@ export function validateCompanyPayload(body: any): ValidationResult<Record<strin
 // 3. CMS CONTENT VALIDATION
 // ==========================================
 
-const ALLOWED_CONTENT_SECTIONS = ['hero', 'about', 'footer'];
-
 export function validateContentPayload(body: any): ValidationResult<Record<string, any>> {
-  if (!body || typeof body !== 'object' || Array.isArray(body)) {
-    return { isValid: false, errors: ['داده نامعتبر است.'] };
+  if (!body || typeof body !== 'object' || Array.isArray(body) || containsForbiddenKeys(body)) {
+    return { isValid: false, errors: ['Invalid content object'] };
   }
-
-  if (containsForbiddenKeys(body)) {
-    return { isValid: false, errors: ['ورودی غیرمجاز شناسایی شد.'] };
-  }
-
-  const sanitized: Record<string, any> = {};
-  for (const section of ALLOWED_CONTENT_SECTIONS) {
-    if (body[section] !== undefined && typeof body[section] === 'object' && !Array.isArray(body[section])) {
-      sanitized[section] = body[section];
-    }
-  }
-
-  return {
-    isValid: true,
-    errors: [],
-    sanitized,
-  };
+  const { revision, ...sections } = body;
+  const errors = validateContentShape(sections, DEFAULT_PAGE_CONTENT);
+  if (revision !== undefined && (!Number.isSafeInteger(revision) || revision < 0)) errors.push('Invalid revision');
+  return { isValid: errors.length === 0, errors, sanitized: errors.length ? undefined : { ...sections, ...(revision === undefined ? {} : { revision }) } };
 }
 
 // ==========================================
@@ -537,26 +524,38 @@ export function validateInquiryPayload(body: any): ValidationResult<{
 // 6. MEDIA METADATA VALIDATION
 // ==========================================
 
-export function validateMediaPayload(body: any): ValidationResult {
+export function validateMediaPayload(body: any, partial = false): ValidationResult {
   const errors: string[] = [];
-
-  if (!body || typeof body !== 'object' || Array.isArray(body)) {
-    return { isValid: false, errors: ['داده ورودی مدیا نامعتبر است.'] };
+  if (!body || typeof body !== 'object' || Array.isArray(body) || containsForbiddenKeys(body)) return { isValid: false, errors: ['Invalid media object'] };
+  const sanitized: Record<string, any> = {};
+  for (const key of Object.keys(body)) {
+    if (!['originalName', 'mimeType', 'sizeBytes', 'url', 'altTextFa', 'altTextEn', 'category', 'width', 'height', 'revision'].includes(key)) errors.push('Unknown media field: ' + key);
   }
-
-  if (containsForbiddenKeys(body)) {
-    return { isValid: false, errors: ['ورودی غیرمجاز شناسایی شد.'] };
+  for (const key of ['originalName', 'altTextFa', 'altTextEn']) {
+    if (body[key] !== undefined) {
+      if (typeof body[key] !== 'string' || body[key].length > (key === 'originalName' ? 255 : 1000)) errors.push('Invalid ' + key);
+      else sanitized[key] = body[key].trim();
+    }
   }
-
-  if (!body.originalName || typeof body.originalName !== 'string') {
-    errors.push('نام فایل الزامی است.');
+  if (!partial && !sanitized.originalName) errors.push('Filename is required');
+  if (!partial || body.url !== undefined) {
+    if (typeof body.url !== 'string' || !isSafeAssetUrl(body.url)) errors.push('Use a local path or an HTTPS URL');
+    else sanitized.url = body.url;
   }
-  if (!body.url || typeof body.url !== 'string') {
-    errors.push('آدرس فایل الزامی است.');
+  if (!partial || body.mimeType !== undefined) {
+    if (!['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(body.mimeType)) errors.push('Allowed types: JPEG, PNG, WebP, PDF');
+    else sanitized.mimeType = body.mimeType;
   }
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-  };
+  for (const key of ['sizeBytes', 'width', 'height', 'revision']) {
+    if (body[key] !== undefined) {
+      if (!Number.isSafeInteger(body[key]) || body[key] < 0 || body[key] > (key === 'sizeBytes' ? 104857600 : 1000000)) errors.push('Invalid ' + key);
+      else sanitized[key] = body[key];
+    }
+  }
+  if (!partial && sanitized.sizeBytes === undefined) sanitized.sizeBytes = 0;
+  if (body.category !== undefined) {
+    if (!['product_photo', 'cad_schematic', 'datasheet_pdf', 'company_photo'].includes(body.category)) errors.push('Invalid category');
+    else sanitized.category = body.category;
+  }
+  return { isValid: !errors.length, errors, sanitized: errors.length ? undefined : sanitized };
 }

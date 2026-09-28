@@ -14,7 +14,7 @@ import { contentRouter } from './server/routes/contentRoutes';
 import { seoRouter } from './server/routes/seoRoutes';
 import { inquiryRouter } from './server/routes/inquiryRoutes';
 import { systemRouter } from './server/routes/systemRoutes';
-import { mediaRouter } from './server/routes/mediaRoutes';
+import { mediaRouter, uploadDirectory } from './server/routes/mediaRoutes';
 
 async function startServer() {
   const app = express();
@@ -62,6 +62,12 @@ async function startServer() {
   app.use('/api/inquiries', inquiryRouter);
   app.use('/api/system', systemRouter);
   app.use('/api/media', mediaRouter);
+
+  app.use('/uploads', express.static(uploadDirectory, { dotfiles: 'deny', index: false, setHeaders: (res, file) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+    if (file.endsWith('.pdf')) res.setHeader('Content-Disposition', 'attachment');
+  } }));
 
   // 5. Frontend Delivery: Vite middleware in Dev vs Static bundle in Production
   if (process.env.NODE_ENV !== 'production') {
