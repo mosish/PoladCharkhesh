@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { dataService, useCompanyInfo } from '../services/dataService';
+import { dataService, useCompanyInfo, usePageContent } from '../services/dataService';
 import { 
   Phone, 
   MessageCircle, 
@@ -20,6 +20,7 @@ interface ContactSectionProps {
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
   const company = useCompanyInfo();
+  const contactContent = usePageContent().contact;
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -34,7 +35,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
 
   const t = translations[language];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.phone.trim() || !formData.partList.trim()) {
       setFormError(
@@ -46,14 +47,22 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
     }
     setFormError('');
     
-    // Record in central data service for Admin view
-    dataService.recordInquiry({
+    const result = await dataService.recordInquiry({
       fullName: `${formData.name} (${formData.company || 'شخصی'})`,
       phone: formData.phone,
       message: `[فوریت: ${formData.urgency}] ${formData.partList}`,
       company: formData.company,
       email: formData.email,
     });
+
+    if (!result.success) {
+      setFormError(
+        language === 'fa'
+          ? 'ثبت پیام روی سرور انجام نشد. لطفاً دوباره تلاش کنید یا مستقیماً تماس بگیرید.'
+          : 'The inquiry could not be saved on the server. Please retry or contact us directly.'
+      );
+      return;
+    }
 
     setSubmitted(true);
   };
@@ -73,7 +82,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         `⚡ Urgency: ${formData.urgency}\n` +
         `⚙️ Inquired Parts/Details:\n${formData.partList || 'General Inquiry'}`;
     
-    const baseUrl = company.whatsappUrl || 'https://wa.me/989127195313';
+    const baseUrl = company.whatsappUrl;
+    if (!baseUrl) return '#';
     return `${baseUrl}?text=${encodeURIComponent(text)}`;
   };
 
@@ -85,13 +95,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
             <Phone className="w-3.5 h-3.5 text-[#232c86]" />
-            <span>{t.contact.tag}</span>
+            <span>{language === 'fa' ? contactContent.tagFa : contactContent.tagEn}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {t.contact.title}
+            {language === 'fa' ? contactContent.titleFa : contactContent.titleEn}
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-slate-600">
-            {t.contact.subtitle}
+            {language === 'fa' ? contactContent.subtitleFa : contactContent.subtitleEn}
           </p>
         </div>
 
@@ -104,7 +114,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
             {/* Contact Details Card (Apple Liquid Glass) */}
             <div className="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
               <h3 className="text-base sm:text-lg font-bold text-slate-900 border-b border-slate-200/60 pb-4">
-                {t.contact.infoTitle}
+                {language === 'fa' ? contactContent.infoTitleFa : contactContent.infoTitleEn}
               </h3>
 
               <div className="space-y-4">
@@ -201,10 +211,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
           <div className="lg:col-span-7 glass-card p-6 sm:p-8 rounded-3xl">
             <div className="border-b border-slate-200/60 pb-4 mb-6 text-start">
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                {t.contact.form.title}
+                {language === 'fa' ? contactContent.formTitleFa : contactContent.formTitleEn}
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                {t.contact.form.subtitle}
+                {language === 'fa' ? contactContent.formSubtitleFa : contactContent.formSubtitleEn}
               </p>
             </div>
 
