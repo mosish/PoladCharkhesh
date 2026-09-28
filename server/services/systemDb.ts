@@ -1,3 +1,5 @@
+import { mediaDb } from './mediaDb';
+import { validateContentPayload, validateMediaPayload } from '../validation';
 /**
  * POLAD CHARKHESH - SYSTEM & AUDIT DATABASE ACCESS SERVICE
  */
@@ -63,7 +65,8 @@ export const systemDb = {
     const inqCountRow = db.prepare('SELECT COUNT(*) as c FROM inquiries;').get() as any;
 
     return {
-      version: '2.0.0',
+      version: '2.1.0',
+      media: mediaDb.getMediaList(undefined, true),
       exportedAt: new Date().toISOString(),
       exportedBy: username,
       products,
@@ -78,10 +81,25 @@ export const systemDb = {
   restoreSystemSnapshot(snapshot: any, username: string): { restoredProductsCount: number } {
     const db = getDatabase();
     const currentProducts = productDb.getAllProducts(true);
+    if (snapshot.pageContent) {
+      const { revision, ...content } = snapshot.pageContent;
+      const validation = validateContentPayload(content);
+      if (!validation.isValid) throw new Error(validation.errors.join(' '));
+    }
+    if (snapshot.media !== undefined && (!Array.isArray(snapshot.media) || snapshot.media.length > 10000)) throw new Error('Invalid media backup');
+    for (const item of snapshot.media ?? []) {
+      const validation = validateMediaPayload({
+        originalName: item.originalName, mimeType: item.mimeType, url: item.url, sizeBytes: item.sizeBytes,
+        altTextFa: item.altTextFa ?? '', altTextEn: item.altTextEn ?? '', category: item.category,
+      });
+      if (!validation.isValid) throw new Error(validation.errors.join(' '));
+    }
+    const fullSafetySnapshot = this.exportSystemSnapshot(username);
 
     return runTransaction(() => {
       // 1. Take pre-restore safety snapshot
       const safetySnapshot = {
+        ...fullSafetySnapshot,
         timestamp: new Date().toISOString(),
         initiatedBy: username,
         productsCount: currentProducts.length,
@@ -114,7 +132,8 @@ export const systemDb = {
 
       // 5. Restore page content if present
       if (snapshot.pageContent) {
-        contentDb.updatePageContent(snapshot.pageContent, username);
+        const { revision, ...restoredContent } = snapshot.pageContent;
+        contentDb.updatePageContent(restoredContent, username);
       }
 
       // 6. Restore seo config if present
@@ -122,6 +141,17 @@ export const systemDb = {
         seoDb.updateSeoConfig(snapshot.seoConfig, username);
       }
 
+      // Restore metadata by URL without removing assets absent from older backups.
+      // Physical uploads are retained; back up the uploads directory alongside SQLite.
+      for (const item of snapshot.media ?? []) {
+        const existing = db.prepare('SELECT id FROM media_metadata WHERE url=?').get(item.url) as any;
+        if (existing) {
+          const current = mediaDb.getMediaById(existing.id)!;
+          mediaDb.updateMetadata(current.id, { originalName: item.originalName, altTextFa: item.altTextFa ?? '', altTextEn: item.altTextEn ?? '', category: item.category, revision: current.revision });
+        } else {
+          mediaDb.createMediaRecord({ originalName: item.originalName, mimeType: item.mimeType, sizeBytes: item.sizeBytes, url: item.url, altTextFa: item.altTextFa ?? '', altTextEn: item.altTextEn ?? '', category: item.category }, username);
+        }
+      }
       return {
         restoredProductsCount: snapshot.products.length,
       };

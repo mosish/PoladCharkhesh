@@ -40,18 +40,7 @@ export const Footer: React.FC<FooterProps> = ({
     }
   };
 
-  const popularCodes = [
-    '6204-2RS',
-    '6308-2Z',
-    '30208',
-    '32210',
-    '22212 EK',
-    '22316 CC',
-    'NU 208 ECP',
-    'UCP 205',
-    'UCF 208',
-    'TC 35-52-10',
-  ];
+  const popularCodes = pageContent.copy.footer.popularCodes;
 
   return (
     <footer className="bg-slate-950 text-slate-400 border-t border-slate-800 text-xs">

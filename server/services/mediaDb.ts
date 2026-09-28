@@ -62,11 +62,13 @@ export const mediaDb = {
     return this.getMediaById(id)!;
   },
   archive(id: string, archived: boolean): MediaMetadata {
+    return runTransaction(() => {
     const current = this.getMediaById(id);
     if (!current) throw new MediaError(404, 'Media not found');
     if (archived && references(current.url).length) throw new MediaError(409, 'Asset is still in use: ' + references(current.url).join(', '));
     getDatabase().prepare('UPDATE media_metadata SET is_archived=?,revision=revision+1 WHERE id=?').run(archived ? 1 : 0, id);
     return this.getMediaById(id)!;
+    });
   },
   indexProductAssets(): void {
     const db = getDatabase();

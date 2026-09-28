@@ -15,7 +15,11 @@ mediaRouter.get('/library', requireAuth, (_req, res) => {
 mediaRouter.get('/products/:id', requireAuth, (req, res) => {
   res.json({ gallery: mediaDb.getProductMedia(String(req.params.id)) });
 });
-mediaRouter.patch('/products/:id', requireAuth, (req, res) => {
+mediaRouter.patch('/products/:id', requireAuth, (req, res): void => {
+  if (!req.body || typeof req.body !== 'object' || typeof req.body.version !== 'string' || typeof req.body.action !== 'string' ||
+      (req.body.mediaId !== undefined && typeof req.body.mediaId !== 'string')) {
+    res.status(400).json({ error: 'Invalid gallery change request' }); return;
+  }
   const gallery = mediaDb.changeProductMedia(String(req.params.id), req.body, req.admin!.username);
   logAudit('MEDIA_UPDATED', 'product', 'Product gallery: ' + String(req.body.action), req, String(req.params.id));
   res.json({ gallery });

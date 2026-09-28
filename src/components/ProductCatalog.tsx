@@ -438,7 +438,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 onClick={() => handleProductClick(product)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && handleProductClick(product)}
+                onKeyDown={(e) => e.target === e.currentTarget && e.key === 'Enter' && handleProductClick(product)}
                 className="glass-card rounded-3xl flex flex-col justify-between overflow-hidden group p-5 sm:p-6 cursor-pointer hover:border-blue-500/40 hover:shadow-xl hover:bg-white/95 transition-all duration-200 active:scale-[0.99]"
               >
                 {/* Card Top: Code, Brand Badges & Schematic */}
@@ -510,7 +510,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2 pt-4 mt-4 border-t border-slate-200" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+                <div className="flex gap-2 pt-4 mt-4 border-t border-slate-200" onClick={e => e.stopPropagation()}>
                   <button className="glass-btn-secondary rounded-xl px-3 py-2 text-xs" onClick={() => onSelectProduct(product)}>{language === 'fa' ? 'نمایش سریع' : 'Quick view'}</button>
                   <a href={'/product/' + getProductSlug(product)} className="glass-btn-primary rounded-xl px-3 py-2 text-xs text-white" onClick={e => { if (onNavigateProduct && !e.ctrlKey && !e.metaKey) { e.preventDefault(); onNavigateProduct(getProductSlug(product)); } }}>{language === 'fa' ? 'صفحه محصول' : 'Product page'}</a>
                 </div>

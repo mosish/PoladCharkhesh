@@ -12,7 +12,7 @@ export function mergeContent<T>(base: T, patch: unknown): T {
   return patch as T;
 }
 
-export function validateContentShape(value: unknown, template: unknown, path = 'content'): string[] {
+export function validateContentShape(value: unknown, template: unknown, path = 'content', complete = false): string[] {
   if (typeof template === 'string') {
     if (typeof value !== 'string' || value.length > 5000) return [path + ': expected text (maximum 5000 characters)'];
     if (/(?:image|url)$/i.test(path) && value && !isSafeAssetUrl(value)) return [path + ': use a local path or HTTPS URL'];
@@ -27,13 +27,14 @@ export function validateContentShape(value: unknown, template: unknown, path = '
         (!item || typeof item !== 'object' || Object.keys(shape).some(key => !Object.prototype.hasOwnProperty.call(item, key)))) {
         return [path + '.' + i + ': missing item fields'];
       }
-      return validateContentShape(item, shape, path + '.' + i);
+      return validateContentShape(item, shape, path + '.' + i, true);
     });
   }
   if (!value || typeof value !== 'object' || Array.isArray(value)) return [path + ': expected an object'];
+  if (complete && Object.keys(template as object).some(key => !Object.prototype.hasOwnProperty.call(value, key))) return [path + ': missing fields'];
   return Object.entries(value).flatMap(([key, item]) => {
     if (!Object.prototype.hasOwnProperty.call(template, key)) return [path + '.' + key + ': unknown field'];
-    return validateContentShape(item, (template as any)[key], path + '.' + key);
+    return validateContentShape(item, (template as any)[key], path + '.' + key, complete);
   });
 }
 

@@ -7,6 +7,20 @@ import { dataService } from '../../services/dataService';
 import { useUnsavedChanges } from './useUnsavedChanges';
 
 const names: Record<string, [string, string]> = {
+  main: ['متن اصلی', 'Main content'], details: ['جزئیات', 'Details'],
+  fa: ['فارسی', 'Persian'], en: ['English', 'English'], title: ['عنوان', 'Title'], tag: ['برچسب', 'Tag'],
+  badge: ['نشان', 'Badge'], subtitle: ['توضیح کوتاه', 'Subtitle'], desc: ['توضیحات', 'Description'],
+  cards: ['کارت‌ها', 'Cards'], stats: ['آمار', 'Statistics'], features: ['مزایا', 'Features'],
+  nameFa: ['نام فارسی', 'Name · Persian'], nameEn: ['نام انگلیسی', 'Name · English'],
+  roleFa: ['سمت فارسی', 'Role · Persian'], roleEn: ['سمت انگلیسی', 'Role · English'],
+  experienceFa: ['تجربه فارسی', 'Experience · Persian'], experienceEn: ['تجربه انگلیسی', 'Experience · English'],
+  specialtyFa: ['تخصص فارسی', 'Specialty · Persian'], specialtyEn: ['تخصص انگلیسی', 'Specialty · English'],
+  titleFa: ['عنوان فارسی', 'Title · Persian'], titleEn: ['عنوان انگلیسی', 'Title · English'],
+  descriptionFa: ['توضیحات فارسی', 'Description · Persian'], descriptionEn: ['توضیحات انگلیسی', 'Description · English'],
+  image: ['آدرس تصویر', 'Image URL'], phone: ['تلفن', 'Phone'], email: ['ایمیل', 'Email'],
+  recommendedBearings: ['کدهای مرتبط', 'Related product codes'], icon: ['نماد', 'Icon'],
+  popularCodes: ['کدهای پرکاربرد', 'Popular product codes'], name: ['نام', 'Name'],
+  originFa: ['مبدأ فارسی', 'Origin · Persian'], originEn: ['مبدأ انگلیسی', 'Origin · English'],
   hero: ['صفحه اصلی', 'Hero'], about: ['درباره ما', 'About'], footer: ['پاورقی', 'Footer'],
   catalog: ['معرفی کاتالوگ', 'Catalog introduction'], tools: ['معرفی ابزار مهندسی', 'Engineering introduction'],
   whyUs: ['مزایای همکاری', 'Why choose us'], industries: ['معرفی صنایع', 'Industries introduction'],
@@ -46,8 +60,8 @@ function Fields({ value, template, onChange, label, fa }: { value: any; template
     </div>)}
     <button type="button" disabled={value.length >= 50} onClick={() => onChange([...value, blank(template[0])])}>{fa ? 'افزودن مورد' : 'Add item'}</button>
   </fieldset>;
-  return <div className="editor-fields">{Object.entries(value ?? {}).filter(([key]) => key !== 'id').map(([key, item]) =>
-    <Fields key={key} label={key} value={item} template={template?.[key]} fa={fa} onChange={next => onChange({ ...value, [key]: next })} />)}</div>;
+  return <fieldset className="editor-group"><legend>{title(label, fa)}</legend><div className="editor-fields">{Object.entries(value ?? {}).filter(([key]) => key !== 'id').map(([key, item]) =>
+    <Fields key={key} label={key} value={item} template={template?.[key]} fa={fa} onChange={next => onChange({ ...value, [key]: next })} />)}</div></fieldset>;
 }
 
 export const AdminContent: React.FC<{ language: Language }> = ({ language }) => {

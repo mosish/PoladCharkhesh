@@ -55,7 +55,7 @@ try {
   await page.goto(base + '/#admin/content');
   await page.getByRole('heading', { name:'Website content',exact:true }).waitFor();
   await page.getByRole('button', { name:/Why choose us/ }).click();
-  await page.getByLabel('en', { exact:true }).nth(1).fill('CMS verification title');
+  await page.getByLabel('English', { exact:true }).nth(1).fill('CMS verification title');
   await page.getByRole('button', { name:'Save content',exact:true }).click();
   await page.getByText('Saved and published to the website.', { exact:true }).waitFor();
   await page.screenshot({ path:'test-results/admin-content-en.png',fullPage:true });

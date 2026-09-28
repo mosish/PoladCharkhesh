@@ -317,6 +317,7 @@ export type ProductUpdateInput = Partial<ProductCreateInput> & {
 // ==========================================
 
 export interface DatasetSnapshot {
+  media?: MediaMetadata[];
   version: string;
   exportedAt: string;
   exportedBy: string;

@@ -2,7 +2,7 @@ import { useSiteCopy } from '../services/useSiteCopy';
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
-import { dataService, useCompanyInfo } from '../services/dataService';
+import { dataService, useCompanyInfo, usePageContent } from '../services/dataService';
 import { 
   Phone, 
   MessageCircle, 
@@ -21,6 +21,7 @@ interface ContactSectionProps {
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
   const company = useCompanyInfo();
+  const editorial = usePageContent().copy.contact;
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -190,12 +191,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language }) => {
               <div className="p-5 rounded-2xl bg-gradient-to-br from-[#232c86] to-[#171e5c] text-white space-y-2 shadow-lg shadow-blue-950/20 border border-white/10">
                 <div className="flex items-center gap-2 font-bold text-xs">
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>{language === 'fa' ? 'مشاوره فنی و استعلام تلفنی فوری' : 'Instant Technical & Supply Consultation'}</span>
+                  <span>{editorial.consultationTitle[language]}</span>
                 </div>
                 <p className="text-[11px] text-blue-100 leading-relaxed font-normal">
-                  {language === 'fa' 
-                    ? 'کارشناسان ما آماده پاسخگویی به استعلامات فنی، معادل‌سازی کدها و ارائه مشاوره‌های روانکاری تخصصی هستند.'
-                    : 'Our engineering team is ready to assist with cross-referencing, lubricant calculations, and technical bearings specs.'}
+                  {editorial.consultationDescription[language]}
                 </p>
               </div>
 

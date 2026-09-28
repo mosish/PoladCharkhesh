@@ -382,6 +382,14 @@ export const DEFAULT_COPY = {
         "fa": "مسیریابی با نشان / بلد / گوگل مپ",
         "en": "Open in Google Maps / Navigation"
       }
+    },
+    "consultationTitle": {
+      "fa": "مشاوره فنی و استعلام تلفنی فوری",
+      "en": "Instant Technical & Supply Consultation"
+    },
+    "consultationDescription": {
+      "fa": "کارشناسان ما آماده پاسخگویی به استعلامات فنی، معادل‌سازی کدها و ارائه مشاوره‌های روانکاری تخصصی هستند.",
+      "en": "Our engineering team is ready to assist with cross-referencing, lubricant calculations, and technical bearings specs."
     }
   },
   "footer": {
@@ -420,7 +428,19 @@ export const DEFAULT_COPY = {
     "designedFor": {
       "fa": "تأمین تخصصی قطعات با دقت مهندسی و بالاترین استاندارد کیفیت",
       "en": "Precision Engineering & Genuine Power Transmission Supplies"
-    }
+    },
+    "popularCodes": [
+      "6204-2RS",
+      "6308-2Z",
+      "30208",
+      "32210",
+      "22212 EK",
+      "22316 CC",
+      "NU 208 ECP",
+      "UCP 205",
+      "UCF 208",
+      "TC 35-52-10"
+    ]
   },
   "nav": {
     "home": {
