@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BearingProduct, Language } from '../types';
 import { BearingSchematic } from './BearingSchematic';
 import { translations } from '../data/translations';
+import { getProductMediaUrl } from '../utils/productMedia';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -60,26 +61,29 @@ export const PartMediaSlider: React.FC<PartMediaSliderProps> = ({
       ) : (
         /* Slide Content: 1 = Real Industrial Photo */
         <div className="relative w-full h-full bg-slate-950 flex items-center justify-center overflow-hidden transition-opacity duration-300">
-          {product.imageUrl ? (
-            <img
-              src={product.imageUrl}
-              alt={language === 'fa' ? product.nameFa : product.nameEn}
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-              loading="lazy"
-              onError={(e) => {
-                // Fallback to high quality industrial stock if remote URL fails
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80';
-              }}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center text-slate-400 p-4 text-center">
-              <Camera className="w-8 h-8 mb-2 opacity-50" />
-              <span className="text-xs">{language === 'fa' ? 'تصویر واقعی قطعه' : 'Real Part Photo'}</span>
-            </div>
-          )}
-
-          {/* Genuine Verified Badge Overlay Removed per user request */}
+          {(() => {
+            const media = getProductMediaUrl(product);
+            return media.url ? (
+              <>
+                <img
+                  src={media.url}
+                  alt={language === 'fa' ? product.nameFa : product.nameEn}
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  loading="lazy"
+                />
+                {media.isReference && (
+                  <div className="absolute bottom-1.5 start-2 px-2 py-0.5 rounded bg-slate-950/80 backdrop-blur-sm text-[9px] text-slate-300 font-medium">
+                    {language === 'fa' ? 'تصویر نمایشی تیپ قطعه' : 'Family Reference'}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+                <Camera className="w-8 h-8 mb-2 opacity-50" />
+                <span className="text-xs">{language === 'fa' ? 'تصویر واقعی قطعه' : 'Real Part Photo'}</span>
+              </div>
+            );
+          })()}
         </div>
       )}
 

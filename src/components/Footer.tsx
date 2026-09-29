@@ -2,6 +2,7 @@ import React from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
 import { useCompanyInfo, usePageContent } from '../services/dataService';
+import { Logo } from './Logo';
 import { 
   RotateCw, 
   Phone, 
@@ -53,12 +54,12 @@ export const Footer: React.FC<FooterProps> = ({
   ];
 
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800 text-xs">
+    <footer className="bg-[#040b15]/95 backdrop-blur-xl text-slate-400 border-t border-white/10 text-xs">
       {/* Top Banner */}
-      <div className="border-b border-slate-800/80 py-8">
+      <div className="border-b border-white/10 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-start">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-950/80 border border-blue-800/40 flex items-center justify-center text-blue-400">
+            <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-[#95bee8]">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
@@ -67,7 +68,7 @@ export const Footer: React.FC<FooterProps> = ({
                   ? 'تضمین ۱۰۰٪ اصالت و ارائه برگه‌های بازرسی معتبر بین‌المللی' 
                   : '100% Authenticity Guarantee with International QC Inspection'}
               </span>
-              <span className="text-slate-500 text-[11px]">
+              <span className="text-slate-400 text-[11px]">
                 {t.footer.certText}
               </span>
             </div>
@@ -75,7 +76,7 @@ export const Footer: React.FC<FooterProps> = ({
 
           <button
             onClick={scrollToTop}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/15 border border-white/10 text-slate-200 transition-colors cursor-pointer"
           >
             <span>{t.footer.backToTop}</span>
             <ChevronUp className="w-4 h-4 text-amber-400" />
@@ -90,20 +91,12 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Company Bio */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 p-1 flex items-center justify-center border border-slate-800">
-                <img
-                  src="/logo.png"
-                  alt="PoladCharkhesh Logo"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement?.classList.add('bg-[#232c86]');
-                  }}
-                />
-              </div>
-              <span className="text-lg font-black text-white font-mono-spec">
-                {language === 'fa' ? 'پولاد چرخِش' : 'PoladCharkhesh'}
-              </span>
+              <Logo
+                variant="horizontal"
+                size="md"
+                isDark={true}
+                language={language}
+              />
             </div>
 
             <p className="text-slate-400 leading-relaxed text-xs">
@@ -167,14 +160,14 @@ export const Footer: React.FC<FooterProps> = ({
                     const catalogEl = document.getElementById('catalog');
                     if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-[#232c86] hover:text-white text-slate-300 font-mono-spec text-[11px] border border-slate-800 transition-colors"
+                  className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-[#2b5a94] hover:text-white text-slate-300 font-mono-spec text-[11px] border border-white/10 transition-colors cursor-pointer"
                 >
                   {code}
                 </button>
               ))}
             </div>
 
-            <div className="pt-4 text-[11px] text-slate-500 space-y-1">
+            <div className="pt-4 text-[11px] text-slate-400 space-y-1">
               <div>{language === 'fa' ? 'برندها: SKF Sweden • FAG Germany • TIMKEN USA • NSK Japan' : 'Brands: SKF Sweden • FAG Germany • TIMKEN USA • NSK Japan'}</div>
               <div>{language === 'fa' ? 'تأمین و توزیع تخصصی انواع بیرینگ صنعتی با تضمین اصالت فیزیکی' : 'Specialized supply of industrial bearings with genuine physical guarantee'}</div>
             </div>
@@ -184,15 +177,15 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
 
       {/* Bottom Copyright */}
-      <div className="border-t border-slate-900 py-6 bg-slate-950 text-slate-500">
+      <div className="border-t border-white/10 py-6 bg-[#030811] text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-start">
           <p>{t.footer.allRights}</p>
           <div className="flex items-center gap-4">
-            <p className="font-mono-spec text-[11px]">{t.footer.designedFor}</p>
+            <p className="font-mono-spec text-[11px] text-slate-400">{t.footer.designedFor}</p>
             <a
               href="#admin"
               onClick={(e) => handleLinkClick(e, 'admin')}
-              className="text-slate-600 hover:text-slate-400 text-[10px] font-mono transition-colors"
+              className="text-slate-400 hover:text-slate-200 text-[10px] font-mono transition-colors"
               title={language === 'fa' ? 'ورود مدیران' : 'Staff Portal'}
             >
               [Admin]

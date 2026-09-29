@@ -221,33 +221,33 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
   };
 
   return (
-    <div className="glass-card p-6 sm:p-8 rounded-3xl space-y-6 shadow-[0_20px_50px_-10px_rgba(35,44,134,0.08),inset_0_1px_1px_rgba(255,255,255,1)]">
+    <div className="panel p-6 sm:p-8 rounded-3xl space-y-6 text-white">
       
       {/* Card Header with Icon */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/60">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-blue-500/10 text-[#232c86] border border-blue-500/10 flex-shrink-0">
-            <Ruler className="w-5 h-5 text-[#232c86]" />
+          <div className="p-3 rounded-2xl bg-white/10 text-[#95bee8] border border-white/15 flex-shrink-0">
+            <Ruler className="w-5 h-5 text-[#95bee8]" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900">
+            <h3 className="text-base font-bold text-white">
               {u.toolTitle}
             </h3>
-            <span className="text-xs text-slate-500 block mt-0.5">
+            <span className="text-xs text-slate-400 block mt-0.5">
               {u.toolSubtitle}
             </span>
           </div>
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div className="flex items-center p-1 bg-slate-100/80 rounded-2xl border border-white/80 backdrop-blur-md self-start sm:self-auto">
+        <div className="flex items-center p-1 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md self-start sm:self-auto">
           <button
             type="button"
             onClick={() => setActiveMode('mmToInch')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeMode === 'mmToInch'
-                ? 'bg-[#232c86] text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] text-[#0e223b] shadow-sm'
+                : 'text-slate-300 hover:text-white'
             }`}
           >
             <span>mm ➔ Inch</span>
@@ -257,8 +257,8 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
             onClick={() => setActiveMode('inchToMm')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeMode === 'inchToMm'
-                ? 'bg-[#232c86] text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] text-[#0e223b] shadow-sm'
+                : 'text-slate-300 hover:text-white'
             }`}
           >
             <span>Inch ➔ mm</span>
@@ -272,15 +272,15 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
         {/* Metric Input / Output Box */}
         <div className={`p-4 sm:p-5 rounded-2xl transition-all border ${
           activeMode === 'mmToInch'
-            ? 'bg-blue-50/70 border-blue-200/80 ring-2 ring-[#232c86]/20'
-            : 'bg-slate-100/60 border-white/80'
+            ? 'bg-blue-500/10 border-[#95bee8]/50 ring-2 ring-[#95bee8]/20'
+            : 'bg-white/5 border-white/10'
         }`}>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#232c86]" />
+            <label className="text-xs font-bold text-white flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#95bee8]" />
               {u.mmInputLabel}
             </label>
-            <span className="text-[10px] font-mono-spec font-semibold px-2 py-0.5 rounded-md bg-white text-[#232c86] border border-blue-100 shadow-xs">
+            <span className="text-[10px] font-mono-spec font-semibold px-2 py-0.5 rounded-md bg-white/10 text-[#c9e8ff] border border-white/15 shadow-xs">
               ISO Metric
             </span>
           </div>
@@ -296,7 +296,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 handleMmChange(e.target.value);
               }}
               onFocus={() => setActiveMode('mmToInch')}
-              className="w-full text-xl sm:text-2xl font-black font-mono-spec text-slate-900 bg-white/90 rounded-xl px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#232c86] focus:border-transparent transition-all shadow-xs"
+              className="w-full text-xl sm:text-2xl font-black font-mono-spec text-white bg-white/10 rounded-xl px-3.5 py-2.5 border border-white/15 focus:outline-none focus:ring-2 focus:ring-[#95bee8] focus:border-transparent transition-all shadow-xs"
               placeholder="e.g. 25.4"
             />
             <span className="absolute left-3.5 sm:left-4 rtl:left-auto rtl:right-auto rtl:left-3.5 font-bold font-mono-spec text-slate-400 text-sm pointer-events-none">
@@ -312,7 +312,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 const n = Math.max(0, currentMm - 1);
                 handleMmChange(n.toString());
               }}
-              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               -1 mm
             </button>
@@ -322,7 +322,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 const n = currentMm + 1;
                 handleMmChange(n.toString());
               }}
-              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               +1 mm
             </button>
@@ -332,17 +332,17 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 const n = currentMm + 5;
                 handleMmChange(n.toString());
               }}
-              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               +5 mm
             </button>
             <button
               type="button"
               onClick={() => copyToClipboard(`${activeCalculatedMm.toFixed(3)} mm`, 'mm')}
-              className="ml-auto p-1.5 text-slate-400 hover:text-[#232c86] rounded-lg hover:bg-white transition-all cursor-pointer"
+              className="ml-auto p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-all cursor-pointer"
               title="Copy mm"
             >
-              {copiedField === 'mm' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedField === 'mm' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
@@ -350,15 +350,15 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
         {/* Imperial Input / Output Box */}
         <div className={`p-4 sm:p-5 rounded-2xl transition-all border ${
           activeMode === 'inchToMm'
-            ? 'bg-amber-50/70 border-amber-200/80 ring-2 ring-amber-500/20'
-            : 'bg-slate-100/60 border-white/80'
+            ? 'bg-amber-500/10 border-amber-400/50 ring-2 ring-amber-400/20'
+            : 'bg-white/5 border-white/10'
         }`}>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-600" />
+            <label className="text-xs font-bold text-white flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
               {u.inchInputLabel}
             </label>
-            <span className="text-[10px] font-mono-spec font-semibold px-2 py-0.5 rounded-md bg-white text-amber-800 border border-amber-100 shadow-xs">
+            <span className="text-[10px] font-mono-spec font-semibold px-2 py-0.5 rounded-md bg-white/10 text-amber-300 border border-white/15 shadow-xs">
               ANSI / Imperial
             </span>
           </div>
@@ -374,7 +374,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 handleInchChange(e.target.value);
               }}
               onFocus={() => setActiveMode('inchToMm')}
-              className="w-full text-xl sm:text-2xl font-black font-mono-spec text-slate-900 bg-white/90 rounded-xl px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all shadow-xs"
+              className="w-full text-xl sm:text-2xl font-black font-mono-spec text-white bg-white/10 rounded-xl px-3.5 py-2.5 border border-white/15 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all shadow-xs"
               placeholder="e.g. 1.0"
             />
             <span className="absolute left-3.5 sm:left-4 rtl:left-auto rtl:right-auto rtl:left-3.5 font-bold font-mono-spec text-slate-400 text-sm pointer-events-none">
@@ -390,7 +390,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 const n = Math.max(0, currentInch - 0.125);
                 handleInchChange(n.toFixed(4).replace(/\.?0+$/, ''));
               }}
-              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               -1/8"
             </button>
@@ -400,7 +400,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 const n = currentInch + 0.125;
                 handleInchChange(n.toFixed(4).replace(/\.?0+$/, ''));
               }}
-              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               +1/8"
             </button>
@@ -410,17 +410,17 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 const n = currentInch + 0.25;
                 handleInchChange(n.toFixed(4).replace(/\.?0+$/, ''));
               }}
-              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="px-2.5 py-1 text-[11px] font-mono-spec font-bold rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               +1/4"
             </button>
             <button
               type="button"
               onClick={() => copyToClipboard(`${activeCalculatedInch.toFixed(4)}"`, 'inch')}
-              className="ml-auto p-1.5 text-slate-400 hover:text-amber-700 rounded-lg hover:bg-white transition-all cursor-pointer"
+              className="ml-auto p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-all cursor-pointer"
               title="Copy Inch"
             >
-              {copiedField === 'inch' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedField === 'inch' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
@@ -432,58 +432,58 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
         
         {/* Box 1: Nearest Standard Fraction */}
         <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 backdrop-blur-md flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-slate-600 font-semibold mb-1">
+          <div className="flex items-center justify-between text-xs text-slate-300 font-semibold mb-1">
             <span>{u.fractionLabel}</span>
             <button
               type="button"
               onClick={() => copyToClipboard(fractionInfo.display, 'fraction')}
-              className="text-slate-400 hover:text-[#232c86]"
+              className="text-slate-400 hover:text-white"
               title="Copy Fraction"
             >
-              {copiedField === 'fraction' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedField === 'fraction' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
-          <div className="text-2xl font-black font-mono-spec text-[#232c86] tracking-tight py-1">
+          <div className="text-2xl font-black font-mono-spec text-white tracking-tight py-1">
             {fractionInfo.display}
           </div>
-          <div className="text-[11px] font-mono-spec text-slate-500 flex items-center gap-1">
+          <div className="text-[11px] font-mono-spec text-slate-400 flex items-center gap-1">
             <span>{u.deviation}</span>
-            <span className={`font-bold ${Math.abs(fractionInfo.deviationThou) > 1 ? 'text-amber-600' : 'text-emerald-600'}`}>
+            <span className={`font-bold ${Math.abs(fractionInfo.deviationThou) > 1 ? 'text-amber-400' : 'text-emerald-400'}`}>
               {fractionInfo.deviationThou >= 0 ? `+${fractionInfo.deviationThou}` : fractionInfo.deviationThou} mil
             </span>
           </div>
         </div>
 
         {/* Box 2: Decimal Inches */}
-        <div className="p-4 rounded-2xl bg-white/80 border border-slate-200/80 backdrop-blur-md flex flex-col justify-between shadow-xs">
-          <div className="text-xs text-slate-500 font-semibold mb-1">
+        <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col justify-between shadow-xs">
+          <div className="text-xs text-slate-400 font-semibold mb-1">
             {u.exactInches}
           </div>
-          <div className="text-xl font-black font-mono-spec text-slate-900 tracking-tight py-1">
+          <div className="text-xl font-black font-mono-spec text-white tracking-tight py-1">
             {activeCalculatedInch.toFixed(4)} in
           </div>
-          <div className="text-[11px] font-mono-spec text-slate-500">
+          <div className="text-[11px] font-mono-spec text-slate-400">
             {thouMil.toLocaleString()} {language === 'fa' ? 'هزارم اینچ (thou)' : 'thou / mil'}
           </div>
         </div>
 
         {/* Box 3: Exact Millimeters & Microns */}
-        <div className="p-4 rounded-2xl bg-white/80 border border-slate-200/80 backdrop-blur-md flex flex-col justify-between shadow-xs">
-          <div className="text-xs text-slate-500 font-semibold mb-1">
+        <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col justify-between shadow-xs">
+          <div className="text-xs text-slate-400 font-semibold mb-1">
             {u.exactMm}
           </div>
-          <div className="text-xl font-black font-mono-spec text-slate-900 tracking-tight py-1">
+          <div className="text-xl font-black font-mono-spec text-white tracking-tight py-1">
             {activeCalculatedMm.toFixed(3)} mm
           </div>
-          <div className="text-[11px] font-mono-spec text-slate-500">
+          <div className="text-[11px] font-mono-spec text-slate-400">
             {microns.toLocaleString()} μm (microns)
           </div>
         </div>
 
         {/* Box 4: Action / Apply to Clearance Calculator */}
         <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md flex flex-col justify-between">
-          <div className="flex items-center gap-1.5 text-xs text-emerald-800 font-bold mb-1">
-            <Gauge className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold mb-1">
+            <Gauge className="w-3.5 h-3.5 text-emerald-400" />
             <span>{language === 'fa' ? 'انتقال به محاسبه‌گر' : 'Clearance Calculator'}</span>
           </div>
           
@@ -491,7 +491,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
             type="button"
             onClick={handleApplyBore}
             disabled={!onApplyBoreToCalculator || activeCalculatedMm <= 0}
-            className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+            className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
           >
             {appliedNotification ? (
               <>
@@ -506,7 +506,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
             )}
           </button>
 
-          <div className="text-[10px] text-emerald-700/80 font-medium text-center mt-1">
+          <div className="text-[10px] text-emerald-300 font-medium text-center mt-1">
             {language === 'fa' ? 'تنظیم فوری قطر شفت در محاسبه‌گر لقی' : 'Sync shaft bore with ISO 5753 tool'}
           </div>
         </div>
@@ -518,8 +518,8 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
         
         {/* Imperial Presets Row */}
         <div>
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300 mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>{u.quickSizesTitle}</span>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -528,7 +528,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 key={preset.label}
                 type="button"
                 onClick={() => selectImperialPreset(preset)}
-                className="px-2.5 py-1 rounded-xl text-[11px] font-mono-spec font-bold bg-white/80 hover:bg-[#232c86] hover:text-white border border-slate-200 hover:border-[#232c86] text-slate-700 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                className="px-2.5 py-1 rounded-xl text-[11px] font-mono-spec font-bold bg-white/5 hover:bg-[#2b5a94] hover:text-white border border-white/10 text-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
                 title={`${preset.label} = ${preset.mm} mm`}
               >
                 <span>{preset.label}</span>
@@ -540,8 +540,8 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
 
         {/* Metric Presets Row */}
         <div>
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
-            <Layers className="w-3.5 h-3.5 text-[#232c86]" />
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300 mb-2">
+            <Layers className="w-3.5 h-3.5 text-[#95bee8]" />
             <span>{language === 'fa' ? 'سایزهای استاندارد سوراخ بلبرینگ‌های متریک (Bore Codes):' : 'Standard Metric Bearing Bore Sizes (ISO):'}</span>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -550,7 +550,7 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
                 key={preset.label}
                 type="button"
                 onClick={() => selectMetricPreset(preset)}
-                className="px-2.5 py-1 rounded-xl text-[11px] font-mono-spec font-bold bg-white/80 hover:bg-[#232c86] hover:text-white border border-slate-200 hover:border-[#232c86] text-slate-700 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                className="px-2.5 py-1 rounded-xl text-[11px] font-mono-spec font-bold bg-white/5 hover:bg-[#2b5a94] hover:text-white border border-white/10 text-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
                 title={`${preset.label} (Code ${preset.code})`}
               >
                 <span>{preset.label}</span>
@@ -563,13 +563,13 @@ export const MetricImperialConverter: React.FC<MetricImperialConverterProps> = (
       </div>
 
       {/* Engineering Formula & Standards Footer */}
-      <div className="p-3.5 rounded-2xl bg-slate-100/70 border border-white text-xs text-slate-600 flex items-start gap-2.5">
-        <Info className="w-4 h-4 text-[#232c86] flex-shrink-0 mt-0.5" />
+      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 text-xs text-slate-300 flex items-start gap-2.5">
+        <Info className="w-4 h-4 text-[#95bee8] flex-shrink-0 mt-0.5" />
         <div className="space-y-0.5">
-          <span className="font-bold text-slate-800 block">
+          <span className="font-bold text-white block">
             {u.formulaTitle}
           </span>
-          <p className="text-[11px] text-slate-600 font-mono-spec leading-relaxed">
+          <p className="text-[11px] text-slate-400 font-mono-spec leading-relaxed">
             {u.formulaText}
           </p>
         </div>

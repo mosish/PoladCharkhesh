@@ -23,7 +23,7 @@ export const Industries: React.FC<IndustriesProps> = ({
   const content = usePageContent().industries;
 
   const getIcon = (iconName: string) => {
-    const iconClass = "w-5 h-5 text-[#232c86]";
+    const iconClass = "w-5 h-5 text-[#95bee8]";
     switch (iconName) {
       case 'Car': return <Car className={iconClass} />;
       case 'Mountain': return <Mountain className={iconClass} />;
@@ -41,47 +41,53 @@ export const Industries: React.FC<IndustriesProps> = ({
         
         {/* Header */}
         <div className="max-w-3xl mb-12 sm:mb-16 text-start">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
-            <Factory className="w-3.5 h-3.5 text-[#232c86]" />
+          <div className="eyebrow mb-3">
+            <span />
+            <Factory className="w-3.5 h-3.5 text-[#3b82f6]" />
             <span>{language === 'fa' ? content.tagFa : content.tagEn}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-medium text-white tracking-tight">
             {language === 'fa' ? content.titleFa : content.titleEn}
           </h2>
-          <p className="mt-2.5 text-sm sm:text-base text-slate-600">
+          <p className="mt-2.5 text-sm sm:text-base text-slate-300">
             {language === 'fa' ? content.subtitleFa : content.subtitleEn}
           </p>
         </div>
 
-        {/* 6 Industries Grid (Apple Liquid Glass Cards) */}
+        {/* 6 Industries Grid (Liquid Glass Panels) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {content.items.map((ind) => (
+          {content.items.map((ind, idx) => (
             <div
               key={ind.id}
-              className="p-6 sm:p-8 rounded-3xl glass-card flex flex-col justify-between group"
+              className="p-6 sm:p-8 rounded-3xl panel flex flex-col justify-between group text-white relative overflow-hidden"
             >
+              <div className="absolute top-5 right-5 text-2xl font-mono font-bold text-white/10 pointer-events-none" dir="ltr">
+                {String(idx + 1).padStart(2, '0')}
+              </div>
+
               <div>
-                <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/10 w-fit mb-5 shadow-sm group-hover:scale-105 transition-transform">
+                <div className="p-3.5 rounded-2xl bg-white/10 border border-white/15 w-fit mb-5 shadow-sm group-hover:scale-105 transition-transform">
                   {getIcon(ind.icon)}
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2.5">
+                <h3 className="text-base sm:text-lg font-bold text-white mb-2.5">
                   {language === 'fa' ? ind.titleFa : ind.titleEn}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6 font-normal">
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6 font-normal">
                   {language === 'fa' ? ind.descriptionFa : ind.descriptionEn}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-200/60">
-                <span className="text-[11px] font-semibold text-slate-500 block mb-2.5">
+              <div className="pt-4 border-t border-white/10">
+                <span className="text-[11px] font-semibold text-slate-400 block mb-2.5">
                   {language === 'fa' ? content.recommendedLabelFa : content.recommendedLabelEn}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {ind.recommendedBearings.map((code) => (
                     <button
                       key={code}
+                      type="button"
                       onClick={() => onSelectBearingCode(code.split(' ')[0])}
-                      className="px-3 py-1.5 text-xs font-mono-spec font-medium rounded-full glass-pill text-slate-700 hover:text-[#232c86] hover:bg-white/90 transition-all shadow-sm"
+                      className="px-3 py-1.5 text-xs font-mono font-medium rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/15 transition-all shadow-sm cursor-pointer"
                     >
                       {code}
                     </button>
@@ -96,4 +102,4 @@ export const Industries: React.FC<IndustriesProps> = ({
     </section>
   );
 };
-
+export default Industries;

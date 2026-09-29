@@ -346,7 +346,7 @@ export default function App() {
   const currentProduct = route.type === 'product' ? findProductBySlug(route.slug, allProducts) : undefined;
 
   return (
-    <div className="min-h-screen flex flex-col liquid-mesh-bg text-slate-900 relative overflow-x-clip">
+    <div className="min-h-screen flex flex-col text-slate-100 relative overflow-x-clip">
       {/* Apple Liquid Glass Ambient Light Orbs */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="fixed top-1/3 right-10 w-[30rem] h-[30rem] bg-indigo-500/8 rounded-full blur-3xl pointer-events-none -z-10" />

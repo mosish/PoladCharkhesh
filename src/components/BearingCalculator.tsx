@@ -253,28 +253,29 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 sm:mb-10 text-start">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold mb-4 shadow-sm">
-              <Wrench className="w-3.5 h-3.5 text-[#232c86]" />
+            <div className="eyebrow mb-3">
+              <span />
+              <Wrench className="w-3.5 h-3.5 text-[#3b82f6]" />
               <span>{language === 'fa' ? toolsContent.tagFa : toolsContent.tagEn}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-medium text-white tracking-tight">
               {language === 'fa' ? toolsContent.titleFa : toolsContent.titleEn}
             </h2>
-            <p className="mt-2.5 text-sm sm:text-base text-slate-600">
+            <p className="mt-2.5 text-sm sm:text-base text-slate-300">
               {language === 'fa' ? toolsContent.subtitleFa : toolsContent.subtitleEn}
             </p>
           </div>
 
           {/* Primary Tool Tab Switcher */}
-          <div className="flex flex-wrap items-center p-1.5 bg-slate-200/60 backdrop-blur-md rounded-2xl border border-white/80 shadow-xs self-start md:self-auto gap-1">
+          <div className="flex flex-wrap items-center p-1.5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-xs self-start md:self-auto gap-1">
             <button
               id="tab-clearance-btn"
               type="button"
               onClick={() => setActiveToolTab('clearance')}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'clearance'
-                  ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
-                  : 'text-slate-700 hover:text-slate-900'
+                  ? 'text-[#0e223b] bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] font-bold shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
               <Gauge className="w-4 h-4" />
@@ -287,8 +288,8 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
               onClick={() => setActiveToolTab('life')}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'life'
-                  ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
-                  : 'text-slate-700 hover:text-slate-900'
+                  ? 'text-[#0e223b] bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] font-bold shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
               <Hourglass className="w-4 h-4" />
@@ -301,8 +302,8 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
               onClick={() => setActiveToolTab('thermal')}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'thermal'
-                  ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
-                  : 'text-slate-700 hover:text-slate-900'
+                  ? 'text-[#0e223b] bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] font-bold shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
               <Activity className="w-4 h-4" />
@@ -315,8 +316,8 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
               onClick={() => setActiveToolTab('converter')}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'converter'
-                  ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
-                  : 'text-slate-700 hover:text-slate-900'
+                  ? 'text-[#0e223b] bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] font-bold shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
               <Ruler className="w-4 h-4" />
@@ -329,8 +330,8 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
               onClick={() => setActiveToolTab('all')}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all hidden sm:flex items-center gap-1.5 cursor-pointer ${
                 activeToolTab === 'all'
-                  ? 'bg-[#232c86] text-white shadow-sm font-extrabold'
-                  : 'text-slate-700 hover:text-slate-900'
+                  ? 'text-[#0e223b] bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] font-bold shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
               <Layers className="w-4 h-4" />
@@ -355,7 +356,7 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
 
         {/* METRIC / IMPERIAL DIMENSION CONVERTER VIEW (When converter tab or all tools is selected) */}
         {(activeToolTab === 'converter' || activeToolTab === 'all') && (
-          <div className={`mb-10 ${activeToolTab === 'all' ? 'border-b border-slate-200/60 pb-10' : ''}`}>
+          <div className={`mb-10 ${activeToolTab === 'all' ? 'border-b border-white/10 pb-10' : ''}`}>
             <MetricImperialConverter 
               language={language}
               onApplyBoreToCalculator={(boreMm) => {
@@ -371,33 +372,33 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
         {/* CLEARANCE CALCULATOR & SUFFIX GLOSSARY (When clearance tab or all tools is selected) */}
         {(activeToolTab === 'clearance' || activeToolTab === 'all') && (
           <div className="space-y-8 animate-in fade-in duration-200">
-            {/* Quick Preset Buttons for Responsive Engineering Setup (Apple Glass Pills) */}
+            {/* Quick Preset Buttons for Responsive Engineering Setup */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5 glass-pill px-3 py-1.5 rounded-full">
-                <Sparkles className="w-3.5 h-3.5 text-[#232c86]" />
+              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                 {t.tools.presetLabel}
               </span>
               <button
                 onClick={() => applyPreset('motor')}
-                className="px-3.5 py-1.5 rounded-full glass-pill text-xs font-semibold text-slate-700 hover:text-[#232c86] hover:bg-white/80 transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/15 transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 ⚡ {t.tools.presets.motor}
               </button>
               <button
                 onClick={() => applyPreset('kiln')}
-                className="px-3.5 py-1.5 rounded-full glass-pill text-xs font-semibold text-slate-700 hover:text-[#232c86] hover:bg-white/80 transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/15 transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 🔥 {t.tools.presets.kiln}
               </button>
               <button
                 onClick={() => applyPreset('screen')}
-                className="px-3.5 py-1.5 rounded-full glass-pill text-xs font-semibold text-slate-700 hover:text-[#232c86] hover:bg-white/80 transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/15 transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 📈 {t.tools.presets.screen}
               </button>
               <button
                 onClick={() => applyPreset('spindle')}
-                className="px-3.5 py-1.5 rounded-full glass-pill text-xs font-semibold text-slate-700 hover:text-[#232c86] hover:bg-white/80 transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/15 transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 🎯 {t.tools.presets.spindle}
               </button>
@@ -406,19 +407,19 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
             {/* 2-Column Responsive Grid: Clearance Calculator + Suffix Glossary */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               
-              {/* Interactive Calculator Card (Apple Liquid Glass) */}
-              <div className="lg:col-span-7 glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+              {/* Interactive Calculator Card (Liquid Glass Panel) */}
+              <div className="lg:col-span-7 panel p-6 sm:p-8 rounded-3xl space-y-6 text-white">
                 
-                <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+                <div className="flex items-center justify-between pb-4 border-b border-white/10">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-2xl bg-blue-500/10 text-[#232c86] border border-blue-500/10 flex-shrink-0">
+                    <div className="p-3 rounded-2xl bg-white/10 text-[#95bee8] border border-white/15 flex-shrink-0">
                       <Gauge className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-slate-900">
+                      <h3 className="text-base font-bold text-white">
                         {language === 'fa' ? 'محاسبه‌گر تخصصی لقی داخلی بر اساس استاندارد ISO 5753' : 'ISO 5753 Radial Internal Clearance (RIC) Engine'}
                       </h3>
-                      <span className="text-xs text-slate-500 block mt-0.5">
+                      <span className="text-xs text-slate-400 block mt-0.5">
                         {language === 'fa' ? 'محاسبه انقباض حرارتی شفت و انطباق پرسی بر لقی کاری برینگ' : 'Precision ISO radial clearance with thermal expansion & fit reduction math'}
                       </span>
                     </div>
@@ -427,9 +428,9 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
 
                 {/* Step 1: Bearing Family Type */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-300 flex items-center justify-between">
                     <span>{language === 'fa' ? '۱. خانواده و تیپ برینگ (ISO 5753-1):' : '1. Bearing Family Type (ISO 5753-1):'}</span>
-                    <span className="text-[11px] font-mono text-[#232c86] font-semibold">
+                    <span className="text-[11px] font-mono text-[#c9e8ff] font-semibold">
                       {bearingFamilies.find(f => f.id === bearingFamily)?.standard}
                     </span>
                   </label>
@@ -441,26 +442,26 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                         onClick={() => setBearingFamily(fam.id as BearingFamily)}
                         className={`p-2.5 rounded-2xl text-xs text-start transition-all border cursor-pointer active:scale-95 flex items-center justify-between ${
                           bearingFamily === fam.id
-                            ? 'bg-[#232c86] text-white border-[#232c86] shadow-sm font-bold'
-                            : 'glass-card bg-white/60 text-slate-700 hover:bg-white hover:text-slate-900'
+                            ? 'bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] text-[#0e223b] border-white/40 shadow-sm font-bold'
+                            : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/15 hover:text-white'
                         }`}
                       >
                         <span>{language === 'fa' ? fam.labelFa : fam.labelEn}</span>
-                        {bearingFamily === fam.id && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                        {bearingFamily === fam.id && <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Step 2: Bore Diameter (d) */}
-                <div className="space-y-3 bg-slate-100/60 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,1)]">
-                  <div className="flex justify-between items-center text-xs font-bold text-slate-800">
+                <div className="space-y-3 bg-white/5 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/10 shadow-sm">
+                  <div className="flex justify-between items-center text-xs font-bold text-white">
                     <span className="flex items-center gap-1.5">
-                      <Disc className="w-4 h-4 text-[#232c86]" />
+                      <Disc className="w-4 h-4 text-[#95bee8]" />
                       {t.tools.boreLabel} (d):
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 rounded-xl bg-white/90 border border-white font-mono-spec font-black text-[#232c86] text-sm shadow-sm">
+                      <span className="px-3 py-1 rounded-xl bg-white/10 border border-white/15 font-mono-spec font-black text-[#c9e8ff] text-sm shadow-sm">
                         {selectedBoreSize} mm
                       </span>
                     </div>
@@ -472,9 +473,9 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                     step={BORE_STEP}
                     value={selectedBoreSize}
                     onChange={(e) => setSelectedBoreSize(Number(e.target.value))}
-                    className="w-full h-2 bg-slate-300/80 rounded-lg appearance-none cursor-pointer accent-[#232c86]"
+                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#95bee8]"
                   />
-                  <div className="flex justify-between text-[11px] text-slate-500 font-mono-spec">
+                  <div className="flex justify-between text-[11px] text-slate-400 font-mono-spec">
                     <span>10 mm</span>
                     <span>50 mm</span>
                     <span>100 mm</span>
@@ -486,16 +487,16 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Shaft Tolerance Selection */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                    <label className="block text-xs font-bold text-white flex items-center justify-between">
                       <span>{language === 'fa' ? 'تلرانس انطباق شفت:' : 'Shaft Tolerance Fit:'}</span>
-                      <span className="text-[11px] font-mono text-amber-700 font-bold">
+                      <span className="text-[11px] font-mono text-amber-400 font-bold">
                         Δd_fit: -{fitReductionUm} μm
                       </span>
                     </label>
                     <select
                       value={shaftTolerance}
                       onChange={(e) => setShaftTolerance(e.target.value)}
-                      className="w-full px-3 py-2.5 glass-input rounded-2xl text-xs font-bold text-slate-800 focus:outline-none cursor-pointer"
+                      className="w-full px-3 py-2.5 bg-white/10 border border-white/15 rounded-2xl text-xs font-bold text-white focus:outline-none cursor-pointer"
                     >
                       {SHAFT_TOLERANCES.map((st) => (
                         <option key={st.code} value={st.code}>
@@ -507,7 +508,7 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
 
                   {/* Speed Category */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold text-slate-800">
+                    <label className="block text-xs font-bold text-white">
                       {t.tools.speedLabel}
                     </label>
                     <div className="grid grid-cols-3 gap-1.5">
@@ -522,8 +523,8 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                           onClick={() => setSpeedCategory(s.id as any)}
                           className={`py-2 px-1 text-[11px] font-semibold rounded-xl border transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer ${
                             speedCategory === s.id
-                              ? 'bg-[#232c86] text-white border-[#232c86] shadow-xs font-bold'
-                              : 'glass-btn-secondary text-slate-700'
+                              ? 'bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] text-[#0e223b] border-white/40 shadow-xs font-bold'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/15'
                           }`}
                         >
                           <span>{s.icon}</span>
@@ -535,18 +536,18 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                 </div>
 
                 {/* Operating Temperature Slider */}
-                <div className="space-y-3 bg-slate-100/60 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,1)]">
-                  <div className="flex justify-between items-center text-xs font-bold text-slate-800">
+                <div className="space-y-3 bg-white/5 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/10 shadow-sm">
+                  <div className="flex justify-between items-center text-xs font-bold text-white">
                     <span className="flex items-center gap-1.5">
-                      <Thermometer className="w-4 h-4 text-amber-600" />
+                      <Thermometer className="w-4 h-4 text-amber-400" />
                       {t.tools.tempLabel}:
                     </span>
                     <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-slate-500 font-mono">
+                      <span className="text-[11px] text-slate-400 font-mono">
                         (ΔT حلقه داخلی-خارجی: ~{deltaTempInnerOuter}°C | افت حرارتی: -{thermalReductionUm}μm)
                       </span>
-                      <span className={`px-3 py-1 rounded-xl bg-white/90 border border-white font-mono-spec font-black text-sm shadow-sm ${
-                        operatingTemp > 100 ? 'text-red-600' : operatingTemp > 60 ? 'text-amber-600' : 'text-blue-600'
+                      <span className={`px-3 py-1 rounded-xl bg-white/10 border border-white/15 font-mono-spec font-black text-sm shadow-sm ${
+                        operatingTemp > 100 ? 'text-red-400' : operatingTemp > 60 ? 'text-amber-400' : 'text-sky-400'
                       }`}>
                         {operatingTemp} °C
                       </span>
@@ -559,9 +560,9 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                     step="5"
                     value={operatingTemp}
                     onChange={(e) => setOperatingTemp(Number(e.target.value))}
-                    className="w-full h-2 bg-slate-300/80 rounded-lg appearance-none cursor-pointer accent-[#232c86]"
+                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#95bee8]"
                   />
-                  <div className="flex justify-between text-[11px] text-slate-500 font-mono-spec">
+                  <div className="flex justify-between text-[11px] text-slate-400 font-mono-spec">
                     <span>{t.tools.tempCold} (20°C)</span>
                     <span>{t.tools.tempNormal} (80°C)</span>
                     <span>{t.tools.tempHot} (180°C)</span>
@@ -570,10 +571,10 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
 
                 {/* Clearance Hierarchy Guide for This Exact Bore Size (from ISO Tables) */}
                 <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <label className="block text-xs font-bold text-white flex items-center justify-between">
                     <span>{language === 'fa' ? `جدول حدود لقی اولیه ISO 5753 برای شفت ${selectedBoreSize}mm:` : `ISO 5753 Initial Radial Clearance Range for ${selectedBoreSize}mm:`}</span>
-                    <span className="text-[11px] font-mono text-slate-500 font-normal">
-                      (کاهش کل برینگ: <strong className="text-red-600 font-black">-{totalReductionUm} μm</strong>)
+                    <span className="text-[11px] font-mono text-slate-400 font-normal">
+                      (کاهش کل برینگ: <strong className="text-red-400 font-black">-{totalReductionUm} μm</strong>)
                     </span>
                   </label>
                   <div className="grid grid-cols-5 gap-1.5">
@@ -584,14 +585,14 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                           key={lvl.code}
                           className={`p-2.5 rounded-2xl text-center border transition-all ${
                             isSelected
-                              ? 'bg-[#232c86] text-white border-[#232c86] shadow-md scale-105 ring-2 ring-blue-300'
-                              : 'glass-card bg-white/40 text-slate-700 border-white/60'
+                              ? 'bg-gradient-to-r from-[#d4ebff] to-[#a9d1f1] text-[#0e223b] border-white/40 shadow-md scale-105 font-bold'
+                              : 'bg-white/5 text-slate-300 border-white/10'
                           }`}
                         >
-                          <div className={`font-black font-mono-spec text-sm ${isSelected ? 'text-white' : 'text-slate-800'}`}>
+                          <div className={`font-black font-mono-spec text-sm ${isSelected ? 'text-[#0e223b]' : 'text-white'}`}>
                             {lvl.code}
                           </div>
-                          <div className={`text-[10px] font-mono-spec mt-1 font-bold ${isSelected ? 'text-blue-100' : 'text-slate-500'}`}>
+                          <div className={`text-[10px] font-mono-spec mt-1 font-bold ${isSelected ? 'text-slate-800' : 'text-slate-400'}`}>
                             {lvl.range}
                           </div>
                         </div>
@@ -603,7 +604,7 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                 {/* Calculated Result Box (Frosted Accent Glass) */}
                 <div className="p-5 rounded-3xl bg-blue-500/10 backdrop-blur-md border border-blue-500/20 space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">
+                    <span className="text-xs font-bold text-slate-400">
                       {t.tools.recTitle}
                     </span>
                     <span className={`px-3.5 py-1.5 text-xs font-black font-mono-spec rounded-full border shadow-sm backdrop-blur-md ${recommendation.badgeBg}`}>
@@ -611,28 +612,28 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                     </span>
                   </div>
                   
-                  <div className="text-sm font-black text-[#1a226b]">
+                  <div className="text-sm font-black text-white">
                     {language === 'fa' ? recommendation.nameFa : recommendation.nameEn}
                   </div>
 
-                  <p className="text-xs text-slate-700 leading-relaxed">
+                  <p className="text-xs text-slate-300 leading-relaxed">
                     {language === 'fa' ? recommendation.reasonFa : recommendation.reasonEn}
                   </p>
 
                   <div className="pt-3 border-t border-blue-500/20 grid grid-cols-2 gap-4 text-xs">
                     <div>
-                      <span className="text-slate-500 block text-[11px] mb-0.5">
+                      <span className="text-slate-400 block text-[11px] mb-0.5">
                         {language === 'fa' ? 'لقی اولیه پیش از نصب (ISO):' : 'Initial Clearance (ISO):'}
                       </span>
-                      <span className="font-mono-spec font-bold text-[#232c86]">
+                      <span className="font-mono-spec font-bold text-[#95bee8]">
                         {recommendation.initialRange}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block text-[11px] mb-0.5">
+                      <span className="text-slate-400 block text-[11px] mb-0.5">
                         {language === 'fa' ? 'لقی باقیمانده کارکرد (Operating):' : 'Effective Operating RIC:'}
                       </span>
-                      <span className="font-mono-spec font-black text-emerald-700">
+                      <span className="font-mono-spec font-black text-emerald-400">
                         {recommendation.remainingClearanceRange}
                       </span>
                     </div>
@@ -642,28 +643,28 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
               </div>
 
               {/* Suffix & Nomenclature Guide Card (Apple Liquid Glass) */}
-              <div className="lg:col-span-5 glass-card p-6 sm:p-8 rounded-3xl space-y-5">
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-200/60">
-                  <div className="p-3 rounded-2xl bg-blue-500/10 text-[#232c86] border border-blue-500/10 flex-shrink-0">
+              <div className="lg:col-span-5 panel p-6 sm:p-8 rounded-3xl space-y-5 text-white">
+                <div className="flex items-center gap-3 pb-4 border-b border-white/10">
+                  <div className="p-3 rounded-2xl bg-white/10 text-[#95bee8] border border-white/15 flex-shrink-0">
                     <HelpCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="text-base font-bold text-white">
                       {t.tools.interchangeTitle}
                     </h3>
-                    <span className="text-xs text-slate-500 block mt-0.5">
+                    <span className="text-xs text-slate-400 block mt-0.5">
                       {t.tools.interchangeSub}
                     </span>
                   </div>
                 </div>
 
-                <div className="divide-y divide-slate-200/40 text-xs">
+                <div className="divide-y divide-white/10 text-xs">
                   {t.tools.interchangeTips.map((tip, idx) => (
                     <div key={idx} className="py-3.5 flex items-start gap-3 first:pt-0 last:pb-0">
-                      <span className="px-2.5 py-1 rounded-xl bg-blue-500/10 text-[#232c86] font-mono-spec font-bold text-xs whitespace-nowrap border border-blue-500/20">
+                      <span className="px-2.5 py-1 rounded-xl bg-white/10 text-[#c9e8ff] font-mono-spec font-bold text-xs whitespace-nowrap border border-white/15">
                         {tip.code}
                       </span>
-                      <p className="text-slate-700 leading-relaxed pt-0.5">
+                      <p className="text-slate-300 leading-relaxed pt-0.5">
                         {tip.desc}
                       </p>
                     </div>
@@ -671,23 +672,23 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
                 </div>
 
                 {/* Quick Suffix Legend */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-slate-100/60 backdrop-blur-sm border border-white/80 text-xs space-y-3">
-                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 text-xs space-y-3">
+                  <span className="font-bold text-white flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     {language === 'fa' ? 'راهنمای کدهای فنی پسوند برندهای اصلی:' : 'Key Technical Suffix Reference:'}
                   </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600">
-                    <div className="p-2.5 rounded-xl bg-white/80 border border-white/90 shadow-sm">
-                      <strong className="text-[#232c86]">2RS / DDU / LLU:</strong> {language === 'fa' ? 'کاسه نمد تماسی دوطرفه' : 'Dual Contact Seals'}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                      <strong className="text-[#95bee8]">2RS / DDU / LLU:</strong> {language === 'fa' ? 'کاسه نمد تماسی دوطرفه' : 'Dual Contact Seals'}
                     </div>
-                    <div className="p-2.5 rounded-xl bg-white/80 border border-white/90 shadow-sm">
-                      <strong className="text-[#232c86]">ZZ / 2Z / 2NSE:</strong> {language === 'fa' ? 'شیلد فلزی محافظ گردوغبار' : 'Dual Steel Shields'}
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                      <strong className="text-[#95bee8]">ZZ / 2Z / 2NSE:</strong> {language === 'fa' ? 'شیلد فلزی محافظ گردوغبار' : 'Dual Steel Shields'}
                     </div>
-                    <div className="p-2.5 rounded-xl bg-white/80 border border-white/90 shadow-sm">
-                      <strong className="text-[#232c86]">EM / M / M1A:</strong> {language === 'fa' ? 'قفسه برنجی ماشین‌کاری' : 'Solid Machined Brass Cage'}
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                      <strong className="text-[#95bee8]">EM / M / M1A:</strong> {language === 'fa' ? 'قفسه برنجی ماشین‌کاری' : 'Solid Machined Brass Cage'}
                     </div>
-                    <div className="p-2.5 rounded-xl bg-white/80 border border-white/90 shadow-sm">
-                      <strong className="text-[#232c86]">K / K30 / W33:</strong> {language === 'fa' ? 'کونیک با شیار روغن' : 'Tapered Bore & Lube Groove'}
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                      <strong className="text-[#95bee8]">K / K30 / W33:</strong> {language === 'fa' ? 'کونیک با شیار روغن' : 'Tapered Bore & Lube Groove'}
                     </div>
                   </div>
                 </div>
@@ -701,10 +702,10 @@ export const BearingCalculator: React.FC<BearingCalculatorProps> = ({ language }
         {/* BEARING LIFE & SPEED/THERMAL ESTIMATOR IN ALL TOOLS TAB */}
         {activeToolTab === 'all' && (
           <>
-            <div className="mt-12 pt-12 border-t border-slate-200/60 animate-in fade-in duration-200">
+            <div className="mt-12 pt-12 border-t border-white/10 animate-in fade-in duration-200">
               <BearingLifeCalculator language={language} embedded={true} />
             </div>
-            <div className="mt-12 pt-12 border-t border-slate-200/60 animate-in fade-in duration-200">
+            <div className="mt-12 pt-12 border-t border-white/10 animate-in fade-in duration-200">
               <BearingThermalEstimator language={language} embedded={true} />
             </div>
           </>

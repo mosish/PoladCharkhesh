@@ -72,7 +72,6 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
 
   const t = translations[language];
 
-
   const handleExportPdf = async () => {
     try {
       setIsExporting(true);
@@ -98,31 +97,31 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-[#030a16a8] backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div 
         id="bearing-spec-modal-card"
-        className="relative w-full max-w-4xl max-h-[92vh] glass-card rounded-3xl shadow-2xl overflow-y-auto bg-white/95 flex flex-col"
+        className="relative w-full max-w-4xl max-h-[92vh] dialog product-float rounded-3xl shadow-2xl overflow-y-auto flex flex-col border border-[#d5eaff50]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 z-20 flex items-center justify-between px-5 sm:px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-200/60">
+        <div className="sticky top-0 z-20 flex items-center justify-between px-5 sm:px-6 py-4 bg-[#142337]/95 backdrop-blur-md border-b border-white/10">
           <div className="flex items-center gap-3">
-            <span className="p-2.5 rounded-2xl bg-blue-500/10 text-[#232c86] border border-blue-500/15">
+            <span className="p-2.5 rounded-2xl bg-blue-500/10 text-[#95bee8] border border-blue-500/20">
               <RotateCw className="w-5 h-5 animate-[spin_10s_linear_infinite]" />
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg sm:text-xl font-bold font-mono-spec text-slate-900">
+                <h3 className="text-lg sm:text-xl font-bold font-mono-spec text-white">
                   {product.code}
                 </h3>
-                <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 flex items-center gap-1">
+                <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" />
                   {t.specModal.brandAuthenticity.split(':')[0]}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
+              <p className="text-xs text-slate-300 mt-0.5 font-medium">
                 {language === 'fa' ? product.nameFa : product.nameEn}
               </p>
             </div>
@@ -131,7 +130,7 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
           <button
             id="close-spec-modal-btn"
             onClick={onClose}
-            className="p-2.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 rounded-full transition-colors cursor-pointer"
+            className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
             title={t.specModal.close}
           >
             <X className="w-5 h-5" />
@@ -139,7 +138,7 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-6 space-y-6 flex-1">
+        <div className="p-5 sm:p-6 space-y-6 flex-1 text-slate-200">
           {/* Top Grid: CAD Schematic & Key Highlights */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <div className="md:col-span-6 flex flex-col justify-center">
@@ -156,26 +155,26 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
 
             <div className="md:col-span-6 flex flex-col justify-between space-y-4">
               <div>
-                <h4 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-[#232c86]" />
+                <h4 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#95bee8]" />
                   {t.specModal.dimTitle}
                 </h4>
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-3 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-                    <span className="block text-[11px] text-slate-500 font-medium">{t.specModal.innerDiaLabel}</span>
-                    <span className="text-base sm:text-lg font-black font-mono-spec text-slate-900">
+                  <div className="p-3 bg-white/5 rounded-2xl border border-white/10 shadow-sm">
+                    <span className="block text-[11px] text-slate-400 font-medium">{t.specModal.innerDiaLabel}</span>
+                    <span className="text-base sm:text-lg font-black font-mono-spec text-white">
                       {product.d > 0 ? `${product.d} mm` : 'N/A'}
                     </span>
                   </div>
-                  <div className="p-3 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-                    <span className="block text-[11px] text-slate-500 font-medium">{t.specModal.outerDiaLabel}</span>
-                    <span className="text-base sm:text-lg font-black font-mono-spec text-slate-900">
+                  <div className="p-3 bg-white/5 rounded-2xl border border-white/10 shadow-sm">
+                    <span className="block text-[11px] text-slate-400 font-medium">{t.specModal.outerDiaLabel}</span>
+                    <span className="text-base sm:text-lg font-black font-mono-spec text-white">
                       {product.D > 0 ? `${product.D} mm` : 'N/A'}
                     </span>
                   </div>
-                  <div className="p-3 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-                    <span className="block text-[11px] text-slate-500 font-medium">{t.specModal.widthLabel}</span>
-                    <span className="text-base sm:text-lg font-black font-mono-spec text-slate-900">
+                  <div className="p-3 bg-white/5 rounded-2xl border border-white/10 shadow-sm">
+                    <span className="block text-[11px] text-slate-400 font-medium">{t.specModal.widthLabel}</span>
+                    <span className="text-base sm:text-lg font-black font-mono-spec text-white">
                       {product.B > 0 ? `${product.B} mm` : 'N/A'}
                     </span>
                   </div>
@@ -183,32 +182,32 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
               </div>
 
               <div>
-                <h4 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-[#232c86]" />
+                <h4 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-[#95bee8]" />
                   {t.specModal.loadTitle}
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-center">
-                  <div className="p-2.5 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-                    <span className="block text-[11px] text-slate-500 font-medium">{t.specModal.crLabel}</span>
-                    <span className="text-sm sm:text-base font-black font-mono-spec text-[#232c86]">
+                  <div className="p-2.5 bg-white/5 rounded-2xl border border-white/10 shadow-sm">
+                    <span className="block text-[11px] text-slate-400 font-medium">{t.specModal.crLabel}</span>
+                    <span className="text-sm sm:text-base font-black font-mono-spec text-[#c9e8ff]">
                       {product.crKn > 0 ? `${product.crKn} kN` : '—'}
                     </span>
                   </div>
-                  <div className="p-2.5 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-                    <span className="block text-[11px] text-slate-500 font-medium">{t.specModal.corLabel}</span>
-                    <span className="text-sm sm:text-base font-black font-mono-spec text-[#232c86]">
+                  <div className="p-2.5 bg-white/5 rounded-2xl border border-white/10 shadow-sm">
+                    <span className="block text-[11px] text-slate-400 font-medium">{t.specModal.corLabel}</span>
+                    <span className="text-sm sm:text-base font-black font-mono-spec text-[#c9e8ff]">
                       {product.corKn > 0 ? `${product.corKn} kN` : '—'}
                     </span>
                   </div>
-                  <div className="p-2.5 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-                    <span className="block text-[11px] text-slate-500 font-medium">{t.specModal.speedGreaseLabel}</span>
-                    <span className="text-sm sm:text-base font-black font-mono-spec text-sky-600">
+                  <div className="p-2.5 bg-white/5 rounded-2xl border border-white/10 shadow-sm">
+                    <span className="block text-[11px] text-slate-400 font-medium">{t.specModal.speedGreaseLabel}</span>
+                    <span className="text-sm sm:text-base font-black font-mono-spec text-sky-400">
                       {product.speedGreaseRpm > 0 ? `${product.speedGreaseRpm.toLocaleString()} RPM` : '—'}
                     </span>
                   </div>
-                  <div className="p-2.5 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-                    <span className="block text-[11px] text-slate-500 font-medium">{t.specModal.weightLabel}</span>
-                    <span className="text-sm sm:text-base font-black font-mono-spec text-slate-700">
+                  <div className="p-2.5 bg-white/5 rounded-2xl border border-white/10 shadow-sm">
+                    <span className="block text-[11px] text-slate-400 font-medium">{t.specModal.weightLabel}</span>
+                    <span className="text-sm sm:text-base font-black font-mono-spec text-slate-200">
                       {product.weightKg > 0 ? `${product.weightKg} kg` : '—'}
                     </span>
                   </div>
@@ -218,150 +217,80 @@ export const BearingSpecModal: React.FC<BearingSpecModalProps> = ({
           </div>
 
           {/* Detailed Materials & Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-              <h5 className="text-xs font-bold text-slate-500 uppercase mb-2">
-                {t.specModal.materialTitle}
-              </h5>
-              <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
-                <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#232c86] mt-1.5 flex-shrink-0" />
-                  <span><strong>{t.specModal.cageLabel}</strong> {language === 'fa' ? product.cageMaterialFa : product.cageMaterialEn}</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#232c86] mt-1.5 flex-shrink-0" />
-                  <span><strong>{t.specModal.sealingLabel}</strong> {language === 'fa' ? product.sealingFa : product.sealingEn}</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#232c86] mt-1.5 flex-shrink-0" />
-                  <span><strong>{t.specModal.clearanceLabel}</strong> {product.clearanceOptions.join(' , ')}</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="p-4 bg-slate-100/60 rounded-2xl border border-white/80 shadow-sm">
-              <h5 className="text-xs font-bold text-slate-500 uppercase mb-2">
-                {t.specModal.brandsTitle}
-              </h5>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {product.brands.map((b) => (
-                  <span
-                    key={b}
-                    className="px-2.5 py-1 text-xs font-bold rounded-xl glass-pill text-slate-800 font-mono-spec"
-                  >
-                    {b}
-                  </span>
-                ))}
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+              {t.specModal.materialTitle}
+            </h4>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <span className="text-slate-400 block">{t.specModal.cageLabel}</span>
+                <span className="font-semibold text-white">{language === 'fa' ? product.cageMaterialFa : product.cageMaterialEn}</span>
               </div>
-              <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                {t.specModal.brandsNote}
-              </p>
+              <div>
+                <span className="text-slate-400 block">{t.specModal.sealingLabel}</span>
+                <span className="font-semibold text-white">{language === 'fa' ? product.sealingFa : product.sealingEn}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 block">{t.specModal.clearanceLabel}</span>
+                <span className="font-semibold text-white">{product.clearanceOptions.join(', ')}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 block">{t.specModal.speedGreaseLabel}:</span>
+                <span className="font-semibold text-white">{product.speedGreaseRpm ? `${product.speedGreaseRpm.toLocaleString()} RPM` : 'N/A'}</span>
+              </div>
             </div>
           </div>
 
-          {/* Technical Manufacturer Source Verification Badge */}
-          {product.technicalSources && product.technicalSources.length > 0 && (
-            <div className="p-3.5 bg-blue-50/60 rounded-2xl border border-blue-200/80 text-xs space-y-1.5 shadow-xs">
-              <div className="flex items-center gap-1.5 font-bold text-[#232c86]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-                <span>
-                  {language === 'fa' ? 'منبع و مستندات فنی اعتبارسنجی‌شده:' : 'Verified Manufacturer & Standard Documentation:'}
-                </span>
-              </div>
-              <div className="text-slate-600 font-mono-spec text-[11px] leading-relaxed">
-                {product.technicalSources.map((s, idx) => (
-                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-t border-blue-100/80 pt-1 first:border-0 first:pt-0">
-                    <span>
-                      <strong className="text-slate-800">{s.manufacturer}:</strong> {s.reference}
-                    </span>
-                    <span className="text-[10px] text-blue-700 font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-100/70 w-fit">
-                      {s.sourceType.replace('_', ' ')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Action Buttons: PDF Export & WhatsApp / Call Consultation */}
+          <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <button
+              id="export-pdf-datasheet-btn"
+              type="button"
+              onClick={handleExportPdf}
+              disabled={isExporting}
+              className="button flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer text-xs font-semibold text-white"
+            >
+              {isExporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-sky-400" />
+                  <span>{t.specModal.exportingPdf}</span>
+                </>
+              ) : exportSuccess ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span className="text-emerald-400">{language === 'fa' ? 'دانلود شد!' : 'Downloaded!'}</span>
+                </>
+              ) : (
+                <>
+                  <FileDown className="w-4 h-4 text-[#95bee8]" />
+                  <span>{t.specModal.exportPdf}</span>
+                </>
+              )}
+            </button>
 
-          {/* B2B Engineering Consultation & Technical Notice */}
-          <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[11px] text-amber-900 leading-relaxed flex items-start gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-            <span>
-              {language === 'fa' 
-                ? 'مشخصات ابعادی و ظرفیت بار بر اساس استاندارد ISO و کاتالوگ سازندگان مرجع درج گردیده است. جهت تطبیق شرایط بار دینامیکی، انتخاب روانکار، لقی مجاز و دریافت تأییدیه فنی، با مهندسین پولاد چرخه‌ش تماس حاصل فرمایید.'
-                : 'Dimensions and load capacities reflect ISO standards and manufacturer catalog data. Contact Polad Charkhesh engineering team for application verification and official quotes.'}
-            </span>
-          </div>
-
-          {/* Applications list */}
-          <div>
-            <h5 className="text-sm font-bold text-slate-900 mb-2">
-              {t.specModal.applicationsTitle}
-            </h5>
-            <div className="flex flex-wrap gap-2">
-              {(language === 'fa' ? product.applicationsFa : product.applicationsEn).map((app, idx) => (
-                <span
-                  key={idx}
-                  className="px-3 py-1.5 text-xs rounded-full glass-pill text-[#232c86]"
-                >
-                  {app}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Modal Action Footer */}
-        <div className="sticky bottom-0 z-20 px-5 sm:px-6 py-4 bg-slate-50/95 backdrop-blur-md border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
-          {/* Main Formatted PDF Export Button */}
-          <button
-            id="modal-download-pdf-btn"
-            type="button"
-            onClick={handleExportPdf}
-            disabled={isExporting}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-[#232c86] hover:bg-[#1a2166] text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95 disabled:opacity-60 flex-1 sm:flex-initial"
-          >
-            {isExporting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : exportSuccess ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            ) : (
-              <FileDown className="w-4 h-4" />
-            )}
-            <span>{isExporting ? t.specModal.exportingPdf : t.specModal.exportPdf}</span>
-          </button>
-
-          {/* WhatsApp and Phone Inquiry Actions */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            {company.whatsappEnabled !== false && (
+            <div className="flex items-center gap-2">
               <a
-                id="spec-modal-whatsapp-link"
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex-1 sm:flex-initial"
+                className="button primary flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>{t.specModal.inquireWhatsapp}</span>
               </a>
-            )}
 
-            {company.phoneEnabled !== false && (
               <a
-                id="spec-modal-phone-link"
                 href={company.primaryPhoneTel}
-                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-slate-200/90 hover:bg-slate-300 text-slate-800 font-bold text-xs sm:text-sm transition-all"
-                title={t.specModal.directPhone}
+                className="button flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white"
               >
-                <PhoneCall className="w-4 h-4 text-[#232c86]" />
-                <span className="hidden md:inline font-mono-spec">{language === 'fa' ? company.primaryPhoneDisplayFa : company.primaryPhoneDisplayEn}</span>
+                <PhoneCall className="w-4 h-4 text-[#95bee8]" />
+                <span>{t.specModal.directPhone}</span>
               </a>
-            )}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-
+export default BearingSpecModal;

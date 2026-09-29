@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
 import { useCompanyInfo, usePageContent } from '../services/dataService';
-import { RealisticBearingViewer } from './RealisticBearingViewer';
+import { HeroBearing } from './HeroBearing';
 import { 
   Search, 
   ShieldCheck, 
   ArrowRight, 
   ArrowLeft,
+  ArrowUpRight,
   PhoneCall
 } from 'lucide-react';
 
@@ -22,6 +23,7 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
   const [searchInput, setSearchInput] = useState('');
   const t = translations[language];
   const heroContent = pageContent.hero;
+  const isFa = language === 'fa';
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,133 +36,176 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
     }
   };
 
+  const handleQuickSearch = (code: string) => {
+    setSearchInput(code);
+    onSearchSubmit(code);
+    const catalogEl = document.getElementById('catalog');
+    if (catalogEl) {
+      catalogEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const topBrands = [
-    { name: 'SKF', origin: language === 'fa' ? 'سوئد' : 'Sweden' },
-    { name: 'FAG / INA', origin: language === 'fa' ? 'آلمان' : 'Germany' },
-    { name: 'TIMKEN', origin: language === 'fa' ? 'آمریکا' : 'USA' },
-    { name: 'NSK', origin: language === 'fa' ? 'ژاپن' : 'Japan' },
-    { name: 'NTN', origin: language === 'fa' ? 'ژاپن' : 'Japan' },
-    { name: 'KOYO', origin: language === 'fa' ? 'ژاپن' : 'Japan' },
-    { name: 'NACHI', origin: language === 'fa' ? 'ژاپن' : 'Japan' },
-    { name: 'CORTECO', origin: language === 'fa' ? 'ایتالیا' : 'Italy' },
+    { name: 'SKF', origin: isFa ? 'سوئد' : 'Sweden' },
+    { name: 'FAG / INA', origin: isFa ? 'آلمان' : 'Germany' },
+    { name: 'TIMKEN', origin: isFa ? 'آمریکا' : 'USA' },
+    { name: 'NSK', origin: isFa ? 'ژاپن' : 'Japan' },
+    { name: 'NTN', origin: isFa ? 'ژاپن' : 'Japan' },
+    { name: 'KOYO', origin: isFa ? 'ژاپن' : 'Japan' },
+    { name: 'NACHI', origin: isFa ? 'ژاپن' : 'Japan' },
+    { name: 'CORTECO', origin: isFa ? 'ایتالیا' : 'Italy' },
   ];
 
   return (
-    <section id="home" className="relative overflow-hidden pt-6 pb-14 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-24">
-      {/* Background Engineering Grid */}
-      <div className="absolute inset-0 pointer-events-none opacity-40 engineering-grid-light" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+    <section id="home" className="relative overflow-hidden pt-4 pb-12 sm:pt-6 sm:pb-16 lg:pt-8 lg:pb-20">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           
-          {/* Main Hero Content */}
-          <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-start">
+          {/* Main Hero Copy Column */}
+          <div className="lg:col-span-6 flex flex-col justify-center space-y-5 text-start hero-copy">
             
-            {/* Top Badge (Apple Glass Pill) */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill text-[#232c86] text-xs font-semibold shadow-sm">
-              <ShieldCheck className="w-4 h-4 text-[#232c86] flex-shrink-0" />
-              <span>{language === 'fa' ? heroContent.badgeFa : heroContent.badgeEn}</span>
+            {/* Top Eyebrow Badge */}
+            <div className="eyebrow">
+              <span />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#3b82f6] flex-shrink-0" />
+              <span>{isFa ? heroContent.badgeFa : heroContent.badgeEn}</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
-              <span className="text-[#232c86] font-mono-spec">
-                {language === 'fa' ? heroContent.titleHighlightFa : heroContent.titleHighlightEn}
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight leading-[1.12]">
+              <span className="text-white block font-mono-spec">
+                {isFa ? heroContent.titleHighlightFa : heroContent.titleHighlightEn}
               </span>
-              <br />
-              <span className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-800 mt-2 block">
-                {language === 'fa' ? heroContent.titleSuffixFa : heroContent.titleSuffixEn}
+              <span className="hero-last text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-normal block mt-2">
+                {isFa ? heroContent.titleSuffixFa : heroContent.titleSuffixEn}
               </span>
             </h1>
 
-            {/* Fast Search Bar (Apple Liquid Glass Input Container) */}
-            <form onSubmit={handleSearch} className="relative max-w-xl mx-auto lg:mx-0">
-              <div className="relative flex items-center glass-card p-1.5 rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)]">
-                <Search className="w-4 sm:w-5 h-4 sm:h-5 text-slate-400 absolute left-4 pointer-events-none" />
-                <input
-                  id="hero-bearing-search-input"
-                  type="text"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder={language === 'fa' ? heroContent.searchPlaceholderFa : heroContent.searchPlaceholderEn}
-                  className="w-full pl-10 sm:pl-12 pr-28 sm:pr-32 py-2.5 sm:py-3 bg-transparent rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                />
-                
-                <button
-                  id="hero-search-submit-btn"
-                  type="submit"
-                  className="glass-btn-primary absolute right-2 px-4 sm:px-5 py-2 text-white font-semibold text-xs rounded-xl active:scale-95 transition-all"
-                >
-                  {t.hero.searchAction}
-                </button>
-              </div>
+            {/* Description Paragraph */}
+            <p className="text-sm sm:text-base text-slate-300/90 leading-relaxed max-w-xl">
+              {isFa ? heroContent.descriptionFa : heroContent.descriptionEn}
+            </p>
+
+            {/* Hero Fast Search Bar */}
+            <form onSubmit={handleSearch} className="hero-search w-full max-w-xl">
+              <Search className="w-5 h-5 text-slate-400 shrink-0" />
+              <input
+                id="hero-bearing-search-input"
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder={isFa ? 'کد بیرینگ، ابعاد یا کاربرد (مثال: 6204)...' : 'Search bearing code, dimensions or application…'}
+                aria-label={isFa ? 'جستجوی کد بیرینگ' : 'Search bearing catalog'}
+              />
+              <button
+                id="hero-search-submit-btn"
+                type="submit"
+                aria-label={isFa ? 'جستجو' : 'Search'}
+                className="text-slate-300 hover:text-white"
+              >
+                {isFa ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}
+              </button>
             </form>
 
-            {/* Quick CTAs */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-1">
+            {/* Quick Search Hints */}
+            <div className="search-hints">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                {isFa ? 'جستجوی سریع:' : 'QUICK SEARCH:'}
+              </span>
+              {['6204', '22212', 'NU208', '32008'].map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => handleQuickSearch(code)}
+                  className="font-mono text-xs px-2.5 py-0.5 rounded-md bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/15 transition-all"
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+
+            {/* Hero Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <a
                 id="hero-view-catalog-btn"
                 href="#catalog"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl glass-btn-primary text-white font-bold text-xs sm:text-sm active:scale-95"
+                className="button primary"
               >
-                <span>{t.hero.quickSpecs}</span>
-                {language === 'fa' ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                <span>{isFa ? 'مشاهده کاتالوگ محصولات' : 'Explore product catalog'}</span>
+                {isFa ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
               </a>
 
               <a
                 id="hero-contact-quick-btn"
                 href={company.primaryPhoneTel}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl glass-btn-secondary text-slate-800 font-bold text-xs sm:text-sm active:scale-95"
+                className="button"
               >
-                <PhoneCall className="w-4 h-4 text-[#232c86]" />
-                <span>{t.hero.contactQuick}</span>
+                <PhoneCall size={16} className="text-[#95bee8]" />
+                <span>{isFa ? 'مشاوره فنی و استعلام' : 'Talk to an engineer'}</span>
+                <ArrowUpRight size={16} />
               </a>
             </div>
 
-            {/* Key Metric Stats Grid (Apple Frosted Glass Cards) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-start">
-              <div className="p-3.5 glass-card rounded-2xl">
-                <span className="text-xl sm:text-2xl font-black font-mono-spec text-[#232c86] block">{t.hero.stats.experienceNum}</span>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">{t.hero.stats.experienceLabel}</span>
+            {/* Key Capability Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3">
+              <div className="p-3 panel rounded-xl">
+                <span className="text-xl font-bold font-mono text-[#c9e8ff] block">
+                  {t.hero.stats.experienceNum}
+                </span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">
+                  {t.hero.stats.experienceLabel}
+                </span>
               </div>
-              <div className="p-3.5 glass-card rounded-2xl">
-                <span className="text-xl sm:text-2xl font-black font-mono-spec text-[#232c86] block">{t.hero.stats.inventoryNum}</span>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">{t.hero.stats.inventoryLabel}</span>
+              <div className="p-3 panel rounded-xl">
+                <span className="text-xl font-bold font-mono text-[#c9e8ff] block">
+                  {t.hero.stats.inventoryNum}
+                </span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">
+                  {t.hero.stats.inventoryLabel}
+                </span>
               </div>
-              <div className="p-3.5 glass-card rounded-2xl">
-                <span className="text-xl sm:text-2xl font-black font-mono-spec text-emerald-600 block">{t.hero.stats.authenticityNum}</span>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">{t.hero.stats.authenticityLabel}</span>
+              <div className="p-3 panel rounded-xl">
+                <span className="text-xl font-bold font-mono text-emerald-400 block">
+                  {t.hero.stats.authenticityNum}
+                </span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">
+                  {t.hero.stats.authenticityLabel}
+                </span>
               </div>
-              <div className="p-3.5 glass-card rounded-2xl">
-                <span className="text-xl sm:text-2xl font-black font-mono-spec text-sky-600 block">{t.hero.stats.dispatchNum}</span>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight block mt-0.5">{t.hero.stats.dispatchLabel}</span>
+              <div className="p-3 panel rounded-xl">
+                <span className="text-xl font-bold font-mono text-sky-400 block">
+                  {t.hero.stats.dispatchNum}
+                </span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">
+                  {t.hero.stats.dispatchLabel}
+                </span>
               </div>
             </div>
 
           </div>
 
-          {/* Hero Visual: Revolving Realistic Mechanical Bearing CAD Viewer */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center">
-            <RealisticBearingViewer language={language} />
+          {/* Hero Visual: Revolving 3D Three.js Precision Bearing Showcase */}
+          <div className="lg:col-span-6 flex flex-col justify-center">
+            <HeroBearing language={language} />
           </div>
 
         </div>
 
-        {/* Global Brand Ticker (Liquid Frosted Glass Pills) */}
-        <div className="mt-12 sm:mt-16 pt-8 border-t border-slate-200/60">
-          <p className="text-center text-xs font-bold text-slate-400 mb-4 sm:mb-6 uppercase tracking-wider">
+        {/* Global Brand Ticker (Liquid Glass Pills) */}
+        <div className="mt-10 sm:mt-14 pt-6 border-t border-white/10">
+          <p className="text-center text-xs font-semibold text-slate-400 mb-4 uppercase tracking-wider">
             {t.hero.brandsTitle}
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2.5 sm:gap-3 items-center justify-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 sm:gap-2.5 items-center justify-center">
             {topBrands.map((b) => (
               <div
                 key={b.name}
-                className="p-3 glass-card rounded-2xl text-center group cursor-default"
+                className="p-2.5 panel rounded-xl text-center group cursor-default"
               >
-                <span className="block font-mono-spec font-bold text-xs sm:text-sm text-slate-800 group-hover:text-[#232c86] transition-colors">
+                <span className="block font-mono font-bold text-xs sm:text-sm text-slate-200 group-hover:text-[#95bee8] transition-colors">
                   {b.name}
                 </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5 font-medium">
+                <span className="text-[10px] text-slate-400 block mt-0.5">
                   {b.origin}
                 </span>
               </div>
@@ -172,5 +217,4 @@ export const Hero: React.FC<HeroProps> = ({ language, onSearchSubmit }) => {
     </section>
   );
 };
-
-
+export default Hero;

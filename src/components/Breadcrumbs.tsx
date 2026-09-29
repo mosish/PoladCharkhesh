@@ -20,7 +20,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, language, class
   const SeparatorIcon = isRtl ? ChevronLeft : ChevronRight;
 
   return (
-    <nav aria-label="Breadcrumb" className={`flex items-center text-xs text-slate-500 font-medium ${className}`}>
+    <nav aria-label="Breadcrumb" className={`flex items-center text-xs text-slate-400 font-medium ${className}`}>
       <ol className="flex items-center flex-wrap gap-1.5 sm:gap-2">
         {items.map((item, index) => {
           const isLast = index === items.length - 1 || item.isCurrent;
@@ -33,7 +33,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, language, class
               {isLast ? (
                 <span
                   aria-current="page"
-                  className="font-bold text-slate-900 font-mono-spec px-1.5 py-0.5 rounded bg-blue-50/80 text-blue-950 border border-blue-100/60"
+                  className="font-bold text-white font-mono-spec px-2 py-0.5 rounded-md bg-white/10 text-[#c9e8ff] border border-white/15"
                 >
                   {item.label}
                 </span>
@@ -41,23 +41,23 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, language, class
                 <button
                   type="button"
                   onClick={item.onClick}
-                  className="hover:text-blue-700 hover:underline transition-colors cursor-pointer text-slate-600 truncate max-w-[180px]"
+                  className="hover:text-white hover:underline transition-colors cursor-pointer text-slate-400 truncate max-w-[180px]"
                 >
                   {item.label}
                 </button>
               ) : item.href ? (
                 <a
                   href={item.href}
-                  className="hover:text-blue-700 hover:underline transition-colors text-slate-600 truncate max-w-[180px]"
+                  className="hover:text-white hover:underline transition-colors text-slate-400 truncate max-w-[180px]"
                 >
                   {item.label}
                 </a>
               ) : (
-                <span className="text-slate-600 truncate max-w-[180px]">{item.label}</span>
+                <span className="text-slate-400 truncate max-w-[180px]">{item.label}</span>
               )}
 
               {!isLast && (
-                <SeparatorIcon className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" aria-hidden="true" />
+                <SeparatorIcon className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" aria-hidden="true" />
               )}
             </li>
           );
